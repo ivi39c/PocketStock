@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>PocketStock 口袋庫存</title>
+  <style>
+    :root {
+      --primary: #4f46e5;
+      --primary-dark: #4338ca;
+      --success: #10b981;
+      --danger: #ef4444;
+      --warning: #f59e0b;
+      --bg-main: #f9fafb;
+      --bg-card: #ffffff;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+    }
+
+    /* 全域手機防呆與優化 */
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-tap-highlight-color: transparent; /* 移除手機點擊時的藍色高亮陰影 */
+    }
+
+    body { 
+      background-color: var(--bg-main); 
+      color: var(--text-main); 
+      padding: 16px;
+      padding-bottom: 40px; /* 底部留空，避免被手機系統導覽條擋住 */
+    }
+
+    .container { 
+      max-width: 500px; 
+      margin: 0 auto; 
+    }
+
+    /* 頂部固定狀態列 */
+    header { 
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      padding: 16px; 
+      border-radius: 16px; 
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      margin-bottom: 16px;
+    }
+    header h1 { font-size: 20px; font-weight: 800; color: var(--primary); }
+
+    /* App 化卡片設計 */
+    .app-card { 
+      background: var(--bg-card); 
+      padding: 20px; 
+      border-radius: 20px; 
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04); 
+      margin-bottom: 20px; 
+    }
+    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text-main); }
+
+    /* 手機專用大直覺表單 */
+    .form-group { margin-bottom: 16px; }
+    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: var(--text-main); }
+    
+    /* 放大輸入框，高度達 48px，字體 16px 防止 iOS 自動放大網頁 */
+    .form-control { 
+      width: 100%; 
+      height: 48px;
+      padding: 0 16px; 
+      border: 1.5px solid #e5e7eb; 
+      border-radius: 12px; 
+      font-size: 16px; 
+      background-color: #fcfcfd;
+      transition: all 0.2s ease;
+    }
+    .form-control:focus { 
+      outline: none; 
+      border-color: var(--primary); 
+      background-color: #fff;
+      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); 
+    }
+    
+    /* 手機大拇指黃金按鈕 */
+    .btn { 
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%; 
+      height: 52px; /* 超好點擊的高度 */
+      border: none; 
+      border-radius: 14px; 
+      font-size: 16px; 
+      font-weight: 700; 
+      cursor: pointer; 
+      transition: transform 0.1s ease, background 0.2s; 
+      color: white;
+    }
+    .btn:active { transform: scale(0.98); } /* 點擊時有物理下壓回饋感 */
+    .btn-primary { background: linear-gradient(135deg, #6366f1, var(--primary)); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
+    .btn-icon { width: 40px; height: 40px; border-radius: 10px; background: #f3f4f6; color: var(--text-main); font-size: 16px; }
+
+    /* 庫存列表手機優化 */
+    .list-header { font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    
+    /* 庫存卡片：左邊資訊、右邊動作，完全符合單手操作 */
+    .item-card { 
+      background: var(--bg-card); 
+      padding: 16px; 
+      border-radius: 16px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02); 
+      margin-bottom: 12px; 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center;
+      border-left: 5px solid #e5e7eb; /* 預設安全色邊條 */
+    }
+    /* 即期品卡片左側變紅邊條，視覺更直覺 */
+    .item-card.danger-alert { border-left-color: var(--danger); }
+
+    .item-info { flex: 1; padding-right: 12px; }
+    .item-name { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+    .item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; margin-bottom: 4px; }
+    .item-qty-tag { font-size: 14px; font-weight: 700; color: var(--primary); }
+    
+    .item-expiry { font-size: 13px; color: #4b5563; display: flex; align-items: center; gap: 4px; }
