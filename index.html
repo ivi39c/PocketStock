@@ -3,16 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PocketStock // Minimal</title>
+  <title>PocketStock // Light Minimal</title>
+  <!-- 引入 Google Material Symbols -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <style>
     :root {
-      --bg-main: #000000;
-      --bg-input: #121214;
-      --text-main: #ffffff;
-      --text-muted: #666666;
-      --text-dim: #999999;
+      --bg-main: #ffffff;
+      --bg-input: #f4f4f6;
+      --text-main: #111111;
+      --text-muted: #8e8e93;
+      --text-dim: #636366;
       --accent-danger: #ff3b30;
-      --border-thin: #1c1c1e;
+      --border-thin: #e5e5ea;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -37,19 +39,28 @@
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border-thin);
     }
-    header h1 { font-size: 16px; font-weight: 600; margin: 0; color: var(--text-main); }
-    .header-ops { display: flex; gap: 10px; }
+    header h1 { font-size: 17px; font-weight: 600; margin: 0; color: var(--text-main); letter-spacing: -0.3px; }
+    
+    /* 右側操作區與時間戳記 */
+    .header-ops { display: flex; align-items: center; gap: 10px; }
+    
+    /* 最新更新時間文字樣式 */
+    .update-timestamp {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
     
     /* 輕量級純文字感按鈕 */
     .btn-action { 
       height: 32px; 
-      padding: 0 10px; 
+      padding: 0 12px; 
       font-size: 12px; 
       font-weight: 500; 
       border-radius: 6px; 
-      border: null;
+      border: none;
       cursor: pointer; 
-      background: #1c1c1e;
+      background: #f2f2f7;
       color: var(--text-main);
       display: inline-flex;
       align-items: center;
@@ -57,7 +68,24 @@
     }
     .btn-add-mode { background: var(--text-main); color: var(--bg-main); font-weight: 600; }
     .btn-edit-mode.active { background: var(--accent-danger); color: white; }
-    .btn-refresh { background: transparent; color: var(--text-muted); font-size: 14px; }
+    
+    /* Google 圖標按鈕專用樣式 */
+    .btn-refresh { 
+      background: transparent; 
+      color: var(--text-muted); 
+      padding: 0 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-refresh .material-symbols-outlined {
+      font-size: 22px;
+      transition: transform 0.3s ease;
+    }
+    /* 點擊旋轉動畫效果 */
+    .btn-refresh.spinning .material-symbols-outlined {
+      transform: rotate(360deg);
+    }
 
     /* 乾淨複製列 */
     .btn-share { 
@@ -73,9 +101,9 @@
       margin-bottom: 24px; 
     }
 
-    /* 懶人快速輸入面板 */
+    /* 亮白快速輸入面板 */
     .form-card { 
-      background: #0a0a0c; 
+      background: #fbfbfa; 
       padding: 16px; 
       border-radius: 8px; 
       border: 1px solid var(--border-thin);
@@ -87,15 +115,39 @@
     
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 11px; margin-bottom: 6px; color: var(--text-muted); }
-    .form-control { width: 100%; height: 36px; padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-thin); border-radius: 4px; font-size: 13px; color: white; box-sizing: border-box; }
-    .form-control:focus { outline: none; border-color: #444; }
+    .form-control { width: 100%; height: 36px; padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-thin); border-radius: 4px; font-size: 13px; color: var(--text-main); box-sizing: border-box; }
+    .form-control:focus { outline: none; border-color: #aeaea3; }
     
     .form-checkbox-group { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
     .form-checkbox-group label { margin: 0; color: var(--text-dim); font-size: 12px; cursor: pointer; }
 
+    .form-box-check {
+      width: 16px;
+      height: 16px;
+      background-color: transparent;
+      border: 1px solid #d1d1d6;
+      border-radius: 4px;
+      position: relative;
+    }
+    .form-box-check.checked {
+      background-color: var(--text-main);
+      border-color: var(--text-main);
+    }
+    .form-box-check.checked::after {
+      content: '';
+      position: absolute;
+      width: 3px;
+      height: 6px;
+      border: solid var(--bg-main);
+      border-width: 0 1.5px 1.5px 0;
+      top: 45%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(45deg);
+    }
+
     .btn-submit { width: 100%; height: 38px; background: var(--text-main); color: var(--bg-main); border: none; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; margin-top: 6px; }
 
-    /* 極簡記帳風格清單：無外殼，純大膽留白 */
+    /* 極簡風格清單 */
     .category-block {
       margin-bottom: 24px;
     }
@@ -111,72 +163,61 @@
       color: var(--accent-danger);
     }
     
-    /* 橫列設計：放大右側點擊熱區 */
+    /* 橫列明細 */
     .item-row { 
-      padding: 12px 4px; 
+      padding: 13px 4px; 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      border-bottom: 1px solid #121212;
+      border-bottom: 1px solid #f2f2f7;
     }
     
-    /* 數量為 0 時自動半透明，極易閱讀 */
     .item-name { 
       font-size: 14px; 
       font-weight: 400; 
-      color: #f1f1f1; 
-      max-width: 60%;
+      color: var(--text-main); 
+      max-width: 65%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       transition: opacity 0.2s ease;
     }
     .item-name.is-empty {
-      opacity: 0.35; /* 視覺消退 */
+      opacity: 0.3; 
     }
     
-    /* 右側點擊熱區：點擊整個區塊都能勾選必買 */
     .right-meta { 
       display: flex; 
       align-items: center; 
-      gap: 12px; 
+      justify-content: flex-end;
       flex-shrink: 0; 
-      padding-left: 30px; /* 擴大觸控寬度 */
+      min-width: 80px;
+      height: 32px;
       cursor: pointer;
     }
     
-    .item-qty { font-size: 13px; font-weight: 500; color: var(--text-dim); }
-    .item-qty.highlight-red { color: var(--accent-danger); }
-    
-    /* iOS 風格極簡 Checkbox */
-    .box-check {
-      width: 16px;
-      height: 16px;
-      background-color: transparent;
-      border: 1px solid #3a3a3c;
-      border-radius: 50%; /* 圓形更像記帳/待辦 App */
-      position: relative;
-      transition: all 0.1s ease;
+    .qty-display {
+      font-size: 13px; 
+      font-weight: 500; 
+      color: var(--text-dim);
+      padding: 2px 8px;
+      background: #f2f2f7;
+      border-radius: 4px;
     }
-    .box-check.checked {
-      background-color: var(--text-main);
-      border-color: var(--text-main);
+    .qty-display.highlight-red { 
+      color: var(--accent-danger); 
+      background: rgba(255, 59, 48, 0.08);
+      font-weight: 600;
     }
-    .box-check.checked::after {
-      content: '';
-      position: absolute;
-      width: 3px;
-      height: 6px;
-      border: solid var(--bg-main);
-      border-width: 0 1.5px 1.5px 0;
-      top: 45%;
-      left: 50%;
-      transform: translate(-50%, -50%) rotate(45deg);
+    .qty-display.is-buy-active {
+      color: #ffffff;
+      background: #ff9500; 
+      font-weight: 600;
     }
 
     /* 編輯動作按鈕 */
     .edit-actions { display: none; gap: 8px; align-items: center; flex-shrink: 0; }
-    .btn-sm { height: 24px; padding: 0 8px; font-size: 11px; border-radius: 4px; color: var(--text-dim); background: #1c1c1e; border: null; cursor: pointer; }
+    .btn-sm { height: 24px; padding: 0 10px; font-size: 11px; border-radius: 4px; color: var(--text-dim); background: #f2f2f7; border: none; cursor: pointer; }
     .btn-delete { color: var(--accent-danger); background: rgba(255, 59, 48, 0.05); }
     
     .status-text { text-align: center; color: var(--text-muted); font-size: 12px; padding: 40px; letter-spacing: 0.5px; }
@@ -188,9 +229,14 @@
   <header>
     <h1>PocketStock</h1>
     <div class="header-ops">
+      <!-- 顯示最後更新時間的區塊 -->
+      <span class="update-timestamp" id="updateTime"></span>
+      <!-- Google 樣式更新按鈕 -->
+      <button class="btn-action btn-refresh" id="refreshBtn" onclick="fetchInventory()">
+        <span class="material-symbols-outlined">autorenew</span>
+      </button>
       <button class="btn-action btn-add-mode" onclick="openAddForm()">＋ Add</button>
       <button class="btn-action btn-edit-mode" id="toggleEditBtn" onclick="toggleEditMode()">Edit</button>
-      <button class="btn-action btn-refresh" onclick="fetchInventory()">🔄</button>
     </div>
   </header>
 
@@ -212,14 +258,14 @@
       <input type="text" id="itemQty" class="form-control" placeholder="例：0、2包">
     </div>
     <div class="form-checkbox-group">
-      <div class="box-check" id="formBuyCheck" onclick="this.classList.toggle('checked')"></div>
+      <div class="form-box-check" id="formBuyCheck" onclick="this.classList.toggle('checked')"></div>
       <label onclick="document.getElementById('formBuyCheck').classList.toggle('checked')">標記為下次必買</label>
     </div>
     <div class="form-group">
       <label>分類</label>
       <input type="text" id="itemCategory" class="form-control" placeholder="例：冷藏、乾貨">
     </div>
-    <div class="form-group" style="display:none;"> <!-- 隱藏不常用欄位，保持乾淨 -->
+    <div class="form-group" style="display:none;">
       <label>有效期限</label>
       <input type="date" id="itemExpiry" class="form-control">
     </div>
@@ -234,7 +280,6 @@
 </div>
 
 <script>
-  // 自動精準綁定你的網址
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec"; 
   
   let globalData = [];
@@ -248,26 +293,47 @@
     return String(qtyStr).replace("(必買)", "").trim();
   }
 
+  // 格式化目前時間為 M/D HH:MM
+  function updateTimestampDisplay() {
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    
+    document.getElementById("updateTime").innerText = `${month}/${date} ${hours}:${minutes}`;
+  }
+
   document.addEventListener("DOMContentLoaded", fetchInventory);
 
   function fetchInventory() {
     const status = document.getElementById("statusInfo");
+    const refreshBtn = document.getElementById("refreshBtn");
+    
     status.style.display = "block";
     status.innerText = "Loading data...";
     document.getElementById("inventoryList").innerHTML = "";
+    
+    // 加上旋轉特效的 class
+    if (refreshBtn) refreshBtn.classList.add("spinning");
 
     fetch(GAS_WEB_APP_URL)
       .then(res => res.json())
       .then(res => {
         status.style.display = "none";
+        if (refreshBtn) refreshBtn.classList.remove("spinning");
+        
         if (res.status === "success") {
           globalData = res.data;
           renderList(globalData);
+          updateTimestampDisplay(); // 成功抓取後更新時間戳記
         } else {
           status.innerText = "Error loading data.";
         }
       })
       .catch(err => {
+        status.style.display = "none";
+        if (refreshBtn) refreshBtn.classList.remove("spinning");
         status.innerText = "Connection failed.";
       });
   }
@@ -293,7 +359,6 @@
       }
     });
 
-    // 置頂區：⚠️ 下次要買
     if (needToBuyItems.length > 0) {
       const buyBlock = document.createElement("div");
       buyBlock.className = "category-block";
@@ -309,7 +374,6 @@
       list.appendChild(buyBlock);
     }
 
-    // 常規分類區
     for (const category in normalGroups) {
       const catBlock = document.createElement("div");
       catBlock.className = "category-block";
@@ -334,14 +398,18 @@
     const cleanQty = getCleanQty(item['庫存量']);
     const isZero = (cleanQty === "0" || cleanQty === "");
 
+    let badgeClass = "qty-display";
+    if (isChecked) {
+      badgeClass += " is-buy-active";
+    } else if (isZero) {
+      badgeClass += " highlight-red";
+    }
+
     itemRow.innerHTML = `
-      <!-- 如果數量是 0，名字自動套用 is-empty 變半透明 -->
       <div class="item-name ${isZero ? 'is-empty' : ''}">${item['名稱'] || '未命名'}</div>
       
-      <!-- 點擊右側這整個區塊都能直接切換必買，熱區極大 -->
       <div class="right-meta" id="right-meta-${item['ID']}" style="display: ${isEditModeActive ? 'none' : 'flex'}" onclick="toggleQuickBuy('${item['ID']}', ${isChecked})">
-        <span class="item-qty ${isZero ? 'highlight-red' : ''}">${cleanQty}</span>
-        <div class="box-check ${isChecked ? 'checked' : ''}"></div>
+        <span class="${badgeClass}">${cleanQty}</span>
       </div>
       
       <div class="edit-actions" id="edit-actions-${item['ID']}" style="display: ${isEditModeActive ? 'flex' : 'none'}">
