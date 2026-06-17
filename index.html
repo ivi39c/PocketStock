@@ -7,52 +7,68 @@
   <style>
     body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f3f4f6; color: #111827; padding: 16px; margin: 0; }
     .container { max-width: 480px; margin: 0 auto; }
-    header { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    header h1 { font-size: 18px; margin: 0; color: #4f46e5; }
     
-    /* 核心功能按鈕 */
-    .btn { width: 100%; height: 48px; border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
-    .btn-share { background: #10b981; }
-    .btn-primary { background: #4f46e5; margin-top: 8px; }
-    .btn-refresh { width: 40px; height: 40px; background: #e5e7eb; color: #374151; border-radius: 8px; font-size: 16px; border: none; cursor: pointer; }
+    header { background: #fff; padding: 14px 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    header h1 { font-size: 18px; margin: 0; color: #4f46e5; }
+    .header-ops { display: flex; gap: 6px; }
+    
+    /* 頂部導覽小按鈕 */
+    .btn-action { height: 36px; padding: 0 10px; font-size: 13px; font-weight: bold; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-add-mode { background: #4f46e5; color: white; }
+    .btn-edit-mode { background: #f59e0b; color: white; }
+    .btn-edit-mode.active { background: #ef4444; }
+    .btn-refresh { background: #e5e7eb; color: #374151; font-size: 15px; width: 36px; padding: 0; }
 
-    .card { background: #fff; padding: 16px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 16px; }
-    .card-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; border-left: 4px solid #4f46e5; padding-left: 8px; }
+    /* 核心複製按鈕 */
+    .btn-share { width: 100%; height: 48px; border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; color: white; background: #10b981; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+
+    /* 彈出式表單卡片 */
+    .form-card { background: #fff; padding: 16px; border-radius: 16px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); margin-bottom: 16px; display: none; border-top: 5px solid #4f46e5; }
+    .card-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .btn-close-form { background: none; border: none; font-size: 18px; cursor: pointer; color: #9ca3af; }
     
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #4b5563; }
     .form-control { width: 100%; height: 42px; padding: 0 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
     .form-control:focus { outline: none; border-color: #4f46e5; }
-    
-    .list-title { font-size: 15px; font-weight: bold; margin-bottom: 10px; color: #374151; }
-    .item-card { background: #fff; padding: 12px; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #d1d5db; }
-    .item-name { font-size: 16px; font-weight: bold; }
+    .btn-submit { width: 100%; height: 44px; background: #4f46e5; color: white; border: none; border-radius: 8px; font-size: 15px; font-weight: bold; cursor: pointer; margin-top: 8px; }
+
+    /* 清單樣式 */
+    .list-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; color: #1f2937; display: flex; align-items: center; }
+    .item-card { background: #fff; padding: 14px; border-radius: 12px; margin-bottom: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.01); display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #4f46e5; }
+    .item-name-row { font-size: 16px; font-weight: bold; }
     .item-details { font-size: 12px; color: #6b7280; margin-top: 4px; }
     .item-tag { background: #eef2ff; color: #4f46e5; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-right: 6px; }
     
-    .btn-sm { height: 32px; padding: 0 10px; font-size: 13px; border-radius: 6px; font-weight: bold; color: white; border: none; cursor: pointer; margin-left: 6px; }
-    .btn-edit { background: #4f46e5; }
-    .btn-delete { background: #fee2e2; color: #ef4444; }
-    .status-text { text-align: center; color: #6b7280; font-size: 14px; padding: 20px; }
+    /* 點擊修改/刪除的控制按鈕 */
+    .edit-actions { display: none; gap: 6px; }
+    .btn-sm { height: 32px; padding: 0 10px; font-size: 13px; border-radius: 6px; font-weight: bold; color: white; border: none; cursor: pointer; }
+    .btn-click-edit { background: #f59e0b; }
+    .btn-delete { background: #ef4444; }
+    
+    .status-text { text-align: center; color: #6b7280; font-size: 14px; padding: 30px; }
   </style>
 </head>
 <body>
 
 <div class="container">
   <header>
-    <h1>📱 PocketStock 口袋庫存</h1>
-    <button class="btn-refresh" onclick="fetchInventory()">🔄</button>
+    <h1>📱 PocketStock</h1>
+    <div class="header-ops">
+      <button class="btn-action btn-add-mode" onclick="openAddForm()">➕ 新增</button>
+      <button class="btn-action btn-edit-mode" id="toggleEditBtn" onclick="toggleEditMode()">✏️ 修改模式</button>
+      <button class="btn-refresh" onclick="fetchInventory()">🔄</button>
+    </div>
   </header>
 
-  <button class="btn btn-share" onclick="copyToClipboard()">📋 複製當前庫存文字 (帶段落)</button>
+  <button class="btn-share" onclick="copyToClipboard()">📋 複製當前庫存文字 (帶段落)</button>
 
-  <div class="card">
-    <div class="card-title" id="form-title">✨ 新增 / 修改項目</div>
-    <div class="form-group">
-      <label>項目 ID / 條碼</label>
-      <input type="text" id="itemId" class="form-control" placeholder="例：1001">
+  <div class="form-card" id="formCard">
+    <div class="card-title">
+      <span id="form-title">✨ 新增品項 (ID自動生成)</span>
+      <button class="btn-close-form" onclick="closeForm()">✕</button>
     </div>
-    <div class="form-group">
+    <input type="hidden" id="itemId"> <div class="form-group">
       <label>項目名稱</label>
       <input type="text" id="itemName" class="form-control" placeholder="例：雞蛋">
     </div>
@@ -68,28 +84,29 @@
       <label>有效期限</label>
       <input type="date" id="itemExpiry" class="form-control">
     </div>
-    <button type="button" id="btnSubmit" class="btn btn-primary" onclick="saveItem()">確認儲存並送出</button>
+    <button type="button" id="btnSubmit" class="btn-submit" onclick="saveItem()">確認送出雲端</button>
   </div>
 
   <div>
     <div class="list-title">📦 目前清單</div>
-    <div id="statusInfo" class="status-text">載入中...</div>
+    <div id="statusInfo" class="status-text">正在讀取雲端庫存...</div>
     <div id="inventoryList"></div>
   </div>
 </div>
 
 <script>
-  // ⚠️ 請在這裡貼上你最新部署的 GAS Web App URL
-  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec";
+  // ⚠️ 請記得換上你最新部署得到的 GAS Web App URL
+  const GAS_WEB_APP_URL = "換成你的_GAS_WEB_APP_網址";
   
   let globalData = [];
+  let isEditModeActive = false; // 是否開啟修改模式
 
   document.addEventListener("DOMContentLoaded", fetchInventory);
 
   function fetchInventory() {
     const status = document.getElementById("statusInfo");
     status.style.display = "block";
-    status.innerText = "正在動態載入最新庫存...";
+    status.innerText = "正在從 Google 試算表讀取最新資料...";
     document.getElementById("inventoryList").innerHTML = "";
 
     fetch(GAS_WEB_APP_URL)
@@ -104,14 +121,14 @@
         }
       })
       .catch(err => {
-        status.innerText = "連線失敗，請確認上方 GAS 網址是否正確。";
+        status.innerText = "連線失敗，請檢查網路或 GAS 部署狀態。";
       });
   }
 
   function renderList(items) {
     const list = document.getElementById("inventoryList");
     if (items.length === 0) {
-      list.innerHTML = '<div class="status-text">📭 目前沒有庫存資料</div>';
+      list.innerHTML = '<div class="status-text">📭 目前沒有庫存資料，請點點右上角「新增」吧！</div>';
       return;
     }
 
@@ -120,21 +137,125 @@
       card.className = "item-card";
       card.innerHTML = `
         <div>
-          <div class="item-name">${item['名稱'] || '未命名'}</div>
+          <div class="item-name-row">${item['名稱'] || '未命名'}</div>
           <div class="item-details">
             <span class="item-tag">${item['分類'] || '未分類'}</span>
-            <span>數量: ${item['庫存量']}</span> | <span>期限: ${item['有效期限'] || '未設'}</span>
+            <span>數量: ${item['庫存量']}</span> | <span>編號: ${item['ID']}</span>
           </div>
         </div>
-        <div>
-          <button class="btn-sm btn-edit" onclick="editItem('${item['ID']}', '${item['名稱']}', '${item['庫存量']}', '${item['分類']}', '${item['有效期限']}')">改</button>
-          <button class="btn-sm btn-delete" onclick="deleteItem('${item['ID']}', '${item['名稱']}')">刪</button>
+        <div class="edit-actions" style="display: ${isEditModeActive ? 'flex' : 'none'}">
+          <button class="btn-sm btn-click-edit" onclick="startEditItem('${item['ID']}', '${item['名稱']}', '${item['庫存量']}', '${item['分類']}', '${item['有效期限']}')">修改</button>
+          <button class="btn-sm btn-delete" onclick="deleteItem('${item['ID']}', '${item['名稱']}')">刪除</button>
         </div>
       `;
       list.appendChild(card);
     });
   }
 
+  // 切換修改模式的開關
+  function toggleEditMode() {
+    isEditModeActive = !isEditModeActive;
+    const btn = document.getElementById("toggleEditBtn");
+    const actions = document.querySelectorAll(".edit-actions");
+    
+    if (isEditModeActive) {
+      btn.innerText = "✕ 結束修改";
+      btn.classList.add("active");
+      actions.forEach(el => el.style.display = "flex");
+    } else {
+      btn.innerText = "✏️ 修改模式";
+      btn.classList.remove("active");
+      actions.forEach(el => el.style.display = "none");
+    }
+  }
+
+  function openAddForm() {
+    clearForm();
+    document.getElementById("form-title").innerText = "✨ 新增品項 (ID自動生成)";
+    document.getElementById("formCard").style.display = "block";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function startEditItem(id, name, qty, category, expiry) {
+    document.getElementById("itemId").value = id;
+    document.getElementById("itemName").value = name;
+    document.getElementById("itemQty").value = qty;
+    document.getElementById("itemCategory").value = category;
+    document.getElementById("itemExpiry").value = expiry === "undefined" ? "" : expiry;
+    
+    document.getElementById("form-title").innerText = "✏️ 正在修改編號: " + id;
+    document.getElementById("formCard").style.display = "block";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function closeForm() {
+    document.getElementById("formCard").style.display = "none";
+    clearForm();
+  }
+
+  function saveItem() {
+    const id = document.getElementById("itemId").value.trim();
+    const name = document.getElementById("itemName").value.trim();
+    const qty = document.getElementById("itemQty").value.trim();
+    const category = document.getElementById("itemCategory").value.trim();
+    const expiry = document.getElementById("itemExpiry").value;
+
+    if (!name || !qty || !category) {
+      alert("項目名稱、數量與分類都要填寫喔！");
+      return;
+    }
+
+    const btn = document.getElementById("btnSubmit");
+    btn.disabled = true;
+    btn.innerText = "正在連線試算表儲存...";
+
+    const payload = {
+      action: "save",
+      data: { id: id, name: name, qty: qty, category: category, expiry: expiry }
+    };
+
+    fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+    .then(res => res.json())
+    .then(res => {
+      btn.disabled = false;
+      btn.innerText = "確認送出雲端";
+      if (res.status === "success") {
+        closeForm();
+        if (isEditModeActive) toggleEditMode(); // 修改完自動關閉修改狀態
+        fetchInventory();
+      } else {
+        alert("儲存失敗：" + res.message);
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.innerText = "確認送出雲端";
+      alert("連線失敗，請檢查網路。");
+    });
+  }
+
+  function deleteItem(id, name) {
+    if (!confirm(`確定要將「${name}」從庫存中徹底刪除嗎？`)) return;
+    
+    document.getElementById("statusInfo").style.display = "block";
+    document.getElementById("statusInfo").innerText = "正在從雲端刪除項目...";
+
+    fetch(GAS_WEB_APP_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "delete", data: { id: id } })
+    })
+    .then(res => res.json())
+    .then(res => { 
+      if (res.status === "success") {
+        fetchInventory(); 
+      } else {
+        alert("刪除失敗：" + res.message);
+      }
+    })
+    .catch(err => alert("刪除連線失敗"));
+  }
+
+  // 完美符合你指定的複製格式排版
   function copyToClipboard() {
     if (globalData.length === 0) {
       alert("目前沒有資料可以複製喔！");
@@ -156,7 +277,6 @@
       let categoryContent = ``;
       groups[category].forEach(item => {
         const qtyStr = String(item['庫存量']).trim();
-        // 只要開頭是 0 或者純輸入 0，就判定為下次要買
         if (qtyStr === "0" || qtyStr.startsWith("0")) {
           needToBuyText += `${item['名稱']}\n`;
           hasNeedToBuy = true;
@@ -190,74 +310,12 @@
     document.body.removeChild(textarea);
   }
 
-  function editItem(id, name, qty, category, expiry) {
-    document.getElementById("itemId").value = id;
-    document.getElementById("itemName").value = name;
-    document.getElementById("itemQty").value = qty;
-    document.getElementById("itemCategory").value = category;
-    document.getElementById("itemExpiry").value = expiry;
-    document.getElementById("form-title").innerText = "✏️ 修改模式 (ID: " + id + ")";
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function saveItem() {
-    const id = document.getElementById("itemId").value.trim();
-    const name = document.getElementById("itemName").value.trim();
-    const qty = document.getElementById("itemQty").value.trim();
-    const category = document.getElementById("itemCategory").value.trim();
-    const expiry = document.getElementById("itemExpiry").value;
-
-    if (!id || !name || !qty || !category) {
-      alert("請填寫 ID、名稱、數量與分類！");
-      return;
-    }
-
-    const btn = document.getElementById("btnSubmit");
-    btn.disabled = true;
-    btn.innerText = "正在儲存...";
-
-    const payload = {
-      action: "save",
-      data: { id: id, name: name, qty: qty, category: category, expiry: expiry }
-    };
-
-    fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-    .then(res => res.json())
-    .then(res => {
-      btn.disabled = false;
-      btn.innerText = "確認儲存並送出";
-      if (res.status === "success") {
-        clearForm();
-        fetchInventory();
-      } else {
-        alert("儲存失敗：" + res.message);
-      }
-    })
-    .catch(err => {
-      btn.disabled = false;
-      btn.innerText = "確認儲存並送出";
-      alert("連線失敗");
-    });
-  }
-
-  function deleteItem(id, name) {
-    if (!confirm(`確定要刪除「${name}」嗎？`)) return;
-    fetch(GAS_WEB_APP_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "delete", data: { id: id } })
-    })
-    .then(res => res.json())
-    .then(res => { if (res.status === "success") fetchInventory(); })
-    .catch(err => alert("刪除連線失敗"));
-  }
-
   function clearForm() {
     document.getElementById("itemId").value = "";
     document.getElementById("itemName").value = "";
     document.getElementById("itemQty").value = "";
     document.getElementById("itemCategory").value = "";
     document.getElementById("itemExpiry").value = "";
-    document.getElementById("form-title").innerText = "✨ 新增 / 修改項目";
   }
 </script>
 </body>
