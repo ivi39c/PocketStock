@@ -5,21 +5,99 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>PocketStock</title>
   <style>
-    /* CSS 維持不變，確保外觀一致 */
-    :root { --bg-main: #ffffff; --text-main: #000000; --text-muted: #8e8e93; --text-dim: #636366; --border-thin: #e5e5ea; --accent-orange: #ff9500; --accent-red: #ff3b30; --bg-input: #f2f2f7; }
-    * { box-sizing: border-box; }
-    body { font-family: -apple-system, sans-serif; background: var(--bg-main); margin: 0; }
+    :root {
+      --bg-main: #ffffff;
+      --text-main: #000000;
+      --text-muted: #8e8e93;   /* 已過期 = 淡灰 */
+      --text-dim: #636366;
+      --border-thin: #e5e5ea;
+      --accent-red: #ff3b30;    /* 即將到期 = 紅 */
+      --bg-input: #f2f2f7;
+      --bg-dark: #1c1c1e;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      margin: 0; padding: 0;
+      overflow: hidden;
+    }
+
     .container { width: 100%; max-width: 420px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; }
-    .sticky-top-panel { padding: 16px; border-bottom: 1px solid #f2f2f7; }
+
+    .sticky-top-panel { position: sticky; top: 0; background: var(--bg-main); z-index: 100; padding: 16px 16px 12px 16px; border-bottom: 1px solid #f2f2f7; }
+
     header { display: flex; justify-content: space-between; align-items: center; }
-    .header-ops { display: flex; gap: 5px; }
-    .btn-base { height: 30px; padding: 0 10px; font-size: 13px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; }
-    .btn-add { background: #1c1c1e; color: #ffffff; }
-    .scroll-content { flex-grow: 1; overflow-y: auto; padding: 16px; }
+    header h1 { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+
+    .header-ops { display: flex; gap: 5px; align-items: center; }
+
+    .btn-base { height: 30px; padding: 0 10px; font-size: 13px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-add { background: var(--bg-dark); color: #fff; }
+    .btn-edit { background: #f2f2f7; color: var(--text-main); }
+    .btn-edit.active { background: var(--accent-red); color: #fff; }   /* 取消狀態 */
+    .btn-update { background: var(--bg-dark); color: #fff; }
+    .btn-copy { background: #e5e5ea; color: var(--text-dim); }
+    .btn-base[disabled] { opacity: 0.35; cursor: default; }
+    .hidden { display: none !important; }
+
+    /* ===== 新增表單 ===== */
     .form-card { background: #fbfbfa; padding: 16px; border-radius: 8px; border: 1px solid var(--border-thin); margin-top: 12px; display: none; }
+    .form-card.open { display: block; }
+    .card-title { font-size: 12px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .btn-close-form { background: none; border: none; font-size: 14px; cursor: pointer; color: var(--text-muted); }
     .form-group { margin-bottom: 12px; }
-    .form-control { width: 100%; height: 38px; background: var(--bg-input); border: 1px solid var(--border-thin); border-radius: 6px; padding: 0 10px; }
-    .btn-submit { width: 100%; height: 40px; background: #1c1c1e; color: #ffffff; border-radius: 6px; cursor: pointer; }
+    .form-group label { display: block; font-size: 12px; margin-bottom: 6px; color: var(--text-muted); font-weight: 500; }
+    .form-control { width: 100%; height: 38px; padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-thin); border-radius: 6px; font-size: 14px; color: var(--text-main); }
+    .form-control:focus { outline: none; border-color: #aeaea3; }
+    .form-control.error { border-color: var(--accent-red); }
+    select.form-control { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%238e8e93' d='M0 0l5 5 5-5z'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; }
+    .field-hint { font-size: 11px; color: var(--accent-red); margin-top: 5px; min-height: 14px; }
+    .btn-submit { width: 100%; height: 40px; background: var(--bg-dark); color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px; }
+    .btn-submit[disabled] { opacity: 0.4; cursor: default; }
+
+    /* ===== 清單 ===== */
+    .scroll-content { flex-grow: 1; overflow-y: auto; padding: 0 16px 40px 16px; -webkit-overflow-scrolling: touch; }
+    .category-block { margin-bottom: 24px; }
+    .category-header { padding: 12px 4px 8px 4px; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-thin); }
+    .category-header.buy { color: var(--accent-red); font-weight: 700; }
+
+    .item-row { padding: 12px 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f7; min-height: 54px; }
+    .item-info { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; overflow: hidden; padding-right: 8px; }
+    .item-name { font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-name.expiry-soon { color: var(--accent-red); }           /* 30 天內 */
+    .item-name.expiry-expired { color: var(--text-muted); }        /* 已過期 */
+    .item-sub { font-size: 11px; color: var(--text-muted); }
+    .item-sub.expiry-soon { color: var(--accent-red); }
+    .item-sub.expiry-expired { color: var(--text-muted); }
+
+    .qty-display { font-size: 13px; font-weight: 600; color: var(--text-dim); padding: 4px 10px; background: #f2f2f7; border-radius: 6px; flex-shrink: 0; }
+
+    /* ===== 編輯模式 ===== */
+    .item-row.editing { flex-direction: column; align-items: stretch; gap: 10px; }
+    .item-row.editing.to-delete { opacity: 0.4; }
+    .item-row.editing.to-delete .item-name { text-decoration: line-through; }
+    .edit-line1 { display: flex; align-items: center; gap: 10px; }
+    .edit-line2 { display: flex; gap: 10px; align-items: center; }
+    .edit-field { display: flex; align-items: center; gap: 6px; }
+    .edit-field label { font-size: 11px; color: var(--text-muted); }
+
+    .checkbox { width: 22px; height: 22px; border-radius: 5px; border: 1px solid #d1d1d6; cursor: pointer; position: relative; background: transparent; flex-shrink: 0; }
+    .checkbox.checked { background: var(--bg-dark); border-color: var(--bg-dark); }
+    .checkbox.checked::after { content: ''; position: absolute; width: 4px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); top: 4px; left: 8px; }
+
+    .edit-qty { width: 72px; height: 32px; background: #f4f4f6; border: 1px solid var(--border-thin); border-radius: 5px; text-align: center; font-size: 13px; padding: 0; }
+    .edit-expiry { flex: 1; height: 32px; background: #f4f4f6; border: 1px solid var(--border-thin); border-radius: 5px; font-size: 12px; padding: 0 6px; }
+    .edit-qty:focus, .edit-expiry:focus { outline: none; border-color: var(--text-muted); background: #fff; }
+
+    .btn-delete { margin-left: auto; background: #ffebeb; border: none; color: var(--accent-red); padding: 0 10px; height: 30px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600; flex-shrink: 0; }
+    .item-row.editing.to-delete .btn-delete { background: #eef7ee; color: #34a853; }
+
+    .status-text { text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px; }
+    .status-text .detail { font-size: 11px; color: #aeaea3; display: block; margin-top: 6px; word-break: break-all; }
   </style>
 </head>
 <body>
@@ -29,72 +107,566 @@
     <header>
       <h1>PocketStock</h1>
       <div class="header-ops">
-        <button class="btn-base btn-add" id="toggleAddBtn" onclick="openAddForm()">Add</button>
+        <button class="btn-base btn-add"    id="btnAdd"    onclick="openAddForm()">Add</button>
+        <button class="btn-base btn-update hidden" id="btnUpdate" onclick="commitEdit()">更新</button>
+        <button class="btn-base btn-edit"   id="btnEdit"   onclick="toggleEditMode()">Edit</button>
+        <button class="btn-base btn-copy"   id="btnCopy"   onclick="copyList()">Copy</button>
       </div>
     </header>
 
+    <!-- 新增表單 -->
     <div class="form-card" id="formCard">
-      <div class="form-group"><label>項目名稱</label><input type="text" id="itemName" class="form-control"></div>
-      <div class="form-group"><label>數量</label><input type="text" id="itemQty" class="form-control"></div>
-      <div class="form-group"><label>分類</label><select id="itemCategory" class="form-control"></select></div>
-      <button class="btn-submit" onclick="saveNewItem()">確認新增</button>
+      <div class="card-title">
+        <span>新增品項</span>
+        <button class="btn-close-form" onclick="closeAddForm()">✕</button>
+      </div>
+      <div class="form-group">
+        <label>項目名稱</label>
+        <input type="text" id="inName" class="form-control" placeholder="例：雞蛋" oninput="checkNameDuplicate()">
+        <div class="field-hint" id="nameHint"></div>
+      </div>
+      <div class="form-group">
+        <label>數量單位</label>
+        <input type="text" id="inQty" class="form-control" placeholder="例：0、2顆">
+      </div>
+      <div class="form-group">
+        <label>有效期限（選填）</label>
+        <input type="date" id="inExpiry" class="form-control">
+      </div>
+      <div class="form-group">
+        <label>分類</label>
+        <select id="inCategory" class="form-control"><option value="">載入中…</option></select>
+      </div>
+      <button type="button" id="btnSubmit" class="btn-submit" onclick="submitNewItem()">確認新增</button>
     </div>
   </div>
 
   <div class="scroll-content">
-    <div id="statusInfo" class="status-text">載入中...</div>
-    <div id="inventoryList"></div>
+    <div id="statusInfo" class="status-text">載入中…</div>
+    <div id="list"></div>
   </div>
 </div>
 
 <script>
+  /* ========================================================================
+     PocketStock 前端　依規格文件 v1.0
+     - 資料存在 Google Sheet，透過 GAS 讀寫
+     - 編輯採「批次」：所有改動先存在前端，按[更新]才一次送出
+     ======================================================================== */
+
+  // ⚙️ 你的 GAS 網址（沿用原本的，不用改）
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec";
 
-  // 確保 DOM 載入後才執行
-  document.addEventListener("DOMContentLoaded", fetchInventory);
+  const NEAR_EXPIRY_DAYS = 30;   // 規則二：30 天內 = 即將到期
+  const FETCH_TIMEOUT_MS = 10000;
 
-  function fetchInventory() {
-    const status = document.getElementById("statusInfo");
-    if (!status) return; // 安全檢查
+  // ===== 程式內部狀態 =====
+  let allItems = [];        // 正規化後的資料（英文 key，乾淨好用）
+  let allCategories = [];   // 分類選單
+  let isEditMode = false;
+  let editDrafts = {};      // 編輯模式暫存：id -> { qty, expiry, mustBuy }
+  let deleteSet = new Set();// 編輯模式標記待刪除的 id
 
-    fetch(GAS_WEB_APP_URL)
-      .then(res => res.json())
+  // ========================================================================
+  // 小工具（純函式：輸入固定、輸出固定，最好測試）
+  // ========================================================================
+
+  // 把後端的中文 key 轉成乾淨的英文物件，集中在這裡——以後欄位改名只改這一處
+  function normalize(raw) {
+    return {
+      id:       raw['ID'] ?? '',
+      name:     raw['名稱'] ?? '未命名',
+      qty:      String(raw['庫存量'] ?? ''),
+      category: raw['分類'] || '未分類',
+      expiry:   toInputDate(raw['有效日期']),  // 統一成 yyyy-mm-dd
+      mustBuy:  raw['必買'] === true || String(raw['必買']).toUpperCase() === 'TRUE',
+    };
+  }
+
+  // 規則一：「庫存量為 0」= 取開頭數字，等於 0 才算（"0顆" 算、"0.5瓶" 不算）
+  function isZeroQty(qtyStr) {
+    const m = String(qtyStr ?? '').trim().match(/^(\d+(?:\.\d+)?)/);
+    return m ? parseFloat(m[1]) === 0 : false;
+  }
+
+  // 距今天還有幾天到期（負數 = 已過期；null = 沒填日期或格式錯）
+  function daysUntilExpiry(dateStr) {
+    if (!dateStr) return null;
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return null;
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    d.setHours(0, 0, 0, 0);
+    return Math.round((d - today) / 86400000);
+  }
+
+  // 規則二：回傳要套用的顏色 class
+  function expiryClass(dateStr) {
+    const days = daysUntilExpiry(dateStr);
+    if (days === null) return '';
+    if (days < 0) return 'expiry-expired';                 // 已過期 → 淡灰
+    if (days <= NEAR_EXPIRY_DAYS) return 'expiry-soon';    // 30 天內 → 紅
+    return '';
+  }
+
+  // 把任意日期字串轉成 <input type=date> 用的 yyyy-mm-dd
+  function toInputDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  }
+
+  // 顯示用日期 yyyy/mm/dd
+  function formatDateDisplay(dateStr) {
+    const iso = toInputDate(dateStr);
+    return iso ? iso.replace(/-/g, '/') : '';
+  }
+
+  // 排序用的時間戳（沒日期的排最後）
+  function expiryTimestamp(dateStr) {
+    if (!dateStr) return Infinity;
+    const d = new Date(dateStr);
+    return isNaN(d.getTime()) ? Infinity : d.getTime();
+  }
+
+  function todayTitle() {
+    const n = new Date();
+    return `${n.getMonth() + 1}/${n.getDate()} 盤點表`;
+  }
+
+  // ========================================================================
+  // 與後端溝通（含逾時保護）
+  // ========================================================================
+
+  function apiFetch(options) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+    return fetch(GAS_WEB_APP_URL, { ...options, signal: controller.signal })
+      .finally(() => clearTimeout(timer));
+  }
+
+  function apiPost(payload) {
+    return apiFetch({ method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+  }
+
+  // ========================================================================
+  // 載入資料
+  // ========================================================================
+
+  document.addEventListener('DOMContentLoaded', loadInventory);
+
+  function loadInventory() {
+    showStatus('載入中…');
+    document.getElementById('list').innerHTML = '';
+
+    apiFetch({ method: 'GET' })
+      .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
       .then(res => {
-        if (res.status === "success") {
-          status.style.display = "none";
-          renderList(res.data);
+        if (res.status === 'success') {
+          allItems = (res.data || []).map(normalize);
+          allCategories = res.categories || [];
+          renderCategoryDropdown();
+          hideStatus();
+          renderList();
         } else {
-          status.innerText = "載入失敗: " + res.message;
+          showStatus('載入資料失敗', res.message || '後端未回傳具體原因');
         }
       })
-      .catch(err => status.innerText = "連線錯誤: " + err);
+      .catch(err => showStatus('連線失敗', err.toString()));
+  }
+
+  // ========================================================================
+  // 狀態 / 錯誤訊息（用 textContent，不會被當成程式碼執行 → 防 XSS）
+  // ========================================================================
+
+  function showStatus(main, detail) {
+    const el = document.getElementById('statusInfo');
+    el.style.display = 'block';
+    el.textContent = main;
+    if (detail) {
+      const span = document.createElement('span');
+      span.className = 'detail';
+      span.textContent = '原因：' + detail;
+      el.appendChild(span);
+    }
+    document.getElementById('list').innerHTML = '';
+  }
+  function hideStatus() { document.getElementById('statusInfo').style.display = 'none'; }
+
+  // ========================================================================
+  // 渲染清單
+  // ========================================================================
+
+  // 把資料分成「下次要買區」與「各分類」
+  function partition(items) {
+    const buy = [];
+    const groups = {};
+    items.forEach(it => {
+      if (isZeroQty(it.qty) && it.mustBuy) {          // 規則一：庫存 0 且 必買
+        buy.push(it);
+      } else {
+        (groups[it.category] = groups[it.category] || []).push(it);
+      }
+    });
+    return { buy, groups };
+  }
+
+  function renderList() {
+    const list = document.getElementById('list');
+    list.innerHTML = '';
+
+    if (!allItems.length) {
+      list.innerHTML = '<div class="status-text">清單目前是空的。</div>';
+      return;
+    }
+
+    const { buy, groups } = partition(allItems);
+
+    // 「下次要買」區（只在有符合項目時出現，固定置頂）
+    if (buy.length) {
+      const block = makeBlock('⚠️ 下次要買', true);
+      buy.forEach(it => block.appendChild(makeRow(it, true)));
+      list.appendChild(block);
+    }
+
+    // 分類順序：先照後端給的分類清單，剩下的（例如「未分類」）接在後面
+    const ordered = [];
+    allCategories.forEach(c => { if (groups[c]) ordered.push(c); });
+    Object.keys(groups).forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
+
+    ordered.forEach(cat => {
+      const block = makeBlock(cat, false);
+      sortByExpiry(groups[cat]).forEach(it => block.appendChild(makeRow(it, false)));
+      list.appendChild(block);
+    });
+  }
+
+  function makeBlock(title, isBuy) {
+    const block = document.createElement('div');
+    block.className = 'category-block';
+    const header = document.createElement('div');
+    header.className = 'category-header' + (isBuy ? ' buy' : '');
+    header.textContent = title;
+    block.appendChild(header);
+    return block;
+  }
+
+  // 規則二：分類內依到期日由早到晚（過期的自然排最前，沒日期的排最後）
+  function sortByExpiry(arr) {
+    return arr.slice().sort((a, b) => expiryTimestamp(a.expiry) - expiryTimestamp(b.expiry));
+  }
+
+  // 產生一列。inBuy = 是否在「下次要買」區
+  function makeRow(item, inBuy) {
+    return isEditMode ? makeEditRow(item, inBuy) : makeDisplayRow(item, inBuy);
+  }
+
+  // ---- 顯示模式：純顯示、不可點 ----
+  function makeDisplayRow(item, inBuy) {
+    const row = document.createElement('div');
+    row.className = 'item-row';
+
+    const info = document.createElement('div');
+    info.className = 'item-info';
+
+    const name = document.createElement('div');
+    name.textContent = item.name;
+    if (inBuy) {
+      // 下次要買區：只顯示名稱
+      name.className = 'item-name';
+    } else {
+      name.className = 'item-name ' + expiryClass(item.expiry);
+      // 效期小灰字（有填才顯示）
+      if (item.expiry) {
+        const sub = document.createElement('div');
+        sub.className = 'item-sub ' + expiryClass(item.expiry);
+        sub.textContent = '效期：' + formatDateDisplay(item.expiry);
+        info.appendChild(name);
+        info.appendChild(sub);
+        row.appendChild(info);
+        const qty = document.createElement('span');
+        qty.className = 'qty-display';
+        qty.textContent = item.qty;
+        row.appendChild(qty);
+        return row;
+      }
+    }
+
+    info.appendChild(name);
+    row.appendChild(info);
+
+    if (!inBuy) {
+      const qty = document.createElement('span');
+      qty.className = 'qty-display';
+      qty.textContent = item.qty;
+      row.appendChild(qty);
+    }
+    return row;
+  }
+
+  // ---- 編輯模式：可改庫存/效期、必買勾選、刪除（全部先暫存）----
+  function makeEditRow(item, inBuy) {
+    const draft = editDrafts[item.id];
+    const row = document.createElement('div');
+    row.className = 'item-row editing';
+    if (deleteSet.has(item.id)) row.classList.add('to-delete');
+
+    // 第一行：必買勾選 + 名稱 + 刪除
+    const line1 = document.createElement('div');
+    line1.className = 'edit-line1';
+
+    const cb = document.createElement('div');
+    cb.className = 'checkbox' + (draft.mustBuy ? ' checked' : '');
+    cb.onclick = () => {
+      draft.mustBuy = !draft.mustBuy;
+      cb.classList.toggle('checked', draft.mustBuy);
+    };
+    line1.appendChild(cb);
+
+    const name = document.createElement('div');
+    name.className = 'item-name ' + expiryClass(item.expiry);
+    name.textContent = item.name;
+    line1.appendChild(name);
+
+    const del = document.createElement('button');
+    del.className = 'btn-delete';
+    del.textContent = deleteSet.has(item.id) ? '復原' : '刪除';
+    del.onclick = () => {
+      if (deleteSet.has(item.id)) deleteSet.delete(item.id);
+      else deleteSet.add(item.id);
+      row.classList.toggle('to-delete', deleteSet.has(item.id));
+      del.textContent = deleteSet.has(item.id) ? '復原' : '刪除';
+    };
+    line1.appendChild(del);
+    row.appendChild(line1);
+
+    // 第二行：庫存量 + 有效日期
+    const line2 = document.createElement('div');
+    line2.className = 'edit-line2';
+
+    const qtyField = document.createElement('div');
+    qtyField.className = 'edit-field';
+    const qtyLabel = document.createElement('label'); qtyLabel.textContent = '庫存';
+    const qtyInput = document.createElement('input');
+    qtyInput.type = 'text';
+    qtyInput.className = 'edit-qty';
+    qtyInput.value = draft.qty;
+    qtyInput.oninput = () => { draft.qty = qtyInput.value; };
+    qtyField.appendChild(qtyLabel); qtyField.appendChild(qtyInput);
+
+    const expField = document.createElement('div');
+    expField.className = 'edit-field';
+    expField.style.flex = '1';
+    const expLabel = document.createElement('label'); expLabel.textContent = '效期';
+    const expInput = document.createElement('input');
+    expInput.type = 'date';
+    expInput.className = 'edit-expiry';
+    expInput.value = draft.expiry;
+    expInput.oninput = () => { draft.expiry = expInput.value; };
+    expField.appendChild(expLabel); expField.appendChild(expInput);
+
+    line2.appendChild(qtyField);
+    line2.appendChild(expField);
+    row.appendChild(line2);
+
+    return row;
+  }
+
+  // ========================================================================
+  // 新增（Add）
+  // ========================================================================
+
+  function renderCategoryDropdown() {
+    const sel = document.getElementById('inCategory');
+    sel.innerHTML = '<option value="">請選擇分類…</option>';
+    allCategories.forEach(cat => {
+      const opt = document.createElement('option');
+      opt.value = cat; opt.textContent = cat;
+      sel.appendChild(opt);
+    });
   }
 
   function openAddForm() {
-    const card = document.getElementById("formCard");
-    card.style.display = (card.style.display === "block") ? "none" : "block";
+    if (isEditMode) return;          // 編輯中不開新增（避免互相干擾）
+    clearForm();
+    const card = document.getElementById('formCard');
+    const open = card.classList.toggle('open');
+    const btn = document.getElementById('btnAdd');
+    btn.textContent = open ? '✕ 關閉' : 'Add';
+    btn.style.background = open ? 'var(--accent-red)' : '';
   }
 
-  function saveNewItem() {
-    const payload = {
-      action: "save",
-      data: {
-        name: document.getElementById("itemName").value,
-        qty: document.getElementById("itemQty").value,
-        category: document.getElementById("itemCategory").value
-      }
-    };
-    fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-      .then(() => {
-        alert("新增成功");
-        fetchInventory();
-        openAddForm();
+  function closeAddForm() {
+    document.getElementById('formCard').classList.remove('open');
+    const btn = document.getElementById('btnAdd');
+    btn.textContent = 'Add';
+    btn.style.background = '';
+    clearForm();
+  }
+
+  function clearForm() {
+    document.getElementById('inName').value = '';
+    document.getElementById('inQty').value = '';
+    document.getElementById('inExpiry').value = '';
+    document.getElementById('inCategory').value = '';
+    document.getElementById('inName').classList.remove('error');
+    document.getElementById('nameHint').textContent = '';
+    document.getElementById('btnSubmit').disabled = false;
+  }
+
+  // 即時檢查名稱是否重複（去前後空白後比對手上的資料）
+  function checkNameDuplicate() {
+    const name = document.getElementById('inName').value.trim();
+    const hint = document.getElementById('nameHint');
+    const input = document.getElementById('inName');
+    const dup = name && allItems.some(it => it.name.trim() === name);
+    hint.textContent = dup ? '名稱已存在' : '';
+    input.classList.toggle('error', !!dup);
+    document.getElementById('btnSubmit').disabled = !!dup;
+    return dup;
+  }
+
+  function submitNewItem() {
+    const name = document.getElementById('inName').value.trim();
+    const qty = document.getElementById('inQty').value.trim();
+    const expiry = document.getElementById('inExpiry').value;
+    const category = document.getElementById('inCategory').value.trim();
+
+    if (!name || qty === '' || !category) { alert('請填寫名稱、數量與分類。'); return; }
+    if (checkNameDuplicate()) { alert('名稱已存在，請換一個名稱。'); return; }
+
+    const btn = document.getElementById('btnSubmit');
+    btn.disabled = true; btn.textContent = '新增中…';
+
+    apiPost({ action: 'save', data: { name, qty, category, expiry } })
+      .then(res => {
+        btn.disabled = false; btn.textContent = '確認新增';
+        if (res.status === 'success') { closeAddForm(); loadInventory(); }
+        else alert('新增失敗：' + (res.message || '未知錯誤'));
+      })
+      .catch(err => {
+        btn.disabled = false; btn.textContent = '確認新增';
+        alert('新增連線失敗：' + err.toString());
       });
   }
 
-  function renderList(items) {
-    const list = document.getElementById("inventoryList");
-    list.innerHTML = items.map(i => `<div>${i['名稱']} - ${i['庫存量']}</div>`).join('');
+  // ========================================================================
+  // 編輯（Edit）/ 更新（commit）/ 取消
+  // ========================================================================
+
+  function toggleEditMode() {
+    if (isEditMode) cancelEdit();
+    else enterEditMode();
+  }
+
+  function enterEditMode() {
+    closeAddForm();
+    isEditMode = true;
+    deleteSet.clear();
+    // 替每一筆建立可編輯的暫存副本
+    editDrafts = {};
+    allItems.forEach(it => { editDrafts[it.id] = { qty: it.qty, expiry: it.expiry, mustBuy: it.mustBuy }; });
+
+    document.getElementById('btnAdd').classList.add('hidden');
+    document.getElementById('btnUpdate').classList.remove('hidden');
+    const edit = document.getElementById('btnEdit');
+    edit.textContent = '取消'; edit.classList.add('active');
+    renderList();
+  }
+
+  function exitEditModeUI() {
+    isEditMode = false;
+    editDrafts = {};
+    deleteSet.clear();
+    document.getElementById('btnAdd').classList.remove('hidden');
+    document.getElementById('btnUpdate').classList.add('hidden');
+    const edit = document.getElementById('btnEdit');
+    edit.textContent = 'Edit'; edit.classList.remove('active');
+  }
+
+  // 取消：丟棄所有未儲存的改動
+  function cancelEdit() {
+    exitEditModeUI();
+    renderList();
+  }
+
+  // 更新：把有變動的 + 待刪除的，一次送出
+  function commitEdit() {
+    const updates = [];
+    allItems.forEach(it => {
+      if (deleteSet.has(it.id)) return;            // 要刪的就不送更新
+      const d = editDrafts[it.id];
+      const changed = d.qty !== it.qty || d.expiry !== it.expiry || d.mustBuy !== it.mustBuy;
+      if (changed) updates.push({ id: it.id, qty: d.qty, expiry: d.expiry, mustBuy: d.mustBuy });
+    });
+    const deletes = [...deleteSet];
+
+    if (!updates.length && !deletes.length) { cancelEdit(); return; }  // 沒改任何東西
+
+    const btn = document.getElementById('btnUpdate');
+    btn.disabled = true; btn.textContent = '更新中…';
+    showStatus('儲存中…');
+
+    apiPost({ action: 'commit', updates, deletes })
+      .then(res => {
+        btn.disabled = false; btn.textContent = '更新';
+        if (res.status === 'success') {
+          // 把後端回傳的失敗 id 對照成名稱顯示
+          const failNames = (res.failedItems || []).map(id => {
+            const found = allItems.find(it => String(it.id) === String(id));
+            return found ? found.name : id;
+          });
+          const msg = res.failed > 0
+            ? `更新完成：成功 ${res.updated} 筆，失敗 ${res.failed} 筆（${failNames.join('、')}）`
+            : `更新完成：成功 ${res.updated} 筆`;
+          alert(msg);
+          exitEditModeUI();
+          loadInventory();
+        } else {
+          hideStatus();
+          alert('更新失敗：' + (res.message || '未知錯誤'));
+        }
+      })
+      .catch(err => {
+        btn.disabled = false; btn.textContent = '更新';
+        hideStatus();
+        alert('更新連線失敗：' + err.toString());
+      });
+  }
+
+  // ========================================================================
+  // 複製（Copy）
+  // ========================================================================
+
+  function copyList() {
+    if (!allItems.length) return;
+    const { buy, groups } = partition(allItems);
+
+    let out = todayTitle() + '\n\n';
+
+    if (buy.length) {
+      out += '⚠️ 下次要買：\n';
+      buy.forEach(it => { out += it.name + '\n'; });   // 只列名稱
+      out += '\n';
+    }
+
+    const ordered = [];
+    allCategories.forEach(c => { if (groups[c]) ordered.push(c); });
+    Object.keys(groups).forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
+
+    ordered.forEach(cat => {
+      out += `🔹 ${cat}：\n`;
+      sortByExpiry(groups[cat]).forEach(it => { out += `${it.name} ${it.qty}\n`; });
+      out += '\n';
+    });
+
+    out = out.trim();
+    navigator.clipboard.writeText(out)
+      .then(() => alert(`📋 已複製「${todayTitle()}」`))
+      .catch(() => alert('複製失敗，請手動全選複製。'));
   }
 </script>
 </body>
