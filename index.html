@@ -46,11 +46,31 @@
   document.addEventListener("DOMContentLoaded", fetchInventory);
 
   function fetchInventory() {
-    fetch(GAS_WEB_APP_URL)
-      .then(res => res.json())
+    const status = document.getElementById("statusInfo");
+    status.innerText = "Connecting to server..."; // 改成更明確的狀態
+
+    fetch(GAS_WEB_APP_URL, {
+      method: 'GET',
+      mode: 'cors', // 明確指定 CORS 模式
+      cache: 'no-cache'
+    })
       .then(res => {
-        globalData = res.data;
-        renderList();
+        // 如果狀態不是 200，這裡會捕捉到
+        if (!res.ok) throw new Error(`HTTP Status ${res.status}`);
+        return res.json();
+      })
+      .then(res => {
+        if (res.status === "success") {
+          status.style.display = "none";
+          globalData = res.data;
+          renderList(globalData);
+        } else {
+          showErrorStatus("後端處理錯誤", res.message);
+        }
+      })
+      .catch(err => {
+        console.error("詳細錯誤內容:", err); // 在 Console 查看詳細訊息
+        showErrorStatus("連線失敗，請檢查網址與權限", err.toString());
       });
   }
 
