@@ -24,7 +24,7 @@
       color: var(--text-main); 
       padding: 0;
       margin: 0;
-      overflow: hidden; /* 防止整個網頁大視窗抖動 */
+      overflow: hidden;
     }
     
     .container { 
@@ -36,7 +36,6 @@
       flex-direction: column;
     }
     
-    /* 🚀 永遠固定置頂的核心功能面板 */
     .sticky-top-panel {
       position: sticky;
       top: 0;
@@ -47,7 +46,6 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
     }
 
-    /* 頂欄配置：左邊 PocketStock，右邊 4 按鈕併排 */
     header { 
       display: flex; 
       justify-content: space-between; 
@@ -55,7 +53,6 @@
     }
     header h1 { font-size: 19px; font-weight: 700; margin: 0; color: var(--text-main); letter-spacing: -0.5px; }
     
-    /* 右側 4 按鈕與時間的外層組合 */
     .header-ops-wrapper {
       display: flex;
       flex-direction: column;
@@ -65,7 +62,6 @@
 
     .header-ops { display: flex; gap: 5px; align-items: center; }
     
-    /* 極簡原生感小按鈕樣式 */
     .btn-base {
       height: 30px;
       padding: 0 10px;
@@ -84,10 +80,8 @@
     .btn-edit.active { background: var(--accent-red); color: #ffffff; }
     .btn-copy { background: #e5e5ea; color: var(--text-dim); }
     
-    /* 細緻的時間小字 */
     .time-text { font-size: 11px; color: #8e8e93; font-weight: 400; padding-right: 2px; }
 
-    /* 新增面板卡片 */
     .form-card { 
       background: #fbfbfa; 
       padding: 16px; 
@@ -114,7 +108,6 @@
 
     .btn-submit { width: 100%; height: 40px; background: #1c1c1e; color: #ffffff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px; }
 
-    /* 🚀 獨立清單滾動區 */
     .scroll-content {
       flex-grow: 1;
       overflow-y: auto;
@@ -122,32 +115,34 @@
       -webkit-overflow-scrolling: touch; 
     }
 
-    /* 清單區塊區 */
     .category-block { margin-bottom: 24px; }
     .category-header { padding: 12px 4px 8px 4px; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-thin); }
     .category-header.need-to-buy-header { color: var(--accent-red); font-weight: 700; }
     
     .item-row { padding: 12px 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f7; min-height: 54px; }
     
-    .item-name { font-size: 15px; font-weight: 400; color: var(--text-main); flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 8px; }
+    .item-info-zone { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; overflow: hidden; padding-right: 8px; }
+    .item-name { font-size: 15px; font-weight: 400; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .item-name.is-empty { opacity: 0.3; }
+    .item-expiry-text { font-size: 11px; color: var(--text-muted); }
     
-    .right-meta { display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; gap: 8px; }
+    .right-meta { display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; gap: 6px; }
     
-    /* 觀看模式氣泡樣式 */
     .qty-display { font-size: 13px; font-weight: 600; color: var(--text-dim); padding: 4px 10px; background: #f2f2f7; border-radius: 6px; cursor: pointer; }
     .qty-display.highlight-orange { color: #ffffff; background: var(--accent-orange); }
     .qty-display.is-buy-active { color: #ffffff; background: var(--accent-orange); }
 
-    /* 編輯模式：原地輸入格控制項 */
-    .inline-qty-input { width: 65px; height: 30px; background: #f4f4f6; border: 1px solid var(--border-thin); border-radius: 4px; text-align: center; font-size: 14px; color: var(--text-main); padding: 0; }
+    .inline-qty-input { width: 55px; height: 30px; background: #f4f4f6; border: 1px solid var(--border-thin); border-radius: 4px; text-align: center; font-size: 13px; color: var(--text-main); padding: 0; }
     .inline-qty-input:focus { outline: none; border-color: var(--text-muted); background: #ffffff; }
 
-    .inline-checkbox { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #d1d1d6; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; background: transparent; }
+    .inline-expiry-input { width: 90px; height: 30px; background: #f4f4f6; border: 1px solid var(--border-thin); border-radius: 4px; font-size: 11px; color: var(--text-main); text-align: center; padding: 0 2px; }
+    .inline-expiry-input:focus { outline: none; border-color: var(--text-muted); background: #ffffff; }
+
+    .inline-checkbox { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #d1d1d6; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; background: transparent; flex-shrink: 0; }
     .inline-checkbox.checked { background: #1c1c1e; border-color: #1c1c1e; }
     .inline-checkbox.checked::after { content: ''; position: absolute; width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); top: 3px; }
 
-    .btn-inline-delete { background: #ffebeb; border: none; color: var(--accent-red); padding: 0 10px; height: 30px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; margin-left: 4px; }
+    .btn-inline-delete { background: #ffebeb; border: none; color: var(--accent-red); padding: 0 8px; height: 30px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
     
     .status-text { text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px; }
   </style>
@@ -162,7 +157,7 @@
       <div class="header-ops-wrapper">
         <div class="header-ops">
           <button class="btn-base btn-update" onclick="fetchInventory()">Update</button>
-          <button class="btn-base btn-add" onclick="openAddForm()">Add</button>
+          <button class="btn-base btn-add" id="toggleAddBtn" onclick="openAddForm()">Add</button>
           <button class="btn-base btn-edit" id="toggleEditBtn" onclick="toggleEditMode()">Edit</button>
           <button class="btn-base btn-copy" onclick="copyToClipboard()">Copy</button>
         </div>
@@ -183,23 +178,21 @@
         <label>數量單位</label>
         <input type="text" id="itemQty" class="form-control" placeholder="例：0、2顆">
       </div>
+      <div class="form-group">
+        <label>有效期限 (選填)</label>
+        <input type="date" id="itemExpiry" class="form-control">
+      </div>
       <div class="form-checkbox-group">
         <div class="form-box-check" id="formBuyCheck" onclick="this.classList.toggle('checked')"></div>
         <label onclick="document.getElementById('formBuyCheck').classList.toggle('checked')">標記為下次必買</label>
       </div>
       <div class="form-group">
         <label>分類</label>
-        <select id="itemCategory" class="form-control" onchange="handleCategoryChange(this)">
-          <option value="">請選擇分類...</option>
-          <option value="冷藏">冷藏</option>
-          <option value="冷凍">冷凍</option>
-          <option value="常溫乾貨">常溫乾貨</option>
-          <option value="調風味品">調風味品</option>
-          <option value="日用品">日用品</option>
-          <option value="__NEW__">＋ 新增自訂分類...</option>
+        <select id="itemCategory" class="form-control">
+          <option value="">載入選單中...</option>
         </select>
       </div>
-      <button type="button" id="btnSubmit" class="btn-submit" onclick="saveNewItem()">確認送出雲端</button>
+      <button type="button" id="btnSubmit" class="btn-submit" onclick="saveNewItem()">確認新增</button>
     </div>
   </div>
 
@@ -213,6 +206,7 @@
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec"; 
   
   let globalData = [];
+  let globalCategories = []; // 儲存從雲端讀回來的官方分類庫
   let isEditModeActive = false;
 
   function checkIsMustBuy(qtyStr) {
@@ -232,19 +226,27 @@
     return `${now.getMonth() + 1}/${now.getDate()} 盤點表`;
   }
 
-  function handleCategoryChange(selectElement) {
-    if (selectElement.value === "__NEW__") {
-      const customCat = prompt("請輸入新的自訂分類名稱：");
-      if (customCat && customCat.trim() !== "") {
-        const trimmed = customCat.trim();
-        const newOpt = document.createElement("option");
-        newOpt.value = trimmed;
-        newOpt.innerText = trimmed;
-        selectElement.insertBefore(newOpt, selectElement.lastElementChild);
-        selectElement.value = trimmed;
-      } else {
-        selectElement.value = "";
-      }
+  // ✨ 核心變更：動態渲染新增面板的「分類下拉選單」
+  function renderCategoryDropdown(categories) {
+    const select = document.getElementById("itemCategory");
+    select.innerHTML = '<option value="">請選擇分類...</option>';
+    
+    if (categories && categories.length > 0) {
+      categories.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.innerText = cat;
+        select.appendChild(opt);
+      });
+    } else {
+      // 後備機制：萬一雲端沒讀到，保留基本預設
+      const defaults = ["冷藏", "冷凍", "常溫乾貨", "調風味品", "日用品"];
+      defaults.forEach(cat => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.innerText = cat;
+        select.appendChild(opt);
+      });
     }
   }
 
@@ -267,6 +269,11 @@
         status.style.display = "none";
         if (res.status === "success") {
           globalData = res.data;
+          globalCategories = res.categories || [];
+          
+          // 更新下拉選單
+          renderCategoryDropdown(globalCategories);
+          // 渲染主列表
           renderList(globalData);
           updateTimestampDisplay();
         } else {
@@ -301,7 +308,6 @@
       }
     });
 
-    // 1. ⚠️ 下次要買 置頂區
     if (needToBuyItems.length > 0) {
       const buyBlock = document.createElement("div");
       buyBlock.className = "category-block";
@@ -317,7 +323,6 @@
       list.appendChild(buyBlock);
     }
 
-    // 2. 常規各分類區
     for (const category in normalGroups) {
       const catBlock = document.createElement("div");
       catBlock.className = "category-block";
@@ -335,6 +340,31 @@
     }
   }
 
+  function formatExpiryShow(dateStr) {
+    if (!dateStr) return "";
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+    } catch(e) {
+      return dateStr;
+    }
+  }
+
+  function formatToInputDate(dateStr) {
+    if (!dateStr) return "";
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return "";
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${y}-${m}-${day}`;
+    } catch(e) {
+      return "";
+    }
+  }
+
   function createItemRow(item, isChecked) {
     const itemRow = document.createElement("div");
     itemRow.className = "item-row";
@@ -342,28 +372,38 @@
     const cleanQty = getCleanQty(item['庫存量']);
     const isZero = (cleanQty === "0" || cleanQty === "");
 
+    const infoZone = document.createElement("div");
+    infoZone.className = "item-info-zone";
+
     const nameDiv = document.createElement("div");
     nameDiv.className = `item-name ${isZero ? 'is-empty' : ''}`;
     nameDiv.innerText = item['名稱'] || '未命名';
-    itemRow.appendChild(nameDiv);
+    infoZone.appendChild(nameDiv);
+
+    const expiryStr = item['有效期限'] || '';
+    if (expiryStr && expiryStr.trim() !== "") {
+      const expDiv = document.createElement("div");
+      expDiv.className = "item-expiry-text";
+      expDiv.innerText = `效期：${formatExpiryShow(expiryStr)}`;
+      infoZone.appendChild(expDiv);
+    }
+    itemRow.appendChild(infoZone);
 
     const rightMeta = document.createElement("div");
     rightMeta.className = "right-meta";
 
     if (!isEditModeActive) {
-      // 🌟 觀看模式
       const badge = document.createElement("span");
       badge.className = "qty-display" + (isChecked ? " is-buy-active" : isZero ? " highlight-orange" : "");
-      badge.innerText = item['庫存量']; 
+      badge.innerText = isChecked ? "必買" : item['庫存量']; 
       badge.onclick = () => toggleQuickBuy(item['ID'], isChecked);
       rightMeta.appendChild(badge);
     } else {
-      // 🌟 編輯模式：原地控制項
       const inlineCheck = document.createElement("div");
       inlineCheck.className = "inline-checkbox" + (isChecked ? " checked" : "");
       inlineCheck.onclick = () => {
         inlineCheck.classList.toggle("checked");
-        submitInlineUpdate(item, inlineCheck.classList.contains("checked"), null);
+        submitInlineUpdate(item, inlineCheck.classList.contains("checked"), null, null);
       };
       rightMeta.appendChild(inlineCheck);
 
@@ -371,16 +411,24 @@
       inlineInput.type = "text";
       inlineInput.className = "inline-qty-input";
       inlineInput.value = cleanQty;
-      
       inlineInput.onblur = () => {
         if (inlineInput.value.trim() !== cleanQty) {
-          submitInlineUpdate(item, isChecked, inlineInput.value.trim());
+          submitInlineUpdate(item, isChecked, inlineInput.value.trim(), null);
         }
       };
       inlineInput.onkeydown = (e) => {
         if (e.key === "Enter") inlineInput.blur();
       };
       rightMeta.appendChild(inlineInput);
+
+      const inlineExpInput = document.createElement("input");
+      inlineExpInput.type = "date";
+      inlineExpInput.className = "inline-expiry-input";
+      inlineExpInput.value = formatToInputDate(item['有效期限']);
+      inlineExpInput.onchange = () => {
+        submitInlineUpdate(item, isChecked, null, inlineExpInput.value);
+      };
+      rightMeta.appendChild(inlineExpInput);
 
       const inlineDelBtn = document.createElement("button");
       inlineDelBtn.className = "btn-inline-delete";
@@ -393,7 +441,7 @@
     return itemRow;
   }
 
-  function submitInlineUpdate(item, isMustBuyActive, newQtyValue) {
+  function submitInlineUpdate(item, isMustBuyActive, newQtyValue, newExpiryValue) {
     document.getElementById("statusInfo").style.display = "block";
     document.getElementById("statusInfo").innerText = "Saving changes...";
 
@@ -401,6 +449,8 @@
     if (isMustBuyActive) {
       finalQty = `${finalQty} (必買)`;
     }
+    
+    let finalExpiry = newExpiryValue !== null ? newExpiryValue : (item['有效期限'] || "");
 
     const payload = {
       action: "save",
@@ -409,7 +459,7 @@
         name: item['名稱'], 
         qty: finalQty, 
         category: item['分類'], 
-        expiry: item['有效期限'] || ""
+        expiry: finalExpiry
       }
     };
 
@@ -426,16 +476,16 @@
   function toggleQuickBuy(id, currentChecked) {
     const targetItem = globalData.find(item => String(item['ID']) === String(id));
     if (!targetItem) return;
-    submitInlineUpdate(targetItem, !currentChecked, null);
+    submitInlineUpdate(targetItem, !currentChecked, null, null);
   }
 
-  // 點擊切換模式，變更文字與狀態
   function toggleEditMode() {
     isEditModeActive = !isEditModeActive;
     const btn = document.getElementById("toggleEditBtn");
     if (isEditModeActive) {
       btn.innerText = "✕ 關閉";
       btn.classList.add("active");
+      document.getElementById("formCard").style.display = "none";
     } else {
       btn.innerText = "Edit";
       btn.classList.remove("active");
@@ -446,7 +496,19 @@
   function openAddForm() {
     clearForm();
     const card = document.getElementById("formCard");
-    card.style.display = card.style.display === "block" ? "none" : "block";
+    
+    if (card.style.display === "block") {
+      card.style.display = "none";
+    } else {
+      card.style.display = "block";
+      if (isEditModeActive) {
+        isEditModeActive = false;
+        const btn = document.getElementById("toggleEditBtn");
+        btn.innerText = "Edit";
+        btn.classList.remove("active");
+      }
+      renderList(globalData);
+    }
   }
 
   function closeForm() {
@@ -457,6 +519,7 @@
   function saveNewItem() {
     const name = document.getElementById("itemName").value.trim();
     let qty = document.getElementById("itemQty").value.trim();
+    const expiry = document.getElementById("itemExpiry").value;
     const isChecked = document.getElementById("formBuyCheck").classList.contains("checked");
     const category = document.getElementById("itemCategory").value.trim();
 
@@ -469,18 +532,18 @@
 
     const btn = document.getElementById("btnSubmit");
     btn.disabled = true;
-    btn.innerText = "儲存中...";
+    btn.innerText = "新增中...";
 
     const payload = {
       action: "save",
-      data: { id: "", name: name, qty: qty, category: category, expiry: "" }
+      data: { id: "", name: name, qty: qty, category: category, expiry: expiry }
     };
 
     fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
     .then(res => res.json())
     .then(res => {
       btn.disabled = false;
-      btn.innerText = "確認送出雲端";
+      btn.innerText = "確認新增";
       if (res.status === "success") {
         closeForm();
         fetchInventory();
@@ -488,6 +551,7 @@
     })
     .catch(err => {
       btn.disabled = false;
+      btn.innerText = "確認新增";
     });
   }
 
@@ -506,7 +570,6 @@
   function copyToClipboard() {
     if (globalData.length === 0) return;
 
-    // 開頭自動附加日期標題
     let finalOutput = `${getTitleText()}\n\n`;
     let needToBuyText = `⚠️ 下次要買：\n`;
     let hasStockText = ``;
@@ -557,6 +620,7 @@
   function clearForm() {
     document.getElementById("itemName").value = "";
     document.getElementById("itemQty").value = "";
+    document.getElementById("itemExpiry").value = "";
     document.getElementById("formBuyCheck").classList.remove("checked");
     document.getElementById("itemCategory").value = "";
   }
