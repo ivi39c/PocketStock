@@ -201,7 +201,7 @@
 </div>
 
 <script>
-  // ⚙️ 請確保此處網址與你最新的 Apps Script Web App 部署網址（結尾為 /exec）完全一致
+  // ⚙️ 你的 GAS 網址保持不變
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec"; 
   
   let globalData = [];
@@ -254,17 +254,35 @@
     document.getElementById("lastUpdateTime").innerText = `${now.getMonth() + 1}/${now.getDate()} ${hours}:${minutes}`;
   }
 
+  // ✨ 新增：專門處理錯誤畫面的灰色小字功能
+  function showErrorStatus(mainMessage, detailError = "") {
+    const status = document.getElementById("statusInfo");
+    status.style.display = "block";
+    status.style.color = "var(--text-muted)";
+    
+    if (detailError) {
+      status.innerHTML = `${mainMessage}<br><span style="font-size: 11px; color: #aeaea3; display: block; margin-top: 6px; word-break: break-all;">原因: ${detailError}</span>`;
+    } else {
+      status.innerText = mainMessage;
+    }
+    document.getElementById("inventoryList").innerHTML = "";
+  }
+
   function fetchInventory() {
     const status = document.getElementById("statusInfo");
     status.style.display = "block";
+    status.style.color = "var(--text-muted)";
     status.innerText = "Loading data...";
     document.getElementById("inventoryList").innerHTML = "";
 
     fetch(GAS_WEB_APP_URL)
-      .then(res => res.json())
       .then(res => {
-        status.style.display = "none";
+        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+        return res.json();
+      })
+      .then(res => {
         if (res.status === "success") {
+          status.style.display = "none";
           globalData = res.data;
           globalCategories = res.categories || [];
           
@@ -272,11 +290,13 @@
           renderList(globalData);
           updateTimestampDisplay();
         } else {
-          status.innerText = "Error loading data.";
+          // ✨ 後端回傳錯誤時顯示灰色小字
+          showErrorStatus("載入資料失敗", res.message || "後端未回傳具體錯誤");
         }
       })
       .catch(err => {
-        status.innerText = "Connection failed.";
+        // ✨ 連線失敗或 JS 噴錯時顯示灰色小字
+        showErrorStatus("連線失敗 (Connection failed)", err.toString());
       });
   }
 
@@ -289,54 +309,56 @@
       return;
     }
 
-    const needToBuyItems = [];
-    const normalGroups = {};
+    try {
+      const needToBuyItems = [];
+      const normalGroups = {};
 
-    globalCategories.forEach(cat => {
-      normalGroups[cat] = [];
-    });
-
-    items.forEach(item => {
-      const rawQty = item['庫存量'] || '';
-      if (checkIsMustBuy(rawQty)) {
-        needToBuyItems.push(item);
-      } else {
-        const cat = item['分類'] || "未分類";
-        if (!normalGroups[cat]) normalGroups[cat] = [];
-        normalGroups[cat].push(item);
-      }
-    });
-
-    // 1. ⚠️ 下次要買區
-    if (needToBuyItems.length > 0) {
-      const buyBlock = document.createElement("div");
-      buyBlock.className = "category-block";
-      
-      const buyHeader = document.createElement("div");
-      buyHeader.className = "category-header need-to-buy-header";
-      buyHeader.innerText = "⚠️ 下次要買";
-      buyBlock.appendChild(buyHeader);
-
-      needToBuyItems.forEach(item => {
-        buyBlock.appendChild(createItemRow(item, true));
+      globalCategories.forEach(cat => {
+        normalGroups[cat] = [];
       });
-      list.appendChild(buyBlock);
-    }
 
-    // 2. 正常分類區
-    const sortedCategories = globalCategories.length > 0 ? globalCategories : Object.keys(normalGroups);
-    
-    sortedCategories.forEach(category => {
-      if (normalGroups[category] && normalGroups[category].length > 0) {
-        renderCategoryGroup(category, normalGroups[category], list);
-        delete normalGroups[category];
-      }
-    });
+      items.forEach(item => {
+        const rawQty = item['庫存量'] || '';
+        if (checkIsMustBuy(rawQty)) {
+          needToBuyItems.push(item);
+        } else {
+          const cat = item['分類'] || "未分類";
+          if (!normalGroups[cat]) normalGroups[cat] = [];
+          normalGroups[cat].push(item);
+        }
+      });
 
-    for (const category in normalGroups) {
-      if (normalGroups[category] && normalGroups[category].length > 0) {
-        renderCategoryGroup(category, normalGroups[category], list);
+      if (needToBuyItems.length > 0) {
+        const buyBlock = document.createElement("div");
+        buyBlock.className = "category-block";
+        
+        const buyHeader = document.createElement("div");
+        buyHeader.className = "category-header need-to-buy-header";
+        buyHeader.innerText = "⚠️ 下次要買";
+        buyBlock.appendChild(buyHeader);
+
+        needToBuyItems.forEach(item => {
+          buyBlock.appendChild(createItemRow(item, true));
+        });
+        list.appendChild(buyBlock);
       }
+
+      const sortedCategories = globalCategories.length > 0 ? globalCategories : Object.keys(normalGroups);
+      
+      sortedCategories.forEach(category => {
+        if (normalGroups[category] && normalGroups[category].length > 0) {
+          renderCategoryGroup(category, normalGroups[category], list);
+          delete normalGroups[category];
+        }
+      });
+
+      for (const category in normalGroups) {
+        if (normalGroups[category] && normalGroups[category].length > 0) {
+          renderCategoryGroup(category, normalGroups[category], list);
+        }
+      }
+    } catch (err) {
+      showErrorStatus("畫面渲染失敗", err.toString());
     }
   }
 
@@ -396,7 +418,6 @@
     nameDiv.innerText = item['名稱'] || '未命名';
     infoZone.appendChild(nameDiv);
 
-    // ✨ 核心Bug修正：將 item['有效期限'] 修正為對應後端的中文標頭 item['有效日期']
     const expiryStr = item['有效日期'] || '';
     if (expiryStr && expiryStr.trim() !== "") {
       const expDiv = document.createElement("div");
@@ -448,7 +469,6 @@
       const inlineExpInput = document.createElement("input");
       inlineExpInput.type = "date";
       inlineExpInput.className = "inline-expiry-input";
-      // ✨ 核心Bug修正：同步將對應對象改為 item['有效日期']
       inlineExpInput.value = formatToInputDate(item['有效日期']);
       inlineExpInput.onclick = (e) => e.stopPropagation();
       inlineExpInput.onchange = () => {
@@ -479,7 +499,6 @@
       finalQty = `${finalQty} (必買)`;
     }
     
-    // ✨ 核心Bug修正：同步調整後端 payload 的有效日期對應
     let finalExpiry = newExpiryValue !== null ? newExpiryValue : (item['有效日期'] || "");
 
     const payload = {
@@ -500,7 +519,7 @@
         fetchInventory();
       }
     })
-    .catch(err => alert("修正儲存失敗"));
+    .catch(err => alert("修正儲存失敗: " + err.toString()));
   }
 
   function toggleQuickBuy(id, currentChecked) {
@@ -555,7 +574,6 @@
     clearForm();
   }
 
-  // 新增項目時的保存功能
   function saveNewItem() {
     const name = document.getElementById("itemName").value.trim();
     let qty = document.getElementById("itemQty").value.trim();
@@ -587,11 +605,14 @@
       if (res.status === "success") {
         closeForm();
         fetchInventory();
+      } else {
+        alert("新增失敗：" + (res.message || "未知錯誤"));
       }
     })
     .catch(err => {
       btn.disabled = false;
       btn.innerText = "確認新增";
+      alert("新增品項連線失敗：" + err.toString());
     });
   }
 
@@ -604,10 +625,9 @@
     })
     .then(res => res.json())
     .then(res => { if (res.status === "success") fetchInventory(); })
-    .catch(err => alert("刪除失敗"));
+    .catch(err => alert("刪除連線失敗: " + err.toString()));
   }
 
-  // ✨ 優化：改用現代瀏覽器的 Clipboard API 代替舊版 execCommand
   function copyToClipboard() {
     if (globalData.length === 0) return;
 
