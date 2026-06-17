@@ -27,7 +27,6 @@
       overflow: hidden; /* 防止整個網頁大視窗抖動 */
     }
     
-    /* 整體容器改為滿版版面配置 */
     .container { 
       width: 100%; 
       max-width: 420px; 
@@ -37,33 +36,40 @@
       flex-direction: column;
     }
     
-    /* 🚀 固定置頂區塊：包覆 Header 與 Copy 按鈕 */
+    /* 🚀 永遠固定置頂的核心功能面板 */
     .sticky-top-panel {
       position: sticky;
       top: 0;
       background: var(--bg-main);
       z-index: 100;
-      padding: 16px 16px 4px 16px;
+      padding: 16px 16px 12px 16px;
       border-bottom: 1px solid #f2f2f7;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02); /* 微調陰影，滑動時視覺更有層次 */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
     }
 
-    /* 還原經典頂欄 (對齊 image_b1eec5.png) */
+    /* 頂欄配置：左邊 PocketStock，右邊 4 按鈕併排 */
     header { 
       display: flex; 
       justify-content: space-between; 
       align-items: center; 
-      margin-bottom: 16px;
     }
-    header h1 { font-size: 20px; font-weight: 700; margin: 0; color: var(--text-main); }
+    header h1 { font-size: 19px; font-weight: 700; margin: 0; color: var(--text-main); letter-spacing: -0.5px; }
     
-    .header-ops { display: flex; gap: 8px; align-items: center; }
+    /* 右側 4 按鈕與時間的外層組合 */
+    .header-ops-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
+
+    .header-ops { display: flex; gap: 5px; align-items: center; }
     
-    /* 按鈕原生樣式 */
+    /* 極簡原生感小按鈕樣式 */
     .btn-base {
-      height: 36px;
-      padding: 0 14px;
-      font-size: 14px;
+      height: 30px;
+      padding: 0 10px;
+      font-size: 13px;
       font-weight: 600;
       border-radius: 6px;
       border: none;
@@ -72,46 +78,22 @@
       align-items: center;
       justify-content: center;
     }
+    .btn-update { background: #f2f2f7; color: var(--text-main); }
     .btn-add { background: #1c1c1e; color: #ffffff; }
     .btn-edit { background: #f2f2f7; color: var(--text-main); }
     .btn-edit.active { background: var(--accent-red); color: #ffffff; }
+    .btn-copy { background: #e5e5ea; color: var(--text-dim); }
     
-    /* 更新時間與圖示區域 */
-    .refresh-zone { display: flex; align-items: center; gap: 6px; margin-left: 4px; }
-    .btn-refresh-icon {
-      background: none;
-      border: none;
-      cursor: pointer;
-      padding: 0;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .btn-refresh-icon svg { width: 20px; height: 20px; fill: #8e8e93; }
-    .time-text { font-size: 13px; color: #8e8e93; }
+    /* 細緻的時間小字 */
+    .time-text { font-size: 11px; color: #8e8e93; font-weight: 400; padding-right: 2px; }
 
-    /* Copy 按鈕樣式 */
-    .btn-share { 
-      width: 100%; 
-      height: 44px; 
-      border: 1px solid var(--border-thin); 
-      border-radius: 8px; 
-      font-size: 14px; 
-      font-weight: 500; 
-      cursor: pointer; 
-      color: var(--text-dim); 
-      background: #ffffff;
-      margin-bottom: 12px; 
-      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-    }
-
-    /* 新增面板卡片 (保持在置頂區內滾動或覆蓋) */
+    /* 新增面板卡片 */
     .form-card { 
       background: #fbfbfa; 
       padding: 16px; 
       border-radius: 8px; 
       border: 1px solid var(--border-thin);
-      margin-bottom: 12px; 
+      margin-top: 12px;
       display: none; 
     }
     .card-title { font-size: 12px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -132,12 +114,11 @@
 
     .btn-submit { width: 100%; height: 40px; background: #1c1c1e; color: #ffffff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px; }
 
-    /* 🚀 獨立清單滾動區：無論內容再多，都在此區域內滾動，絕不擋住功能列 */
+    /* 🚀 獨立清單滾動區 */
     .scroll-content {
       flex-grow: 1;
       overflow-y: auto;
       padding: 0 16px 40px 16px;
-      /* 讓 iOS 滑動更流暢 */
       -webkit-overflow-scrolling: touch; 
     }
 
@@ -153,12 +134,12 @@
     
     .right-meta { display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; gap: 8px; }
     
-    /* 氣泡樣式 */
+    /* 觀看模式氣泡樣式 */
     .qty-display { font-size: 13px; font-weight: 600; color: var(--text-dim); padding: 4px 10px; background: #f2f2f7; border-radius: 6px; cursor: pointer; }
     .qty-display.highlight-orange { color: #ffffff; background: var(--accent-orange); }
     .qty-display.is-buy-active { color: #ffffff; background: var(--accent-orange); }
 
-    /* 編輯模式控制項 */
+    /* 編輯模式：原地輸入格控制項 */
     .inline-qty-input { width: 65px; height: 30px; background: #f4f4f6; border: 1px solid var(--border-thin); border-radius: 4px; text-align: center; font-size: 14px; color: var(--text-main); padding: 0; }
     .inline-qty-input:focus { outline: none; border-color: var(--text-muted); background: #ffffff; }
 
@@ -176,21 +157,18 @@
 <div class="container">
   <div class="sticky-top-panel">
     <header>
-      <h1 id="dynamicTitle">盤點表</h1>
+      <h1>PocketStock</h1>
       
-      <div class="header-ops">
-        <button class="btn-base btn-add" onclick="openAddForm()">+ Add</button>
-        <button class="btn-base btn-edit" id="toggleEditBtn" onclick="toggleEditMode()">Edit</button>
-        <div class="refresh-zone">
-          <button class="btn-refresh-icon" onclick="fetchInventory()" title="更新資料">
-            <svg viewBox="0 0 24 24"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
-          </button>
-          <span class="time-text" id="lastUpdateTime"></span>
+      <div class="header-ops-wrapper">
+        <div class="header-ops">
+          <button class="btn-base btn-update" onclick="fetchInventory()">Update</button>
+          <button class="btn-base btn-add" onclick="openAddForm()">Add</button>
+          <button class="btn-base btn-edit" id="toggleEditBtn" onclick="toggleEditMode()">Edit</button>
+          <button class="btn-base btn-copy" onclick="copyToClipboard()">Copy</button>
         </div>
+        <span class="time-text" id="lastUpdateTime"></span>
       </div>
     </header>
-
-    <button class="btn-share" onclick="copyToClipboard()">📄 Copy for LINE (Plain Text)</button>
 
     <div class="form-card" id="formCard">
       <div class="card-title">
@@ -246,16 +224,8 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    initDynamicTitle();
     fetchInventory();
   });
-
-  function initDynamicTitle() {
-    const now = new Date();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
-    document.getElementById("dynamicTitle").innerText = `${month}/${date} 盤點表`;
-  }
 
   function getTitleText() {
     const now = new Date();
@@ -280,11 +250,9 @@
 
   function updateTimestampDisplay() {
     const now = new Date();
-    const month = now.getMonth() + 1;
-    const date = now.getDate();
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById("lastUpdateTime").innerText = `${month}/${date} ${hours}:${minutes}`;
+    document.getElementById("lastUpdateTime").innerText = `Last updated: ${hours}:${minutes}`;
   }
 
   function fetchInventory() {
@@ -390,7 +358,7 @@
       badge.onclick = () => toggleQuickBuy(item['ID'], isChecked);
       rightMeta.appendChild(badge);
     } else {
-      // 🌟 編輯模式：原地解鎖
+      // 🌟 編輯模式：原地控制項
       const inlineCheck = document.createElement("div");
       inlineCheck.className = "inline-checkbox" + (isChecked ? " checked" : "");
       inlineCheck.onclick = () => {
@@ -461,11 +429,12 @@
     submitInlineUpdate(targetItem, !currentChecked, null);
   }
 
+  // 點擊切換模式，變更文字與狀態
   function toggleEditMode() {
     isEditModeActive = !isEditModeActive;
     const btn = document.getElementById("toggleEditBtn");
     if (isEditModeActive) {
-      btn.innerText = "× 關閉";
+      btn.innerText = "✕ 關閉";
       btn.classList.add("active");
     } else {
       btn.innerText = "Edit";
@@ -476,7 +445,8 @@
 
   function openAddForm() {
     clearForm();
-    document.getElementById("formCard").style.display = "block";
+    const card = document.getElementById("formCard");
+    card.style.display = card.style.display === "block" ? "none" : "block";
   }
 
   function closeForm() {
@@ -536,6 +506,7 @@
   function copyToClipboard() {
     if (globalData.length === 0) return;
 
+    // 開頭自動附加日期標題
     let finalOutput = `${getTitleText()}\n\n`;
     let needToBuyText = `⚠️ 下次要買：\n`;
     let hasStockText = ``;
@@ -578,7 +549,7 @@
 
     try {
       document.execCommand("copy");
-      alert("📋 已複製包含日期標題的採購單！");
+      alert(`📋 已複製 ${getTitleText()} 採購單！`);
     } catch (err) {}
     document.body.removeChild(textarea);
   }
