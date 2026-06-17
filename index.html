@@ -54,8 +54,9 @@
     
     .header-ops-wrapper {
       display: flex;
-      align-items: center;
-      gap: 6px;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
     }
 
     .header-ops { display: flex; gap: 5px; align-items: center; }
@@ -72,24 +73,13 @@
       align-items: center;
       justify-content: center;
     }
-    .btn-update { background: #f2f2f7; color: var(--text-main); }
+    .btn-update { background: #ffffff; border: 1px solid #000000; color: var(--text-main); }
     .btn-add { background: #1c1c1e; color: #ffffff; }
     .btn-edit { background: #f2f2f7; color: var(--text-main); }
     .btn-edit.active { background: var(--accent-red); color: #ffffff; }
     .btn-copy { background: #e5e5ea; color: var(--text-dim); }
     
-    .refresh-icon-btn {
-      background: none;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 4px;
-      color: var(--text-muted);
-    }
-
-    .time-text { font-size: 11px; color: #8e8e93; font-weight: 400; }
+    .time-text { font-size: 11px; color: #8e8e93; font-weight: 400; padding-right: 2px; }
 
     .form-card { 
       background: #fbfbfa; 
@@ -161,19 +151,14 @@
 <div class="container">
   <div class="sticky-top-panel">
     <header>
-      <h1 id="pageMainTitle">6/17 盤點表</h1>
+      <h1>PocketStock</h1>
       
       <div class="header-ops-wrapper">
         <div class="header-ops">
-          <button class="btn-base btn-add" id="toggleAddBtn" onclick="openAddForm()">+ Add</button>
+          <button class="btn-base btn-update" onclick="fetchInventory()">Update</button>
+          <button class="btn-base btn-add" id="toggleAddBtn" onclick="openAddForm()">Add</button>
           <button class="btn-base btn-edit" id="toggleEditBtn" onclick="toggleEditMode()">Edit</button>
           <button class="btn-base btn-copy" onclick="copyToClipboard()">Copy</button>
-          
-          <button class="refresh-icon-btn" onclick="fetchInventory()" title="重新整理">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-            </svg>
-          </button>
         </div>
         <span class="time-text" id="lastUpdateTime"></span>
       </div>
@@ -232,14 +217,8 @@
   }
 
   document.addEventListener("DOMContentLoaded", () => {
-    updateTitleDate();
     fetchInventory();
   });
-
-  function updateTitleDate() {
-    const now = new Date();
-    document.getElementById("pageMainTitle").innerText = `${now.getMonth() + 1}/${now.getDate()} 盤點表`;
-  }
 
   function getTitleText() {
     const now = new Date();
@@ -292,7 +271,6 @@
           renderCategoryDropdown(globalCategories);
           renderList(globalData);
           updateTimestampDisplay();
-          updateTitleDate();
         } else {
           status.innerText = "Error loading data.";
         }
@@ -314,7 +292,6 @@
     const needToBuyItems = [];
     const normalGroups = {};
 
-    // 初始化分組
     globalCategories.forEach(cat => {
       normalGroups[cat] = [];
     });
@@ -341,12 +318,13 @@
       buyBlock.appendChild(buyHeader);
 
       needToBuyItems.forEach(item => {
+        // 傳入 true 標記這是在必買區
         buyBlock.appendChild(createItemRow(item, true));
       });
       list.appendChild(buyBlock);
     }
 
-    // 2. 依照【選單列表】順序進行正常分類區渲染
+    // 2. 正常分類區
     const sortedCategories = globalCategories.length > 0 ? globalCategories : Object.keys(normalGroups);
     
     sortedCategories.forEach(category => {
@@ -356,7 +334,6 @@
       }
     });
 
-    // 補遺剩餘的未分類項目
     for (const category in normalGroups) {
       if (normalGroups[category] && normalGroups[category].length > 0) {
         renderCategoryGroup(category, normalGroups[category], list);
@@ -374,6 +351,7 @@
     catBlock.appendChild(catHeader);
 
     groupItems.forEach(item => {
+      // 傳入 false 標記這是在正常分類區
       catBlock.appendChild(createItemRow(item, false));
     });
 
@@ -405,7 +383,7 @@
     }
   }
 
-  function createItemRow(item, isChecked) {
+  function createItemRow(item, isInNeedToBuySection) {
     const itemRow = document.createElement("div");
     itemRow.className = "item-row";
     
@@ -415,8 +393,9 @@
     const infoZone = document.createElement("div");
     infoZone.className = "item-info-zone";
 
+    // ✨ 如果在下次要買區，即便庫存是0，字體也不要做半透明淡化處理，保持正常亮度
     const nameDiv = document.createElement("div");
-    nameDiv.className = `item-name ${isZero ? 'is-empty' : ''}`;
+    nameDiv.className = `item-name ${(isZero && !isInNeedToBuySection) ? 'is-empty' : ''}`;
     nameDiv.innerText = item['名稱'] || '未命名';
     infoZone.appendChild(nameDiv);
 
@@ -433,17 +412,22 @@
     rightMeta.className = "right-meta";
 
     if (!isEditModeActive) {
-      const badge = document.createElement("span");
-      // ✨ 修正亮橘色邏輯：如果是必買區或者是庫存為0，就給予醒目的亮色
-      badge.className = "qty-display" + (isChecked ? " is-buy-active" : isZero ? " highlight-orange" : "");
-      
-      // ✨ 修正按鈕內文字顯示：如果是必買項目，則顯示成 0 (必買) 的完整可讀樣式
-      badge.innerText = isChecked ? `${cleanQty} (必買)` : item['庫存量']; 
-      badge.onclick = () => toggleQuickBuy(item['ID'], isChecked);
-      rightMeta.appendChild(badge);
+      // ✨ 核心修正：如果是非編輯模式，且項目在「下次要買區」，右側保持完全空白（不顯示數量也不顯示按鈕）
+      if (!isInNeedToBuySection) {
+        const badge = document.createElement("span");
+        badge.className = "qty-display" + (isZero ? " highlight-orange" : "");
+        badge.innerText = item['庫存量']; 
+        badge.onclick = () => toggleQuickBuy(item['ID'], false);
+        rightMeta.appendChild(badge);
+      } else {
+        // 在下次要買區時，點擊整列可以快速點回正常庫存（取消必買標記）
+        itemRow.style.cursor = "pointer";
+        itemRow.onclick = () => toggleQuickBuy(item['ID'], true);
+      }
     } else {
+      // 編輯模式（Edit）下，依然保留完整的複選框、輸入框與刪除按鈕，方便隨時管理
       const inlineCheck = document.createElement("div");
-      inlineCheck.className = "inline-checkbox" + (isChecked ? " checked" : "");
+      inlineCheck.className = "inline-checkbox" + (isInNeedToBuySection ? " checked" : "");
       inlineCheck.onclick = () => {
         inlineCheck.classList.toggle("checked");
         submitInlineUpdate(item, inlineCheck.classList.contains("checked"), null, null);
@@ -456,7 +440,7 @@
       inlineInput.value = cleanQty;
       inlineInput.onblur = () => {
         if (inlineInput.value.trim() !== cleanQty) {
-          submitInlineUpdate(item, isChecked, inlineInput.value.trim(), null);
+          submitInlineUpdate(item, isInNeedToBuySection, inlineInput.value.trim(), null);
         }
       };
       inlineInput.onkeydown = (e) => {
@@ -469,14 +453,17 @@
       inlineExpInput.className = "inline-expiry-input";
       inlineExpInput.value = formatToInputDate(item['有效期限']);
       inlineExpInput.onchange = () => {
-        submitInlineUpdate(item, isChecked, null, inlineExpInput.value);
+        submitInlineUpdate(item, isInNeedToBuySection, null, inlineExpInput.value);
       };
       rightMeta.appendChild(inlineExpInput);
 
       const inlineDelBtn = document.createElement("button");
       inlineDelBtn.className = "btn-inline-delete";
       inlineDelBtn.innerText = "刪除";
-      inlineDelBtn.onclick = () => deleteItem(item['ID'], item['名稱']);
+      inlineDelBtn.onclick = (e) => {
+        e.stopPropagation(); // 防止觸發列點擊
+        deleteItem(item['ID'], item['名稱']);
+      };
       rightMeta.appendChild(inlineDelBtn);
     }
 
@@ -490,7 +477,6 @@
 
     let finalQty = newQtyValue !== null ? newQtyValue : getCleanQty(item['庫存量']);
     if (isMustBuyActive) {
-      // 確保不會重複疊加 (必買) 欄位
       finalQty = `${finalQty} (必買)`;
     }
     
@@ -543,13 +529,19 @@
     
     if (card.style.display === "block") {
       card.style.display = "none";
+      const btn = document.getElementById("toggleAddBtn");
+      btn.innerText = "Add";
+      btn.style.background = "#1c1c1e";
     } else {
       card.style.display = "block";
+      const btn = document.getElementById("toggleAddBtn");
+      btn.innerText = "✕ 關閉";
+      btn.style.background = "var(--accent-red)";
       if (isEditModeActive) {
         isEditModeActive = false;
-        const btn = document.getElementById("toggleEditBtn");
-        btn.innerText = "Edit";
-        btn.classList.remove("active");
+        const editBtn = document.getElementById("toggleEditBtn");
+        editBtn.innerText = "Edit";
+        editBtn.classList.remove("active");
       }
       renderList(globalData);
     }
@@ -557,6 +549,9 @@
 
   function closeForm() {
     document.getElementById("formCard").style.display = "none";
+    const btn = document.getElementById("toggleAddBtn");
+    btn.innerText = "Add";
+    btn.style.background = "#1c1c1e";
     clearForm();
   }
 
