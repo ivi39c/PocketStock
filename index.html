@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>PocketStock // Light Minimal</title>
-  <!-- 引入 Google Material Symbols -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
   <style>
     :root {
@@ -39,17 +38,8 @@
       padding-bottom: 12px;
       border-bottom: 1px solid var(--border-thin);
     }
-    header h1 { font-size: 17px; font-weight: 600; margin: 0; color: var(--text-main); letter-spacing: -0.3px; }
-    
-    /* 右側操作區與時間戳記 */
-    .header-ops { display: flex; align-items: center; gap: 10px; }
-    
-    /* 最新更新時間文字樣式 */
-    .update-timestamp {
-      font-size: 11px;
-      color: var(--text-muted);
-      font-weight: 400;
-    }
+    header h1 { font-size: 16px; font-weight: 600; margin: 0; color: var(--text-main); letter-spacing: -0.3px; }
+    .header-ops { display: flex; gap: 8px; align-items: center; }
     
     /* 輕量級純文字感按鈕 */
     .btn-action { 
@@ -69,23 +59,20 @@
     .btn-add-mode { background: var(--text-main); color: var(--bg-main); font-weight: 600; }
     .btn-edit-mode.active { background: var(--accent-danger); color: white; }
     
-    /* Google 圖標按鈕專用樣式 */
+    /* Google 樣式更新按鈕與時間區塊 */
+    .refresh-box { display: flex; align-items: center; gap: 4px; }
     .btn-refresh { 
       background: transparent; 
       color: var(--text-muted); 
-      padding: 0 4px;
-      display: inline-flex;
-      align-items: center;
+      border: none; 
+      cursor: pointer; 
+      padding: 4px; 
+      display: inline-flex; 
+      align-items: center; 
       justify-content: center;
     }
-    .btn-refresh .material-symbols-outlined {
-      font-size: 22px;
-      transition: transform 0.3s ease;
-    }
-    /* 點擊旋轉動畫效果 */
-    .btn-refresh.spinning .material-symbols-outlined {
-      transform: rotate(360deg);
-    }
+    .btn-refresh:active { color: var(--text-main); }
+    .update-time { font-size: 11px; color: var(--text-muted); font-weight: 400; }
 
     /* 乾淨複製列 */
     .btn-share { 
@@ -118,6 +105,9 @@
     .form-control { width: 100%; height: 36px; padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-thin); border-radius: 4px; font-size: 13px; color: var(--text-main); box-sizing: border-box; }
     .form-control:focus { outline: none; border-color: #aeaea3; }
     
+    /* 下拉選單專用樣式 */
+    select.form-control { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%238e8e93' d='M0 0l5 5 5-5z'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; }
+
     .form-checkbox-group { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
     .form-checkbox-group label { margin: 0; color: var(--text-dim); font-size: 12px; cursor: pointer; }
 
@@ -148,74 +138,21 @@
     .btn-submit { width: 100%; height: 38px; background: var(--text-main); color: var(--bg-main); border: none; border-radius: 4px; font-size: 12px; font-weight: 600; cursor: pointer; margin-top: 6px; }
 
     /* 極簡風格清單 */
-    .category-block {
-      margin-bottom: 24px;
-    }
+    .category-block { margin-bottom: 24px; }
+    .category-header { padding: 0 4px 8px 4px; font-size: 12px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-thin); }
+    .category-header.need-to-buy-header { color: var(--accent-danger); }
     
-    .category-header {
-      padding: 0 4px 8px 4px;
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--text-muted);
-      border-bottom: 1px solid var(--border-thin);
-    }
-    .category-header.need-to-buy-header {
-      color: var(--accent-danger);
-    }
+    .item-row { padding: 13px 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f7; }
     
-    /* 橫列明細 */
-    .item-row { 
-      padding: 13px 4px; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      border-bottom: 1px solid #f2f2f7;
-    }
+    .item-name { font-size: 14px; font-weight: 400; color: var(--text-main); max-width: 65%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transition: opacity 0.2s ease; }
+    .item-name.is-empty { opacity: 0.3; }
     
-    .item-name { 
-      font-size: 14px; 
-      font-weight: 400; 
-      color: var(--text-main); 
-      max-width: 65%;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      transition: opacity 0.2s ease;
-    }
-    .item-name.is-empty {
-      opacity: 0.3; 
-    }
+    .right-meta { display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; min-width: 80px; height: 32px; cursor: pointer; }
     
-    .right-meta { 
-      display: flex; 
-      align-items: center; 
-      justify-content: flex-end;
-      flex-shrink: 0; 
-      min-width: 80px;
-      height: 32px;
-      cursor: pointer;
-    }
-    
-    .qty-display {
-      font-size: 13px; 
-      font-weight: 500; 
-      color: var(--text-dim);
-      padding: 2px 8px;
-      background: #f2f2f7;
-      border-radius: 4px;
-    }
-    .qty-display.highlight-red { 
-      color: var(--accent-danger); 
-      background: rgba(255, 59, 48, 0.08);
-      font-weight: 600;
-    }
-    .qty-display.is-buy-active {
-      color: #ffffff;
-      background: #ff9500; 
-      font-weight: 600;
-    }
+    .qty-display { font-size: 13px; font-weight: 500; color: var(--text-dim); padding: 2px 8px; background: #f2f2f7; border-radius: 4px; }
+    .qty-display.highlight-red { color: var(--accent-danger); background: rgba(255, 59, 48, 0.08); font-weight: 600; }
+    .qty-display.is-buy-active { color: #ffffff; background: #ff9500; font-weight: 600; }
 
-    /* 編輯動作按鈕 */
     .edit-actions { display: none; gap: 8px; align-items: center; flex-shrink: 0; }
     .btn-sm { height: 24px; padding: 0 10px; font-size: 11px; border-radius: 4px; color: var(--text-dim); background: #f2f2f7; border: none; cursor: pointer; }
     .btn-delete { color: var(--accent-danger); background: rgba(255, 59, 48, 0.05); }
@@ -227,22 +164,21 @@
 
 <div class="container">
   <header>
-    <h1>PocketStock</h1>
+    <h1 id="dynamicTitle">盤點表</h1>
     <div class="header-ops">
-      <!-- 顯示最後更新時間的區塊 -->
-      <span class="update-timestamp" id="updateTime"></span>
-      <!-- Google 樣式更新按鈕 -->
-      <button class="btn-action btn-refresh" id="refreshBtn" onclick="fetchInventory()">
-        <span class="material-symbols-outlined">autorenew</span>
-      </button>
       <button class="btn-action btn-add-mode" onclick="openAddForm()">＋ Add</button>
       <button class="btn-action btn-edit-mode" id="toggleEditBtn" onclick="toggleEditMode()">Edit</button>
+      <div class="refresh-box">
+        <button class="btn-refresh" onclick="fetchInventory()" title="更新資料">
+          <span class="material-symbols-outlined">autorenew</span>
+        </button>
+        <span class="update-time" id="lastUpdateTime"></span>
+      </div>
     </div>
   </header>
 
   <button class="btn-share" onclick="copyToClipboard()">📄 Copy for LINE (Plain Text)</button>
 
-  <!-- 表單面板 -->
   <div class="form-card" id="formCard">
     <div class="card-title">
       <span id="form-title">Item Console</span>
@@ -263,7 +199,15 @@
     </div>
     <div class="form-group">
       <label>分類</label>
-      <input type="text" id="itemCategory" class="form-control" placeholder="例：冷藏、乾貨">
+      <select id="itemCategory" class="form-control" onchange="handleCategoryChange(this)">
+        <option value="">請選擇分類...</option>
+        <option value="冷藏">冷藏</option>
+        <option value="冷凍">冷凍</option>
+        <option value="常溫乾貨">常溫乾貨</option>
+        <option value="調風味品">調風味品</option>
+        <option value="日用品">日用品</option>
+        <option value="__NEW__">＋ 新增自訂分類...</option>
+      </select>
     </div>
     <div class="form-group" style="display:none;">
       <label>有效期限</label>
@@ -272,7 +216,6 @@
     <button type="button" id="btnSubmit" class="btn-submit" onclick="saveItem()">儲存更新</button>
   </div>
 
-  <!-- 主頁清單區 -->
   <div>
     <div id="statusInfo" class="status-text">Loading...</div>
     <div id="inventoryList"></div>
@@ -293,47 +236,78 @@
     return String(qtyStr).replace("(必買)", "").trim();
   }
 
-  // 格式化目前時間為 M/D HH:MM
+  // 初始化設定：注入標題當天日期
+  document.addEventListener("DOMContentLoaded", () => {
+    initDynamicTitle();
+    fetchInventory();
+  });
+
+  function initDynamicTitle() {
+    const now = new Date();
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    document.getElementById("dynamicTitle").innerText = `${month}/${date} 盤點表`;
+  }
+
+  // 處理自訂分類下拉觸發
+  function handleCategoryChange(selectElement) {
+    if (selectElement.value === "__NEW__") {
+      const customCat = prompt("請輸入新的自訂分類名稱：");
+      if (customCat && customCat.trim() !== "") {
+        const trimmed = customCat.trim();
+        // 動態建立新選項並選取它
+        const newOpt = document.createElement("option");
+        newOpt.value = trimmed;
+        newOpt.innerText = trimmed;
+        selectElement.insertBefore(newOpt, selectElement.lastElementChild);
+        selectElement.value = trimmed;
+      } else {
+        selectElement.value = ""; // 取消則歸零
+      }
+    }
+  }
+
+  // 如果編輯回填的分類不在此選單，動態塞入一個暫時選項
+  function ensureCategoryOptionExists(catName) {
+    if (!catName) return;
+    const select = document.getElementById("itemCategory");
+    for (let i = 0; i < select.options.length; i++) {
+      if (select.options[i].value === catName) return;
+    }
+    const newOpt = document.createElement("option");
+    newOpt.value = catName;
+    newOpt.innerText = catName;
+    select.insertBefore(newOpt, select.lastElementChild);
+  }
+
   function updateTimestampDisplay() {
     const now = new Date();
     const month = now.getMonth() + 1;
     const date = now.getDate();
     const hours = String(now.getHours()).padStart(2, '0');
     const minutes = String(now.getMinutes()).padStart(2, '0');
-    
-    document.getElementById("updateTime").innerText = `${month}/${date} ${hours}:${minutes}`;
+    document.getElementById("lastUpdateTime").innerText = `${month}/${date} ${hours}:${minutes}`;
   }
-
-  document.addEventListener("DOMContentLoaded", fetchInventory);
 
   function fetchInventory() {
     const status = document.getElementById("statusInfo");
-    const refreshBtn = document.getElementById("refreshBtn");
-    
     status.style.display = "block";
     status.innerText = "Loading data...";
     document.getElementById("inventoryList").innerHTML = "";
-    
-    // 加上旋轉特效的 class
-    if (refreshBtn) refreshBtn.classList.add("spinning");
 
     fetch(GAS_WEB_APP_URL)
       .then(res => res.json())
       .then(res => {
         status.style.display = "none";
-        if (refreshBtn) refreshBtn.classList.remove("spinning");
-        
         if (res.status === "success") {
           globalData = res.data;
           renderList(globalData);
-          updateTimestampDisplay(); // 成功抓取後更新時間戳記
+          updateTimestampDisplay();
         } else {
           status.innerText = "Error loading data.";
         }
       })
       .catch(err => {
-        status.style.display = "none";
-        if (refreshBtn) refreshBtn.classList.remove("spinning");
         status.innerText = "Connection failed.";
       });
   }
@@ -359,13 +333,14 @@
       }
     });
 
+    // 置頂區
     if (needToBuyItems.length > 0) {
       const buyBlock = document.createElement("div");
       buyBlock.className = "category-block";
       
       const buyHeader = document.createElement("div");
       buyHeader.className = "category-header need-to-buy-header";
-      buyHeader.innerText = "⚠️ 下次要買";
+      buyHeader.innerText = "🔹 ⚠️ 下次要買";
       buyBlock.appendChild(buyHeader);
 
       needToBuyItems.forEach(item => {
@@ -374,13 +349,14 @@
       list.appendChild(buyBlock);
     }
 
+    // 常規區加上 🔹 圖標
     for (const category in normalGroups) {
       const catBlock = document.createElement("div");
       catBlock.className = "category-block";
       
       const catHeader = document.createElement("div");
       catHeader.className = "category-header";
-      catHeader.innerText = category;
+      catHeader.innerText = `🔹 ${category}`;
       catBlock.appendChild(catHeader);
 
       normalGroups[category].forEach(item => {
@@ -482,6 +458,7 @@
       document.getElementById("formBuyCheck").classList.remove("checked");
     }
     
+    ensureCategoryOptionExists(category);
     document.getElementById("itemCategory").value = category;
     document.getElementById("itemExpiry").value = expiry === "undefined" || expiry === "null" ? "" : expiry;
     
@@ -573,7 +550,7 @@
         categoryContent += `${item['名稱']} ${item['庫存量']}\n`;
       });
       if (categoryContent !== ``) {
-        hasStockText += `${category}：\n${categoryContent}\n`;
+        hasStockText += `🔹 ${category}：\n${categoryContent}\n`;
       }
     }
 
@@ -590,7 +567,7 @@
 
     try {
       document.execCommand("copy");
-      alert("📋 已複製純文字採購單！");
+      alert("📋 已複製純文字盤點表！");
     } catch (err) {}
     document.body.removeChild(textarea);
   }
