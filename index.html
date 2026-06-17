@@ -5,124 +5,260 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>PocketStock 口袋庫存</title>
   <style>
-    :root {
-      --primary: #4f46e5;
-      --primary-dark: #4338ca;
-      --success: #10b981;
-      --danger: #ef4444;
-      --warning: #f59e0b;
-      --bg-main: #f9fafb;
-      --bg-card: #ffffff;
-      --text-main: #111827;
-      --text-muted: #6b7280;
-    }
-
-    /* 全域手機防呆與優化 */
-    * { 
-      box-sizing: border-box; 
-      margin: 0; 
-      padding: 0; 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      -webkit-tap-highlight-color: transparent; /* 移除手機點擊時的藍色高亮陰影 */
-    }
-
-    body { 
-      background-color: var(--bg-main); 
-      color: var(--text-main); 
-      padding: 16px;
-      padding-bottom: 40px; /* 底部留空，避免被手機系統導覽條擋住 */
-    }
-
-    .container { 
-      max-width: 500px; 
-      margin: 0 auto; 
-    }
-
-    /* 頂部固定狀態列 */
-    header { 
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--bg-card);
-      padding: 16px; 
-      border-radius: 16px; 
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-      margin-bottom: 16px;
-    }
-    header h1 { font-size: 20px; font-weight: 800; color: var(--primary); }
-
-    /* App 化卡片設計 */
-    .app-card { 
-      background: var(--bg-card); 
-      padding: 20px; 
-      border-radius: 20px; 
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04); 
-      margin-bottom: 20px; 
-    }
-    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text-main); }
-
-    /* 手機專用大直覺表單 */
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; color: var(--text-main); }
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f3f4f6; color: #111827; padding: 16px; margin: 0; }
+    .container { max-width: 480px; margin: 0 auto; }
+    header { background: #fff; padding: 16px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    header h1 { font-size: 18px; margin: 0; color: #4f46e5; }
     
-    /* 放大輸入框，高度達 48px，字體 16px 防止 iOS 自動放大網頁 */
-    .form-control { 
-      width: 100%; 
-      height: 48px;
-      padding: 0 16px; 
-      border: 1.5px solid #e5e7eb; 
-      border-radius: 12px; 
-      font-size: 16px; 
-      background-color: #fcfcfd;
-      transition: all 0.2s ease;
-    }
-    .form-control:focus { 
-      outline: none; 
-      border-color: var(--primary); 
-      background-color: #fff;
-      box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1); 
-    }
-    
-    /* 手機大拇指黃金按鈕 */
-    .btn { 
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 100%; 
-      height: 52px; /* 超好點擊的高度 */
-      border: none; 
-      border-radius: 14px; 
-      font-size: 16px; 
-      font-weight: 700; 
-      cursor: pointer; 
-      transition: transform 0.1s ease, background 0.2s; 
-      color: white;
-    }
-    .btn:active { transform: scale(0.98); } /* 點擊時有物理下壓回饋感 */
-    .btn-primary { background: linear-gradient(135deg, #6366f1, var(--primary)); box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3); }
-    .btn-icon { width: 40px; height: 40px; border-radius: 10px; background: #f3f4f6; color: var(--text-main); font-size: 16px; }
+    /* 核心功能按鈕 */
+    .btn { width: 100%; height: 48px; border: none; border-radius: 10px; font-size: 15px; font-weight: bold; cursor: pointer; color: white; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+    .btn-share { background: #10b981; }
+    .btn-primary { background: #4f46e5; margin-top: 8px; }
+    .btn-refresh { width: 40px; height: 40px; background: #e5e7eb; color: #374151; border-radius: 8px; font-size: 16px; border: none; cursor: pointer; }
 
-    /* 庫存列表手機優化 */
-    .list-header { font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .card { background: #fff; padding: 16px; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-bottom: 16px; }
+    .card-title { font-size: 15px; font-weight: bold; margin-bottom: 12px; border-left: 4px solid #4f46e5; padding-left: 8px; }
     
-    /* 庫存卡片：左邊資訊、右邊動作，完全符合單手操作 */
-    .item-card { 
-      background: var(--bg-card); 
-      padding: 16px; 
-      border-radius: 16px; 
-      box-shadow: 0 2px 8px rgba(0,0,0,0.02); 
-      margin-bottom: 12px; 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center;
-      border-left: 5px solid #e5e7eb; /* 預設安全色邊條 */
-    }
-    /* 即期品卡片左側變紅邊條，視覺更直覺 */
-    .item-card.danger-alert { border-left-color: var(--danger); }
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #4b5563; }
+    .form-control { width: 100%; height: 42px; padding: 0 12px; border: 1.5px solid #d1d5db; border-radius: 8px; font-size: 15px; box-sizing: border-box; }
+    .form-control:focus { outline: none; border-color: #4f46e5; }
+    
+    .list-title { font-size: 15px; font-weight: bold; margin-bottom: 10px; color: #374151; }
+    .item-card { background: #fff; padding: 12px; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.02); display: flex; justify-content: space-between; align-items: center; border-left: 4px solid #d1d5db; }
+    .item-name { font-size: 16px; font-weight: bold; }
+    .item-details { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    .item-tag { background: #eef2ff; color: #4f46e5; padding: 2px 6px; border-radius: 4px; font-weight: 600; margin-right: 6px; }
+    
+    .btn-sm { height: 32px; padding: 0 10px; font-size: 13px; border-radius: 6px; font-weight: bold; color: white; border: none; cursor: pointer; margin-left: 6px; }
+    .btn-edit { background: #4f46e5; }
+    .btn-delete { background: #fee2e2; color: #ef4444; }
+    .status-text { text-align: center; color: #6b7280; font-size: 14px; padding: 20px; }
+  </style>
+</head>
+<body>
 
-    .item-info { flex: 1; padding-right: 12px; }
-    .item-name { font-size: 17px; font-weight: 700; margin-bottom: 4px; }
-    .item-meta { font-size: 12px; color: var(--text-muted); display: flex; gap: 8px; margin-bottom: 4px; }
-    .item-qty-tag { font-size: 14px; font-weight: 700; color: var(--primary); }
-    
-    .item-expiry { font-size: 13px; color: #4b5563; display: flex; align-items: center; gap: 4px; }
+<div class="container">
+  <header>
+    <h1>📱 PocketStock 口袋庫存</h1>
+    <button class="btn-refresh" onclick="fetchInventory()">🔄</button>
+  </header>
+
+  <button class="btn btn-share" onclick="copyToClipboard()">📋 複製當前庫存文字 (帶段落)</button>
+
+  <div class="card">
+    <div class="card-title" id="form-title">✨ 新增 / 修改項目</div>
+    <div class="form-group">
+      <label>項目 ID / 條碼</label>
+      <input type="text" id="itemId" class="form-control" placeholder="例：1001">
+    </div>
+    <div class="form-group">
+      <label>項目名稱</label>
+      <input type="text" id="itemName" class="form-control" placeholder="例：雞蛋">
+    </div>
+    <div class="form-group">
+      <label>數量單位</label>
+      <input type="text" id="itemQty" class="form-control" placeholder="例：2顆、3包、0">
+    </div>
+    <div class="form-group">
+      <label>分類</label>
+      <input type="text" id="itemCategory" class="form-control" placeholder="例：冷藏、乾貨">
+    </div>
+    <div class="form-group">
+      <label>有效期限</label>
+      <input type="date" id="itemExpiry" class="form-control">
+    </div>
+    <button type="button" id="btnSubmit" class="btn btn-primary" onclick="saveItem()">確認儲存並送出</button>
+  </div>
+
+  <div>
+    <div class="list-title">📦 目前清單</div>
+    <div id="statusInfo" class="status-text">載入中...</div>
+    <div id="inventoryList"></div>
+  </div>
+</div>
+
+<script>
+  // ⚠️ 請在這裡貼上你最新部署的 GAS Web App URL
+  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/xxxxxxxxx/exec";
+  
+  let globalData = [];
+
+  document.addEventListener("DOMContentLoaded", fetchInventory);
+
+  function fetchInventory() {
+    const status = document.getElementById("statusInfo");
+    status.style.display = "block";
+    status.innerText = "正在動態載入最新庫存...";
+    document.getElementById("inventoryList").innerHTML = "";
+
+    fetch(GAS_WEB_APP_URL)
+      .then(res => res.json())
+      .then(res => {
+        status.style.display = "none";
+        if (res.status === "success") {
+          globalData = res.data;
+          renderList(globalData);
+        } else {
+          status.innerText = "讀取失敗：" + res.message;
+        }
+      })
+      .catch(err => {
+        status.innerText = "連線失敗，請確認上方 GAS 網址是否正確。";
+      });
+  }
+
+  function renderList(items) {
+    const list = document.getElementById("inventoryList");
+    if (items.length === 0) {
+      list.innerHTML = '<div class="status-text">📭 目前沒有庫存資料</div>';
+      return;
+    }
+
+    items.forEach(item => {
+      const card = document.createElement("div");
+      card.className = "item-card";
+      card.innerHTML = `
+        <div>
+          <div class="item-name">${item['名稱'] || '未命名'}</div>
+          <div class="item-details">
+            <span class="item-tag">${item['分類'] || '未分類'}</span>
+            <span>數量: ${item['庫存量']}</span> | <span>期限: ${item['有效期限'] || '未設'}</span>
+          </div>
+        </div>
+        <div>
+          <button class="btn-sm btn-edit" onclick="editItem('${item['ID']}', '${item['名稱']}', '${item['庫存量']}', '${item['分類']}', '${item['有效期限']}')">改</button>
+          <button class="btn-sm btn-delete" onclick="deleteItem('${item['ID']}', '${item['名稱']}')">刪</button>
+        </div>
+      `;
+      list.appendChild(card);
+    });
+  }
+
+  function copyToClipboard() {
+    if (globalData.length === 0) {
+      alert("目前沒有資料可以複製喔！");
+      return;
+    }
+
+    let needToBuyText = `⚠️下次要買\n`;
+    let hasStockText = ``;
+    let hasNeedToBuy = false;
+    const groups = {};
+
+    globalData.forEach(item => {
+      const cat = item['分類'] || "未分類";
+      if (!groups[cat]) groups[cat] = [];
+      groups[cat].push(item);
+    });
+
+    for (const category in groups) {
+      let categoryContent = ``;
+      groups[category].forEach(item => {
+        const qtyStr = String(item['庫存量']).trim();
+        // 只要開頭是 0 或者純輸入 0，就判定為下次要買
+        if (qtyStr === "0" || qtyStr.startsWith("0")) {
+          needToBuyText += `${item['名稱']}\n`;
+          hasNeedToBuy = true;
+        } else {
+          categoryContent += `${item['名稱']} ${item['庫存量']}\n`;
+        }
+      });
+      if (categoryContent !== ``) {
+        hasStockText += `🔷${category}\n${categoryContent}\n`;
+      }
+    }
+
+    let finalOutput = ``;
+    if (hasNeedToBuy) finalOutput += needToBuyText + `\n`;
+    finalOutput += hasStockText;
+    finalOutput = finalOutput.trim();
+
+    const textarea = document.createElement("textarea");
+    textarea.value = finalOutput;
+    textarea.style.position = "fixed";
+    document.body.appendChild(textarea);
+    textarea.select();
+    textarea.setSelectionRange(0, 99999);
+
+    try {
+      document.execCommand("copy");
+      alert("📋 複製成功！格式已完美對齊。");
+    } catch (err) {
+      alert("複製失敗");
+    }
+    document.body.removeChild(textarea);
+  }
+
+  function editItem(id, name, qty, category, expiry) {
+    document.getElementById("itemId").value = id;
+    document.getElementById("itemName").value = name;
+    document.getElementById("itemQty").value = qty;
+    document.getElementById("itemCategory").value = category;
+    document.getElementById("itemExpiry").value = expiry;
+    document.getElementById("form-title").innerText = "✏️ 修改模式 (ID: " + id + ")";
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function saveItem() {
+    const id = document.getElementById("itemId").value.trim();
+    const name = document.getElementById("itemName").value.trim();
+    const qty = document.getElementById("itemQty").value.trim();
+    const category = document.getElementById("itemCategory").value.trim();
+    const expiry = document.getElementById("itemExpiry").value;
+
+    if (!id || !name || !qty || !category) {
+      alert("請填寫 ID、名稱、數量與分類！");
+      return;
+    }
+
+    const btn = document.getElementById("btnSubmit");
+    btn.disabled = true;
+    btn.innerText = "正在儲存...";
+
+    const payload = {
+      action: "save",
+      data: { id: id, name: name, qty: qty, category: category, expiry: expiry }
+    };
+
+    fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
+    .then(res => res.json())
+    .then(res => {
+      btn.disabled = false;
+      btn.innerText = "確認儲存並送出";
+      if (res.status === "success") {
+        clearForm();
+        fetchInventory();
+      } else {
+        alert("儲存失敗：" + res.message);
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.innerText = "確認儲存並送出";
+      alert("連線失敗");
+    });
+  }
+
+  function deleteItem(id, name) {
+    if (!confirm(`確定要刪除「${name}」嗎？`)) return;
+    fetch(GAS_WEB_APP_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "delete", data: { id: id } })
+    })
+    .then(res => res.json())
+    .then(res => { if (res.status === "success") fetchInventory(); })
+    .catch(err => alert("刪除連線失敗"));
+  }
+
+  function clearForm() {
+    document.getElementById("itemId").value = "";
+    document.getElementById("itemName").value = "";
+    document.getElementById("itemQty").value = "";
+    document.getElementById("itemCategory").value = "";
+    document.getElementById("itemExpiry").value = "";
+    document.getElementById("form-title").innerText = "✨ 新增 / 修改項目";
+  }
+</script>
+</body>
+</html>
