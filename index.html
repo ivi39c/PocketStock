@@ -30,13 +30,29 @@
       overflow: hidden;
     }
 
-   .container {       width: 100%;       max-width: 420px;       margin: 0 auto;
-      height: 100dvh;      /* 原本是 100vh */       display: flex;       flex-direction: column;     }
+   .container {
+      width: 100%;
+      max-width: 420px;
+      margin: 0 auto;
+    
+      height: 100dvh;
+      display: flex;
+      flex-direction: column;
+    
+      padding: 0 16px; 
+    }
 /* 頂欄固定在上方（利用 flex，而非 sticky） */     .sticky-top-panel {       flex-shrink: 0;
       
       background: rgba(255,255,255,.88);       backdrop-filter: blur(20px);       -webkit-backdrop-filter: blur(20px);
       z-index: 100;
       padding: 16px 16px 12px;       border-bottom: 1px solid rgba(0,0,0,.06);     }
+
+    .sticky-top-panel,
+    .scroll-content {
+      padding-left: 0;
+      padding-right: 0;
+    }
+
 
     header { display: flex; justify-content: space-between; align-items: center; }
     header h1 { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
