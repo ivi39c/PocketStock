@@ -5,144 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>PocketStock</title>
   <style>
-    :root {
-      --bg-main: #ffffff;
-      --text-main: #000000;
-      --text-muted: #8e8e93;
-      --text-dim: #636366;
-      --border-thin: #e5e5ea;
-      --accent-orange: #ff9500;
-      --accent-red: #ff3b30;
-      --bg-input: #f2f2f7;
-    }
-
+    :root { --bg-main: #ffffff; --text-main: #000000; --text-muted: #8e8e93; --text-dim: #636366; --border-thin: #e5e5ea; --accent-orange: #ff9500; --accent-red: #ff3b30; --bg-input: #f2f2f7; }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-    
-    body { 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-      background: var(--bg-main); 
-      color: var(--text-main); 
-      padding: 0;
-      margin: 0;
-      overflow: hidden;
-    }
-    
-    .container { 
-      width: 100%; 
-      max-width: 420px; 
-      margin: 0 auto; 
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    .sticky-top-panel {
-      position: sticky;
-      top: 0;
-      background: var(--bg-main);
-      z-index: 100;
-      padding: 16px 16px 12px 16px;
-      border-bottom: 1px solid #f2f2f7;
-    }
-
-    header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-    }
-    header h1 { font-size: 19px; font-weight: 700; margin: 0; color: var(--text-main); letter-spacing: -0.5px; }
-    
-    .header-ops-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 2px;
-    }
-
-    .header-ops { display: flex; gap: 5px; align-items: center; }
-    
-    .btn-base {
-      height: 30px;
-      padding: 0 10px;
-      font-size: 13px;
-      font-weight: 600;
-      border-radius: 6px;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .btn-update { background: #ffffff; border: 1px solid #000000; color: var(--text-main); }
+    body { font-family: -apple-system, sans-serif; background: var(--bg-main); color: var(--text-main); padding: 0; margin: 0; overflow: hidden; }
+    .container { width: 100%; max-width: 420px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; }
+    .sticky-top-panel { position: sticky; top: 0; background: var(--bg-main); z-index: 100; padding: 16px 16px 12px 16px; border-bottom: 1px solid #f2f2f7; }
+    header { display: flex; justify-content: space-between; align-items: center; }
+    header h1 { font-size: 19px; font-weight: 700; margin: 0; }
+    .header-ops { display: flex; gap: 5px; }
+    .btn-base { height: 30px; padding: 0 10px; font-size: 13px; font-weight: 600; border-radius: 6px; border: none; cursor: pointer; }
+    .btn-submit-all { background: var(--accent-orange); color: white; display: none; } /* 批次送出按鈕 */
     .btn-add { background: #1c1c1e; color: #ffffff; }
     .btn-edit { background: #f2f2f7; color: var(--text-main); }
-    .btn-edit.active { background: var(--accent-red); color: #ffffff; }
-    .btn-copy { background: #e5e5ea; color: var(--text-dim); }
-    
-    .time-text { font-size: 11px; color: #8e8e93; font-weight: 400; padding-right: 2px; }
-
-    .form-card { 
-      background: #fbfbfa; 
-      padding: 16px; 
-      border-radius: 8px; 
-      border: 1px solid var(--border-thin);
-      margin-top: 12px;
-      display: none; 
-    }
-    .card-title { font-size: 12px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .btn-close-form { background: none; border: none; font-size: 14px; cursor: pointer; color: var(--text-muted); }
-    
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 12px; margin-bottom: 6px; color: var(--text-muted); font-weight: 500; }
-    .form-control { width: 100%; height: 38px; padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-thin); border-radius: 6px; font-size: 14px; color: var(--text-main); box-sizing: border-box; }
-    .form-control:focus { outline: none; border-color: #aeaea3; }
-    
-    select.form-control { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%238e8e93' d='M0 0l5 5 5-5z'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; }
-
-    .form-checkbox-group { display: flex; align-items: center; gap: 8px; margin: 12px 0; }
-    .form-checkbox-group label { margin: 0; color: var(--text-dim); font-size: 13px; cursor: pointer; }
-    .form-checkbox-group .form-box-check { width: 18px; height: 18px; border: 1px solid #d1d1d6; border-radius: 4px; position: relative; cursor: pointer; }
-    .form-checkbox-group .form-box-check.checked { background-color: #1c1c1e; border-color: #1c1c1e; }
-    .form-checkbox-group .form-box-check.checked::after { content: ''; position: absolute; width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0; top: 40%; left: 50%; transform: translate(-50%, -50%) rotate(45deg); }
-
-    .btn-submit { width: 100%; height: 40px; background: #1c1c1e; color: #ffffff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px; }
-
-    .scroll-content {
-      flex-grow: 1;
-      overflow-y: auto;
-      padding: 0 16px 40px 16px;
-      -webkit-overflow-scrolling: touch; 
-    }
-
-    .category-block { margin-bottom: 24px; }
-    .category-header { padding: 12px 4px 8px 4px; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-thin); }
-    .category-header.need-to-buy-header { color: var(--accent-red); font-weight: 700; }
-    
-    .item-row { padding: 12px 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f7; min-height: 54px; }
-    
-    .item-info-zone { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; overflow: hidden; padding-right: 8px; }
-    .item-name { font-size: 15px; font-weight: 400; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-name.is-empty { opacity: 0.3; }
-    .item-expiry-text { font-size: 11px; color: var(--text-muted); }
-    
-    .right-meta { display: flex; align-items: center; justify-content: flex-end; flex-shrink: 0; gap: 6px; }
-    
-    .qty-display { font-size: 13px; font-weight: 600; color: var(--text-dim); padding: 4px 10px; background: #f2f2f7; border-radius: 6px; cursor: pointer; }
-    .qty-display.highlight-orange { color: #ffffff; background: var(--accent-orange); }
-
-    .inline-qty-input { width: 55px; height: 30px; background: #f4f4f6; border: 1px solid var(--border-thin); border-radius: 4px; text-align: center; font-size: 13px; color: var(--text-main); padding: 0; }
-    .inline-qty-input:focus { outline: none; border-color: var(--text-muted); background: #ffffff; }
-
-    .inline-expiry-input { width: 90px; height: 30px; background: #f4f4f6; border: 1px solid var(--border-thin); border-radius: 4px; font-size: 11px; color: var(--text-main); text-align: center; padding: 0 2px; }
-    .inline-expiry-input:focus { outline: none; border-color: var(--text-muted); background: #ffffff; }
-
-    .inline-checkbox { width: 20px; height: 20px; border-radius: 4px; border: 1px solid #d1d1d6; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; background: transparent; flex-shrink: 0; }
-    .inline-checkbox.checked { background: #1c1c1e; border-color: #1c1c1e; }
-    .inline-checkbox.checked::after { content: ''; position: absolute; width: 4px; height: 8px; border: solid white; border-width: 0 2px 2px 0; transform: rotate(45deg); top: 4px; left: 7px; }
-
-    .btn-inline-delete { background: #ffebeb; border: none; color: var(--accent-red); padding: 0 8px; height: 30px; border-radius: 4px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; }
-    
-    .status-text { text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px; }
+    .btn-edit.active { background: #007aff; color: #ffffff; }
+    .scroll-content { flex-grow: 1; overflow-y: auto; padding: 0 16px 40px 16px; }
+    .item-row { padding: 12px 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f7; }
+    .qty-text { font-size: 14px; color: var(--text-dim); } /* 純文字顯示 */
+    .inline-qty-input { width: 60px; height: 30px; border: 1px solid var(--border-thin); border-radius: 4px; text-align: center; }
+    .inline-expiry-input { width: 95px; height: 30px; border: 1px solid var(--border-thin); border-radius: 4px; font-size: 12px; }
   </style>
 </head>
 <body>
@@ -151,47 +31,12 @@
   <div class="sticky-top-panel">
     <header>
       <h1>PocketStock</h1>
-      
-      <div class="header-ops-wrapper">
-        <div class="header-ops">
-          <button class="btn-base btn-update" onclick="fetchInventory()">Update</button>
-          <button class="btn-base btn-add" id="toggleAddBtn" onclick="openAddForm()">Add</button>
-          <button class="btn-base btn-edit" id="toggleEditBtn" onclick="toggleEditMode()">Edit</button>
-          <button class="btn-base btn-copy" onclick="copyToClipboard()">Copy</button>
-        </div>
-        <span class="time-text" id="lastUpdateTime"></span>
+      <div class="header-ops">
+        <button class="btn-base btn-submit-all" id="submitAllBtn" onclick="submitAllChanges()">送出變更</button>
+        <button class="btn-base btn-add" id="toggleAddBtn" onclick="openAddForm()">Add</button>
+        <button class="btn-base btn-edit" id="toggleEditBtn" onclick="toggleEditMode()">Edit</button>
       </div>
     </header>
-
-    <div class="form-card" id="formCard">
-      <div class="card-title">
-        <span>新增品項</span>
-        <button class="btn-close-form" onclick="closeForm()">✕</button>
-      </div>
-      <div class="form-group">
-        <label>項目名稱</label>
-        <input type="text" id="itemName" class="form-control" placeholder="例：雞蛋">
-      </div>
-      <div class="form-group">
-        <label>數量單位</label>
-        <input type="text" id="itemQty" class="form-control" placeholder="例：0、2顆">
-      </div>
-      <div class="form-group">
-        <label>有效期限 (選填)</label>
-        <input type="date" id="itemExpiry" class="form-control">
-      </div>
-      <div class="form-checkbox-group">
-        <div class="form-box-check" id="formBuyCheck" onclick="this.classList.toggle('checked')"></div>
-        <label onclick="document.getElementById('formBuyCheck').classList.toggle('checked')">標記為下次必買</label>
-      </div>
-      <div class="form-group">
-        <label>分類</label>
-        <select id="itemCategory" class="form-control">
-          <option value="">載入選單中...</option>
-        </select>
-      </div>
-      <button type="button" id="btnSubmit" class="btn-submit" onclick="saveNewItem()">確認新增</button>
-    </div>
   </div>
 
   <div class="scroll-content">
@@ -201,489 +46,77 @@
 </div>
 
 <script>
-  // ⚙️ 你的 GAS 網址保持不變
-  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec"; 
-  
+  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec";
   let globalData = [];
-  let globalCategories = []; 
-  let isEditModeActive = false;
+  let isEditMode = false;
 
-  function checkIsMustBuy(qtyStr) {
-    return String(qtyStr).includes("(必買)");
-  }
-
-  function getCleanQty(qtyStr) {
-    return String(qtyStr).replace("(必買)", "").trim();
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    fetchInventory();
-  });
-
-  function getTitleText() {
-    const now = new Date();
-    return `${now.getMonth() + 1}/${now.getDate()} 盤點表`;
-  }
-
-  function renderCategoryDropdown(categories) {
-    const select = document.getElementById("itemCategory");
-    select.innerHTML = '<option value="">請選擇分類...</option>';
-    
-    if (categories && categories.length > 0) {
-      categories.forEach(cat => {
-        const opt = document.createElement("option");
-        opt.value = cat;
-        opt.innerText = cat;
-        select.appendChild(opt);
-      });
-    } else {
-      const defaults = ["櫃子檯面", "櫃子左一", "第一層(調味料/香料區)", "第二層(粉類)", "第三層(茶葉類)", "冷藏", "冷凍"];
-      defaults.forEach(cat => {
-        const opt = document.createElement("option");
-        opt.value = cat;
-        opt.innerText = cat;
-        select.appendChild(opt);
-      });
-    }
-  }
-
-  function updateTimestampDisplay() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    document.getElementById("lastUpdateTime").innerText = `${now.getMonth() + 1}/${now.getDate()} ${hours}:${minutes}`;
-  }
-
-  // ✨ 新增：專門處理錯誤畫面的灰色小字功能
-  function showErrorStatus(mainMessage, detailError = "") {
-    const status = document.getElementById("statusInfo");
-    status.style.display = "block";
-    status.style.color = "var(--text-muted)";
-    
-    if (detailError) {
-      status.innerHTML = `${mainMessage}<br><span style="font-size: 11px; color: #aeaea3; display: block; margin-top: 6px; word-break: break-all;">原因: ${detailError}</span>`;
-    } else {
-      status.innerText = mainMessage;
-    }
-    document.getElementById("inventoryList").innerHTML = "";
-  }
+  // 頁面載入
+  document.addEventListener("DOMContentLoaded", fetchInventory);
 
   function fetchInventory() {
-    const status = document.getElementById("statusInfo");
-    status.style.display = "block";
-    status.style.color = "var(--text-muted)";
-    status.innerText = "Loading data...";
-    document.getElementById("inventoryList").innerHTML = "";
-
-    fetch(GAS_WEB_APP_URL)
-      .then(res => {
-        if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
-        return res.json();
-      })
-      .then(res => {
-        if (res.status === "success") {
-          status.style.display = "none";
-          globalData = res.data;
-          globalCategories = res.categories || [];
-          
-          renderCategoryDropdown(globalCategories);
-          renderList(globalData);
-          updateTimestampDisplay();
-        } else {
-          // ✨ 後端回傳錯誤時顯示灰色小字
-          showErrorStatus("載入資料失敗", res.message || "後端未回傳具體錯誤");
-        }
-      })
-      .catch(err => {
-        // ✨ 連線失敗或 JS 噴錯時顯示灰色小字
-        showErrorStatus("連線失敗 (Connection failed)", err.toString());
-      });
-  }
-
-  function renderList(items) {
-    const list = document.getElementById("inventoryList");
-    list.innerHTML = ""; 
-
-    if (!items || items.length === 0) {
-      list.innerHTML = '<div class="status-text">清單目前是空的。</div>';
-      return;
-    }
-
-    try {
-      const needToBuyItems = [];
-      const normalGroups = {};
-
-      globalCategories.forEach(cat => {
-        normalGroups[cat] = [];
-      });
-
-      items.forEach(item => {
-        const rawQty = item['庫存量'] || '';
-        if (checkIsMustBuy(rawQty)) {
-          needToBuyItems.push(item);
-        } else {
-          const cat = item['分類'] || "未分類";
-          if (!normalGroups[cat]) normalGroups[cat] = [];
-          normalGroups[cat].push(item);
-        }
-      });
-
-      if (needToBuyItems.length > 0) {
-        const buyBlock = document.createElement("div");
-        buyBlock.className = "category-block";
-        
-        const buyHeader = document.createElement("div");
-        buyHeader.className = "category-header need-to-buy-header";
-        buyHeader.innerText = "⚠️ 下次要買";
-        buyBlock.appendChild(buyHeader);
-
-        needToBuyItems.forEach(item => {
-          buyBlock.appendChild(createItemRow(item, true));
-        });
-        list.appendChild(buyBlock);
-      }
-
-      const sortedCategories = globalCategories.length > 0 ? globalCategories : Object.keys(normalGroups);
-      
-      sortedCategories.forEach(category => {
-        if (normalGroups[category] && normalGroups[category].length > 0) {
-          renderCategoryGroup(category, normalGroups[category], list);
-          delete normalGroups[category];
-        }
-      });
-
-      for (const category in normalGroups) {
-        if (normalGroups[category] && normalGroups[category].length > 0) {
-          renderCategoryGroup(category, normalGroups[category], list);
-        }
-      }
-    } catch (err) {
-      showErrorStatus("畫面渲染失敗", err.toString());
-    }
-  }
-
-  function renderCategoryGroup(category, groupItems, parentList) {
-    const catBlock = document.createElement("div");
-    catBlock.className = "category-block";
-    
-    const catHeader = document.createElement("div");
-    catHeader.className = "category-header";
-    catHeader.innerText = category;
-    catBlock.appendChild(catHeader);
-
-    groupItems.forEach(item => {
-      catBlock.appendChild(createItemRow(item, false));
+    fetch(GAS_WEB_APP_URL).then(res => res.json()).then(res => {
+      globalData = res.data;
+      renderList();
+      document.getElementById("statusInfo").style.display = "none";
     });
-
-    parentList.appendChild(catBlock);
-  }
-
-  function formatExpiryShow(dateStr) {
-    if (!dateStr) return "";
-    try {
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return dateStr;
-      return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
-    } catch(e) {
-      return dateStr;
-    }
-  }
-
-  function formatToInputDate(dateStr) {
-    if (!dateStr) return "";
-    try {
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return "";
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, '0');
-      const day = String(d.getDate()).padStart(2, '0');
-      return `${y}-${m}-${day}`;
-    } catch(e) {
-      return "";
-    }
-  }
-
-  function createItemRow(item, isInNeedToBuySection) {
-    const itemRow = document.createElement("div");
-    itemRow.className = "item-row";
-    
-    const cleanQty = getCleanQty(item['庫存量']);
-    const isZero = (cleanQty === "0" || cleanQty === "");
-
-    const infoZone = document.createElement("div");
-    infoZone.className = "item-info-zone";
-
-    const nameDiv = document.createElement("div");
-    nameDiv.className = `item-name ${(isZero && !isInNeedToBuySection) ? 'is-empty' : ''}`;
-    nameDiv.innerText = item['名稱'] || '未命名';
-    infoZone.appendChild(nameDiv);
-
-    const expiryStr = item['有效日期'] || '';
-    if (expiryStr && expiryStr.trim() !== "") {
-      const expDiv = document.createElement("div");
-      expDiv.className = "item-expiry-text";
-      expDiv.innerText = `效期：${formatExpiryShow(expiryStr)}`;
-      infoZone.appendChild(expDiv);
-    }
-    itemRow.appendChild(infoZone);
-
-    const rightMeta = document.createElement("div");
-    rightMeta.className = "right-meta";
-
-    if (!isEditModeActive) {
-      if (!isInNeedToBuySection) {
-        const badge = document.createElement("span");
-        badge.className = "qty-display" + (isZero ? " highlight-orange" : "");
-        badge.innerText = item['庫存量']; 
-        badge.onclick = () => toggleQuickBuy(item['ID'], false);
-        rightMeta.appendChild(badge);
-      } else {
-        itemRow.style.cursor = "pointer";
-        itemRow.onclick = () => toggleQuickBuy(item['ID'], true);
-      }
-    } else {
-      const inlineCheck = document.createElement("div");
-      inlineCheck.className = "inline-checkbox" + (isInNeedToBuySection ? " checked" : "");
-      inlineCheck.onclick = (e) => {
-        e.stopPropagation();
-        inlineCheck.classList.toggle("checked");
-        submitInlineUpdate(item, inlineCheck.classList.contains("checked"), null, null);
-      };
-      rightMeta.appendChild(inlineCheck);
-
-      const inlineInput = document.createElement("input");
-      inlineInput.type = "text";
-      inlineInput.className = "inline-qty-input";
-      inlineInput.value = cleanQty;
-      inlineInput.onclick = (e) => e.stopPropagation();
-      inlineInput.onblur = () => {
-        if (inlineInput.value.trim() !== cleanQty) {
-          submitInlineUpdate(item, isInNeedToBuySection, inlineInput.value.trim(), null);
-        }
-      };
-      inlineInput.onkeydown = (e) => {
-        if (e.key === "Enter") inlineInput.blur();
-      };
-      rightMeta.appendChild(inlineInput);
-
-      const inlineExpInput = document.createElement("input");
-      inlineExpInput.type = "date";
-      inlineExpInput.className = "inline-expiry-input";
-      inlineExpInput.value = formatToInputDate(item['有效日期']);
-      inlineExpInput.onclick = (e) => e.stopPropagation();
-      inlineExpInput.onchange = () => {
-        submitInlineUpdate(item, isInNeedToBuySection, null, inlineExpInput.value);
-      };
-      rightMeta.appendChild(inlineExpInput);
-
-      const inlineDelBtn = document.createElement("button");
-      inlineDelBtn.className = "btn-inline-delete";
-      inlineDelBtn.innerText = "刪除";
-      inlineDelBtn.onclick = (e) => {
-        e.stopPropagation(); 
-        deleteItem(item['ID'], item['名稱']);
-      };
-      rightMeta.appendChild(inlineDelBtn);
-    }
-
-    itemRow.appendChild(rightMeta);
-    return itemRow;
-  }
-
-  function submitInlineUpdate(item, isMustBuyActive, newQtyValue, newExpiryValue) {
-    document.getElementById("statusInfo").style.display = "block";
-    document.getElementById("statusInfo").innerText = "Saving changes...";
-
-    let finalQty = newQtyValue !== null ? newQtyValue : getCleanQty(item['庫存量']);
-    if (isMustBuyActive) {
-      finalQty = `${finalQty} (必買)`;
-    }
-    
-    let finalExpiry = newExpiryValue !== null ? newExpiryValue : (item['有效日期'] || "");
-
-    const payload = {
-      action: "save",
-      data: { 
-        id: item['ID'], 
-        name: item['名稱'], 
-        qty: finalQty, 
-        category: item['分類'], 
-        expiry: finalExpiry
-      }
-    };
-
-    fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-    .then(res => res.json())
-    .then(res => {
-      if (res.status === "success") {
-        fetchInventory();
-      }
-    })
-    .catch(err => alert("修正儲存失敗: " + err.toString()));
-  }
-
-  function toggleQuickBuy(id, currentChecked) {
-    const targetItem = globalData.find(item => String(item['ID']) === String(id));
-    if (!targetItem) return;
-    submitInlineUpdate(targetItem, !currentChecked, null, null);
   }
 
   function toggleEditMode() {
-    isEditModeActive = !isEditModeActive;
+    isEditMode = !isEditMode;
     const btn = document.getElementById("toggleEditBtn");
-    if (isEditModeActive) {
-      btn.innerText = "✕ 關閉";
-      btn.classList.add("active");
-      document.getElementById("formCard").style.display = "none";
-    } else {
-      btn.innerText = "Edit";
-      btn.classList.remove("active");
-    }
-    renderList(globalData); 
-  }
-
-  function openAddForm() {
-    clearForm();
-    const card = document.getElementById("formCard");
+    const subBtn = document.getElementById("submitAllBtn");
     
-    if (card.style.display === "block") {
-      card.style.display = "none";
-      const btn = document.getElementById("toggleAddBtn");
-      btn.innerText = "Add";
-      btn.style.background = "#1c1c1e";
-    } else {
-      card.style.display = "block";
-      const btn = document.getElementById("toggleAddBtn");
-      btn.innerText = "✕ 關閉";
-      btn.style.background = "var(--accent-red)";
-      if (isEditModeActive) {
-        isEditModeActive = false;
-        const editBtn = document.getElementById("toggleEditBtn");
-        editBtn.innerText = "Edit";
-        editBtn.classList.remove("active");
-      }
-      renderList(globalData);
-    }
+    btn.innerText = isEditMode ? "關閉" : "Edit";
+    btn.className = isEditMode ? "btn-base btn-edit active" : "btn-base btn-edit";
+    subBtn.style.display = isEditMode ? "inline-block" : "none";
+    
+    renderList();
   }
 
-  function closeForm() {
-    document.getElementById("formCard").style.display = "none";
-    const btn = document.getElementById("toggleAddBtn");
-    btn.innerText = "Add";
-    btn.style.background = "#1c1c1e";
-    clearForm();
-  }
-
-  function saveNewItem() {
-    const name = document.getElementById("itemName").value.trim();
-    let qty = document.getElementById("itemQty").value.trim();
-    const expiry = document.getElementById("itemExpiry").value;
-    const isChecked = document.getElementById("formBuyCheck").classList.contains("checked");
-    const category = document.getElementById("itemCategory").value.trim();
-
-    if (!name || qty === "" || !category) {
-      alert("請填寫名稱、數量與分類。");
-      return;
-    }
-
-    if (isChecked) qty = `${qty} (必買)`;
-
-    const btn = document.getElementById("btnSubmit");
-    btn.disabled = true;
-    btn.innerText = "新增中...";
-
-    const payload = {
-      action: "save",
-      data: { id: "", name: name, qty: qty, category: category, expiry: expiry }
-    };
-
-    fetch(GAS_WEB_APP_URL, { method: "POST", body: JSON.stringify(payload) })
-    .then(res => res.json())
-    .then(res => {
-      btn.disabled = false;
-      btn.innerText = "確認新增";
-      if (res.status === "success") {
-        closeForm();
-        fetchInventory();
-      } else {
-        alert("新增失敗：" + (res.message || "未知錯誤"));
-      }
-    })
-    .catch(err => {
-      btn.disabled = false;
-      btn.innerText = "確認新增";
-      alert("新增品項連線失敗：" + err.toString());
-    });
-  }
-
-  function deleteItem(id, name) {
-    if (!confirm(`確認刪除「${name}」？`)) return;
-    document.getElementById("statusInfo").style.display = "block";
-    fetch(GAS_WEB_APP_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "delete", data: { id: id } })
-    })
-    .then(res => res.json())
-    .then(res => { if (res.status === "success") fetchInventory(); })
-    .catch(err => alert("刪除連線失敗: " + err.toString()));
-  }
-
-  function copyToClipboard() {
-    if (globalData.length === 0) return;
-
-    let finalOutput = `${getTitleText()}\n\n`;
-    let needToBuyText = `⚠️ 下次要買：\n`;
-    let hasStockText = ``;
-    let hasNeedToBuy = false;
-    const normalGroups = {};
-
+  function renderList() {
+    const list = document.getElementById("inventoryList");
+    list.innerHTML = "";
     globalData.forEach(item => {
-      const rawQty = item['庫存量'] || '';
-      if (checkIsMustBuy(rawQty)) {
-        needToBuyText += `${item['名稱']} ${getCleanQty(rawQty)}\n`;
-        hasNeedToBuy = true;
-      } else {
-        const cat = item['分類'] || "未分類";
-        if (!normalGroups[cat]) normalGroups[cat] = [];
-        normalGroups[cat].push(item);
-      }
+      const row = document.createElement("div");
+      row.className = "item-row";
+      row.innerHTML = `
+        <div>
+          <div style="font-size: 15px;">${item['名稱']}</div>
+          <div style="font-size: 11px; color: #8e8e93;">${item['有效日期'] || ''}</div>
+        </div>
+        <div class="right-meta">
+          ${isEditMode ? 
+            `<input type="text" class="inline-qty-input" value="${item['庫存量']}" data-id="${item['ID']}">` : 
+            `<span class="qty-text">${item['庫存量']}</span>`
+          }
+        </div>
+      `;
+      list.appendChild(row);
     });
-
-    const sortedCategories = globalCategories.length > 0 ? globalCategories : Object.keys(normalGroups);
-    
-    sortedCategories.forEach(category => {
-      if (normalGroups[category]) {
-        let categoryContent = ``;
-        normalGroups[category].forEach(item => {
-          categoryContent += `${item['名稱']} ${item['庫存量']}\n`;
-        });
-        if (categoryContent !== ``) {
-          hasStockText += `🔹 ${category}：\n${categoryContent}\n`;
-        }
-      }
-    });
-
-    if (hasNeedToBuy) {
-      finalOutput += needToBuyText + `\n`;
-    }
-    finalOutput += hasStockText;
-    finalOutput = finalOutput.trim();
-
-    navigator.clipboard.writeText(finalOutput)
-      .then(() => {
-        alert(`📋 已複製 ${getTitleText()} 盤點表！`);
-      })
-      .catch(err => {
-        alert("複製失敗，請手動全選複製。");
-      });
   }
 
-  function clearForm() {
-    document.getElementById("itemName").value = "";
-    document.getElementById("itemQty").value = "";
-    document.getElementById("itemExpiry").value = "";
-    document.getElementById("formBuyCheck").classList.remove("checked");
-    document.getElementById("itemCategory").value = "";
+  function submitAllChanges() {
+    const inputs = document.querySelectorAll('.inline-qty-input');
+    const updates = Array.from(inputs).map(input => ({
+      id: input.dataset.id,
+      qty: input.value
+    }));
+
+    document.getElementById("statusInfo").innerText = "批次更新中...";
+    document.getElementById("statusInfo").style.display = "block";
+
+    // 這裡建議你可以將所有更新一次性發送，或是迴圈發送
+    // 為了簡單穩定，我們這裡迴圈執行 save
+    Promise.all(updates.map(u => 
+      fetch(GAS_WEB_APP_URL, {
+        method: "POST", 
+        body: JSON.stringify({ action: "save", data: { id: u.id, qty: u.qty } })
+      })
+    )).then(() => {
+      alert("更新成功");
+      toggleEditMode();
+      fetchInventory();
+    });
   }
 </script>
 </body>
