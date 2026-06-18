@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>PocketStock</title>
+  <title>PocketStock</title>
+  <!-- 分享連結時顯示的介紹（LINE / FB / 社群都讀這裡）-->
   <meta name="description" content="快速盤點工具，隨手更新庫存、設定有效期限。">
   <meta property="og:title" content="PocketStock">
   <meta property="og:description" content="快速盤點工具，隨手更新庫存、設定有效期限。">
@@ -17,10 +18,11 @@
     :root {
       --bg-main: #ffffff;
       --text-main: #000000;
-      --text-muted: #8e8e93;   /* 已過期 = 淡灰 */
+      --text-muted: #8e8e93;
       --text-dim: #636366;
       --border-thin: #e5e5ea;
-      --accent-red: #ff3b30;    /* 即將到期 = 紅 */
+      --accent-red: #ff3b30;     /* 即將到期 = 紅 */
+      --accent-purple: #af52de;  /* 已過期 = 紫 */
       --bg-input: #f2f2f7;
       --bg-dark: #1c1c1e;
     }
@@ -35,29 +37,8 @@
       overflow: hidden;
     }
 
-   .container {
-      width: 100%;
-      max-width: 420px;
-      margin: 0 auto;
-    
-      height: 100dvh;
-      display: flex;
-      flex-direction: column;
-    
-      padding: 0 16px; 
-    }
-/* 頂欄固定在上方（利用 flex，而非 sticky） */     .sticky-top-panel {       flex-shrink: 0;
-      
-      background: rgba(255,255,255,.88);       backdrop-filter: blur(20px);       -webkit-backdrop-filter: blur(20px);
-      z-index: 100;
-      padding: 16px 16px 12px;       border-bottom: 1px solid rgba(0,0,0,.06);     }
-
-    .sticky-top-panel,
-    .scroll-content {
-      padding-left: 0;
-      padding-right: 0;
-    }
-
+    .container { width: 100%; max-width: 420px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; }
+    .sticky-top-panel { position: sticky; top: 0; background: var(--bg-main); z-index: 100; padding: 16px 16px 12px 16px; border-bottom: 1px solid #f2f2f7; }
 
     header { display: flex; justify-content: space-between; align-items: center; }
     header h1 { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
@@ -67,6 +48,9 @@
     /* 圖示按鈕 */
     .material-symbols-rounded { font-size: 20px; line-height: 1; }
     .btn-base { height: 34px; width: 40px; padding: 0; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+    .btn-base[disabled] { opacity: 0.35; cursor: default; }
+    .btn-help { background: #f2f2f7; color: var(--text-dim); }
+    .btn-help.active { background: var(--accent-red); color: #fff; }
     .btn-add { background: var(--bg-dark); color: #fff; }
     .btn-add.active { background: var(--accent-red); }
     .btn-edit { background: #f2f2f7; color: var(--text-main); }
@@ -75,7 +59,7 @@
     .btn-copy { background: #e5e5ea; color: var(--text-dim); }
     .hidden { display: none !important; }
 
-    /* ===== 新增表單 ===== */
+    /* ===== 卡片（新增表單 / 使用說明）===== */
     .form-card { background: #fbfbfa; padding: 16px; border-radius: 8px; border: 1px solid var(--border-thin); margin-top: 12px; display: none; }
     .form-card.open { display: block; }
     .card-title { font-size: 12px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -90,22 +74,26 @@
     .btn-submit { width: 100%; height: 40px; background: var(--bg-dark); color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px; }
     .btn-submit[disabled] { opacity: 0.4; cursor: default; }
 
+    /* 使用說明內容 */
+    .help-body p { font-size: 13px; color: var(--text-dim); margin: 9px 0; line-height: 1.55; }
+    .help-body b { color: var(--text-main); }
+    .help-body hr { border: none; border-top: 1px solid var(--border-thin); margin: 12px 0; }
+    .legend-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
+
     /* ===== 清單 ===== */
-    .scroll-content {       flex: 1;       min-height: 0;
-      overflow-y: auto;       -webkit-overflow-scrolling: touch;
-      padding: 12px 16px 40px;     }
+    .scroll-content { flex-grow: 1; overflow-y: auto; padding: 0 16px 40px 16px; -webkit-overflow-scrolling: touch; }
     .category-block { margin-bottom: 24px; }
-      /* 第一個分類與頂欄保留空隙 */     .category-block:first-child {     margin-top: 4px;     }
     .category-header { padding: 12px 4px 8px 4px; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-thin); }
     .category-header.buy { color: var(--accent-red); font-weight: 700; }
 
     .item-row { padding: 12px 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f7; min-height: 54px; }
     .item-info { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; overflow: hidden; padding-right: 8px; }
     .item-name { font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-name.expiry-soon { color: var(--accent-red); }           /* 30 天內 */
-    .item-name.expiry-expired { color: var(--text-muted); }        /* 已過期 */
+    .item-name.expiry-soon { color: var(--accent-red); }            /* 30 天內 = 紅 */
+    .item-name.expiry-expired { color: var(--accent-purple); }      /* 已過期 = 紫 */
     .item-sub { font-size: 11px; color: var(--text-muted); }
     .item-sub.expiry-soon { color: var(--accent-red); }
+    .item-sub.expiry-expired { color: var(--accent-purple); }
 
     .qty-display { font-size: 13px; font-weight: 600; color: var(--text-dim); padding: 4px 10px; background: #f2f2f7; border-radius: 6px; flex-shrink: 0; }
 
@@ -143,12 +131,32 @@
     <header>
       <h1>PocketStock</h1>
       <div class="header-ops">
-        <button class="btn-base btn-add"    id="btnAdd"    onclick="openAddForm()"  aria-label="新增"><span class="material-symbols-rounded">add</span></button>
+        <button class="btn-base btn-help"   id="btnHelp"   onclick="toggleHelp()"     aria-label="說明"><span class="material-symbols-rounded">help</span></button>
+        <button class="btn-base btn-add"    id="btnAdd"    onclick="openAddForm()"    aria-label="新增"><span class="material-symbols-rounded">add</span></button>
         <button class="btn-base btn-update hidden" id="btnUpdate" onclick="commitEdit()" aria-label="更新"><span class="material-symbols-rounded">check</span></button>
         <button class="btn-base btn-edit"   id="btnEdit"   onclick="toggleEditMode()" aria-label="編輯"><span class="material-symbols-rounded">edit</span></button>
-        <button class="btn-base btn-copy"   id="btnCopy"   onclick="copyList()"     aria-label="複製"><span class="material-symbols-rounded">content_copy</span></button>
+        <button class="btn-base btn-copy"   id="btnCopy"   onclick="copyList()"       aria-label="複製"><span class="material-symbols-rounded">content_copy</span></button>
       </div>
     </header>
+
+    <!-- 使用說明 -->
+    <div class="form-card" id="helpCard">
+      <div class="card-title">
+        <span>使用說明</span>
+        <button class="btn-close-form" onclick="toggleHelp()">✕</button>
+      </div>
+      <div class="help-body">
+        <p><b>＋ 新增</b>　新增一筆品項。</p>
+        <p><b>✎ 編輯</b>　進入編輯：可改庫存、效期，勾「必買」，或刪除品項。改完按 <b>✓（更新）</b>儲存，按 <b>✕</b> 取消。</p>
+        <p><b>⧉ 複製</b>　把整份盤點清單複製起來，可貼到 LINE。</p>
+        <hr>
+        <p><b>關於「必買」</b>　勾選後，當這個品項庫存變成 0，會自動移到最上方「⚠️ 下次要買」區，提醒你補貨。</p>
+        <hr>
+        <p><b>顏色說明</b></p>
+        <p><span class="legend-dot" style="background:#ff3b30"></span>紅字：30 天內即將到期</p>
+        <p><span class="legend-dot" style="background:#af52de"></span>紫字：已經過期</p>
+      </div>
+    </div>
 
     <!-- 新增表單 -->
     <div class="form-card" id="formCard">
@@ -185,7 +193,7 @@
 
 <script>
   /* ========================================================================
-     PocketStock 前端　依規格文件 v1.1
+     PocketStock 前端　依規格文件 v1.2
      ======================================================================== */
 
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec";
@@ -197,6 +205,7 @@
   let isEditMode = false;
   let editDrafts = {};
   let deleteSet = new Set();
+  let isBusy = false;          // 防止連點重複送出
 
   // ===== 純函式工具 =====
   function normalize(raw) {
@@ -258,7 +267,6 @@
     return `${n.getMonth() + 1}/${n.getDate()} 盤點表`;
   }
 
-  // 換頂欄按鈕的圖示
   function setBtnIcon(id, icon) {
     document.getElementById(id).querySelector('.material-symbols-rounded').textContent = icon;
   }
@@ -293,7 +301,7 @@
           showStatus('載入資料失敗', res.message || '後端未回傳具體原因');
         }
       })
-      .catch(err => showStatus('連線失敗', err.toString()));
+      .catch(err => showStatus('連線失敗（請下拉或重新整理頁面再試）', err.toString()));
   }
 
   // ===== 狀態/錯誤（textContent，防 XSS）=====
@@ -341,13 +349,13 @@
 
     if (buy.length) {
       const block = makeBlock('⚠️ 下次要買', true);
-      buy.forEach(it => block.appendChild(makeRow(it, true)));
+      sortItems(buy).forEach(it => block.appendChild(makeRow(it, true)));
       list.appendChild(block);
     }
 
     orderedCategories(groups).forEach(cat => {
       const block = makeBlock(cat, false);
-      sortByExpiry(groups[cat]).forEach(it => block.appendChild(makeRow(it, false)));
+      sortItems(groups[cat]).forEach(it => block.appendChild(makeRow(it, false)));
       list.appendChild(block);
     });
   }
@@ -362,8 +370,13 @@
     return block;
   }
 
-  function sortByExpiry(arr) {
-    return arr.slice().sort((a, b) => expiryTimestamp(a.expiry) - expiryTimestamp(b.expiry));
+  // 排序：先比有效日期（早的在前），日期相同再比筆畫
+  function sortItems(arr) {
+    return arr.slice().sort((a, b) => {
+      const ta = expiryTimestamp(a.expiry), tb = expiryTimestamp(b.expiry);
+      if (ta !== tb) return ta - tb;
+      return a.name.localeCompare(b.name, 'zh-Hant-u-co-stroke');
+    });
   }
 
   function makeRow(item, inBuy) {
@@ -432,7 +445,6 @@
     const line2 = document.createElement('div');
     line2.className = 'edit-line2';
 
-    // 必買（勾選框 + 文字，整塊可點）
     const buyToggle = document.createElement('div');
     buyToggle.className = 'buy-toggle';
     const cb = document.createElement('div');
@@ -445,7 +457,6 @@
     buyToggle.onclick = () => { draft.mustBuy = !draft.mustBuy; cb.classList.toggle('checked', draft.mustBuy); };
     line2.appendChild(buyToggle);
 
-    // 庫存
     const qtyField = document.createElement('div');
     qtyField.className = 'edit-field';
     const qtyLabel = document.createElement('label'); qtyLabel.textContent = '庫存';
@@ -455,7 +466,6 @@
     qtyField.appendChild(qtyLabel); qtyField.appendChild(qtyInput);
     line2.appendChild(qtyField);
 
-    // 效期
     const expField = document.createElement('div');
     expField.className = 'edit-field';
     const expLabel = document.createElement('label'); expLabel.textContent = '效期';
@@ -467,6 +477,19 @@
 
     row.appendChild(line2);
     return row;
+  }
+
+  // ===== 使用說明 =====
+  function toggleHelp() {
+    closeAddForm();
+    const open = document.getElementById('helpCard').classList.toggle('open');
+    document.getElementById('btnHelp').classList.toggle('active', open);
+    setBtnIcon('btnHelp', open ? 'close' : 'help');
+  }
+  function closeHelp() {
+    document.getElementById('helpCard').classList.remove('open');
+    document.getElementById('btnHelp').classList.remove('active');
+    setBtnIcon('btnHelp', 'help');
   }
 
   // ===== 新增 =====
@@ -482,6 +505,7 @@
 
   function openAddForm() {
     if (isEditMode) return;
+    closeHelp();
     clearForm();
     const open = document.getElementById('formCard').classList.toggle('open');
     setBtnIcon('btnAdd', open ? 'close' : 'add');
@@ -515,6 +539,7 @@
   }
 
   function submitNewItem() {
+    if (isBusy) return;                       // 防連點
     const name = document.getElementById('inName').value.trim();
     const qty = document.getElementById('inQty').value.trim();
     const expiry = document.getElementById('inExpiry').value;
@@ -523,18 +548,16 @@
     if (!name || qty === '' || !category) { alert('請填寫名稱、數量與分類。'); return; }
     if (checkNameDuplicate()) { alert('名稱已存在，請換一個名稱。'); return; }
 
+    isBusy = true;
     const btn = document.getElementById('btnSubmit');
     btn.disabled = true; btn.textContent = '新增中…';
     apiPost({ action: 'save', data: { name, qty, category, expiry } })
       .then(res => {
-        btn.disabled = false; btn.textContent = '確認新增';
         if (res.status === 'success') { closeAddForm(); loadInventory(); }
         else alert('新增失敗：' + (res.message || '未知錯誤'));
       })
-      .catch(err => {
-        btn.disabled = false; btn.textContent = '確認新增';
-        alert('新增連線失敗：' + err.toString());
-      });
+      .catch(err => alert('新增連線失敗：' + err.toString()))
+      .finally(() => { isBusy = false; btn.disabled = false; btn.textContent = '確認新增'; });
   }
 
   // ===== 編輯 / 更新 / 取消 =====
@@ -542,12 +565,14 @@
 
   function enterEditMode() {
     closeAddForm();
+    closeHelp();
     isEditMode = true;
     deleteSet.clear();
     editDrafts = {};
     allItems.forEach(it => { editDrafts[it.id] = { qty: it.qty, expiry: it.expiry, mustBuy: it.mustBuy }; });
     document.getElementById('btnAdd').classList.add('hidden');
     document.getElementById('btnUpdate').classList.remove('hidden');
+    document.getElementById('btnCopy').disabled = true;          // 編輯中停用 Copy
     setBtnIcon('btnEdit', 'close');
     document.getElementById('btnEdit').classList.add('active');
     renderList();
@@ -559,6 +584,7 @@
     deleteSet.clear();
     document.getElementById('btnAdd').classList.remove('hidden');
     document.getElementById('btnUpdate').classList.add('hidden');
+    document.getElementById('btnCopy').disabled = false;         // 恢復 Copy
     setBtnIcon('btnEdit', 'edit');
     document.getElementById('btnEdit').classList.remove('active');
   }
@@ -566,6 +592,7 @@
   function cancelEdit() { exitEditModeUI(); renderList(); }
 
   function commitEdit() {
+    if (isBusy) return;                       // 防連點
     const updates = [];
     allItems.forEach(it => {
       if (deleteSet.has(it.id)) return;
@@ -576,12 +603,21 @@
     const deletes = [...deleteSet];
     if (!updates.length && !deletes.length) { cancelEdit(); return; }
 
+    // 刪除前二次確認（條列品名）
+    if (deletes.length) {
+      const names = deletes.map(id => {
+        const f = allItems.find(it => String(it.id) === String(id));
+        return '・' + (f ? f.name : id);
+      });
+      if (!confirm(`確定要刪除這 ${deletes.length} 筆嗎？此動作無法復原。\n\n${names.join('\n')}`)) return;
+    }
+
+    isBusy = true;
     const btn = document.getElementById('btnUpdate');
     btn.disabled = true;
     showStatus('儲存中…');
     apiPost({ action: 'commit', updates, deletes })
       .then(res => {
-        btn.disabled = false;
         if (res.status === 'success') {
           const failNames = (res.failedItems || []).map(id => {
             const f = allItems.find(it => String(it.id) === String(id));
@@ -594,27 +630,28 @@
           loadInventory();
         } else { hideStatus(); alert('更新失敗：' + (res.message || '未知錯誤')); }
       })
-      .catch(err => { btn.disabled = false; hideStatus(); alert('更新連線失敗：' + err.toString()); });
+      .catch(err => { hideStatus(); alert('更新連線失敗：' + err.toString()); })
+      .finally(() => { isBusy = false; btn.disabled = false; });
   }
 
   // ===== 複製（條列式；快過期加 ❗️）=====
   function copyList() {
-    if (!allItems.length) return;
+    if (isEditMode || !allItems.length) return;
     const { buy, groups } = partition(allItems);
 
     let out = todayTitle() + '\n\n';
 
     if (buy.length) {
       out += '⚠️ 下次要買：\n';
-      buy.forEach(it => { out += '・' + it.name + '\n'; });   // 只列名稱
+      sortItems(buy).forEach(it => { out += it.name + '\n'; });   // 只列名稱
       out += '\n';
     }
 
     orderedCategories(groups).forEach(cat => {
       out += '🔹 ' + cat + '：\n';
-      sortByExpiry(groups[cat]).forEach(it => {
-        const mark = expiryClass(it.expiry) === 'expiry-soon' ? ' ❗️' : '';  // 快過期標記
-        out += '・' + it.name + ' ' + it.qty + mark + '\n';
+      sortItems(groups[cat]).forEach(it => {
+        const mark = expiryClass(it.expiry) === 'expiry-soon' ? ' ❗️' : '';
+        out += it.name + ' ' + it.qty + mark + '\n';
       });
       out += '\n';
     });
