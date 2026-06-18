@@ -63,7 +63,6 @@
     .form-card { background: #fbfbfa; padding: 16px; border-radius: 8px; border: 1px solid var(--border-thin); margin-top: 12px; display: none; }
     .form-card.open { display: block; }
     .card-title { font-size: 12px; font-weight: 700; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .btn-close-form { background: none; border: none; font-size: 14px; cursor: pointer; color: var(--text-muted); }
     .form-group { margin-bottom: 12px; }
     .form-group label { display: block; font-size: 12px; margin-bottom: 6px; color: var(--text-muted); font-weight: 500; }
     .form-control { width: 100%; height: 38px; padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-thin); border-radius: 6px; font-size: 14px; color: var(--text-main); }
@@ -95,8 +94,8 @@
     .item-sub.expiry-soon { color: var(--accent-red); }
     .item-sub.expiry-expired { color: var(--accent-purple); }
 
-    .qty-display { font-size: 13px; font-weight: 600; color: var(--text-dim); padding: 4px 10px; background: #f2f2f7; border-radius: 6px; flex-shrink: 0; }
-
+    .qty-display { font-size: 13px; font-weight: 600; color: var(--text-dim); flex-shrink: 0; }
+    
     /* ===== 編輯模式 ===== */
     .item-row.editing { flex-direction: column; align-items: stretch; gap: 10px; }
     .item-row.editing.to-delete { opacity: 0.4; }
@@ -143,7 +142,6 @@
     <div class="form-card" id="helpCard">
       <div class="card-title">
         <span>使用說明</span>
-        <button class="btn-close-form" onclick="toggleHelp()">✕</button>
       </div>
       <div class="help-body">
         <p><b>＋ 新增</b>　新增一筆品項。</p>
@@ -162,7 +160,6 @@
     <div class="form-card" id="formCard">
       <div class="card-title">
         <span>新增品項</span>
-        <button class="btn-close-form" onclick="closeAddForm()">✕</button>
       </div>
       <div class="form-group">
         <label>項目名稱</label>
