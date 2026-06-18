@@ -25,25 +25,31 @@
       --bg-dark: #1c1c1e;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    /* touch-action: manipulation → 關閉「快速點兩下放大」 */
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       background: var(--bg-main);
       color: var(--text-main);
       margin: 0; padding: 0;
-      overflow: hidden;
     }
 
-    .container { width: 100%; max-width: 420px; margin: 0 auto; height: 100vh; display: flex; flex-direction: column; }
+    /* 整頁捲動（讓 iOS 點頂部可回到最上面）；標題吸頂 */
+    .container { width: 100%; max-width: 420px; margin: 0 auto; }
     .sticky-top-panel { position: sticky; top: 0; background: var(--bg-main); z-index: 100; padding: 16px 16px 12px 16px; border-bottom: 1px solid #f2f2f7; }
 
     header { display: flex; justify-content: space-between; align-items: center; }
+    .title-wrap { display: flex; align-items: center; gap: 5px; }
     header h1 { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
+
+    /* 標題後面的小說明圖示 */
+    .btn-help-inline { background: transparent; border: none; padding: 0; margin: 0; color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; }
+    .btn-help-inline .material-symbols-rounded { font-size: 17px; }
+    .btn-help-inline.active { color: var(--accent-red); }
 
     .header-ops { display: flex; gap: 4px; align-items: center; }
 
-    /* 圖示按鈕 */
     .material-symbols-rounded { font-size: 20px; line-height: 1; }
     .btn-base { height: 34px; width: 38px; padding: 0; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
     .btn-base[disabled] { opacity: 0.35; cursor: default; }
@@ -54,7 +60,6 @@
     .btn-edit { background: #f2f2f7; color: var(--text-main); }
     .btn-edit.active { background: var(--accent-red); color: #fff; }
     .btn-update { background: var(--bg-dark); color: #fff; }
-    .btn-copy { background: #e5e5ea; color: var(--text-dim); }
     .hidden { display: none !important; }
 
     /* ===== 搜尋列 ===== */
@@ -84,7 +89,7 @@
     .legend-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
 
     /* ===== 清單 ===== */
-    .scroll-content { flex-grow: 1; overflow-y: auto; padding: 0 16px 40px 16px; -webkit-overflow-scrolling: touch; }
+    .scroll-content { padding: 0 16px 40px 16px; }
     .category-block { margin-bottom: 24px; }
     .category-header { padding: 12px 4px 8px 4px; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-thin); display: flex; justify-content: space-between; align-items: center; }
     .category-header.buy { color: var(--accent-red); font-weight: 700; }
@@ -95,8 +100,8 @@
     .item-row { padding: 12px 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f7; min-height: 54px; }
     .item-info { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; overflow: hidden; padding-right: 8px; }
     .item-name { font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-name.expiry-soon { color: var(--accent-red); }            /* 30 天內 = 紅 */
-    .item-name.expiry-expired { color: var(--accent-purple); }      /* 已過期 = 紫 */
+    .item-name.expiry-soon { color: var(--accent-red); }
+    .item-name.expiry-expired { color: var(--accent-purple); }
     .item-sub { font-size: 11px; color: var(--text-muted); }
     .item-sub.expiry-soon { color: var(--accent-red); }
     .item-sub.expiry-expired { color: var(--accent-purple); }
@@ -135,14 +140,16 @@
 <div class="container">
   <div class="sticky-top-panel">
     <header>
-      <h1>PocketStock</h1>
+      <div class="title-wrap">
+        <h1>PocketStock</h1>
+        <button class="btn-help-inline" id="btnHelp" onclick="toggleHelp()" aria-label="說明"><span class="material-symbols-rounded">help</span></button>
+      </div>
       <div class="header-ops">
-        <button class="btn-base btn-ghost"  id="btnHelp"   onclick="toggleHelp()"     aria-label="說明"><span class="material-symbols-rounded">help</span></button>
         <button class="btn-base btn-ghost"  id="btnSearch" onclick="toggleSearch()"   aria-label="搜尋"><span class="material-symbols-rounded">search</span></button>
-        <button class="btn-base btn-add"    id="btnAdd"    onclick="openAddForm()"    aria-label="新增"><span class="material-symbols-rounded">add</span></button>
-        <button class="btn-base btn-update hidden" id="btnUpdate" onclick="commitEdit()" aria-label="更新"><span class="material-symbols-rounded">check</span></button>
+        <button class="btn-base btn-ghost"  id="btnCopy"   onclick="copyList()"       aria-label="複製"><span class="material-symbols-rounded">content_copy</span></button>
         <button class="btn-base btn-edit"   id="btnEdit"   onclick="toggleEditMode()" aria-label="編輯"><span class="material-symbols-rounded">edit</span></button>
-        <button class="btn-base btn-copy"   id="btnCopy"   onclick="copyList()"       aria-label="複製"><span class="material-symbols-rounded">content_copy</span></button>
+        <button class="btn-base btn-update hidden" id="btnUpdate" onclick="commitEdit()" aria-label="更新"><span class="material-symbols-rounded">check</span></button>
+        <button class="btn-base btn-add"    id="btnAdd"    onclick="openAddForm()"    aria-label="新增"><span class="material-symbols-rounded">add</span></button>
       </div>
     </header>
 
@@ -203,7 +210,7 @@
 
 <script>
   /* ========================================================================
-     PocketStock 前端　v1.3（分類收合 + 數量 + 搜尋）
+     PocketStock 前端　v1.4
      ======================================================================== */
 
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec";
@@ -218,7 +225,7 @@
   let deleteSet = new Set();
   let isBusy = false;
   let searchQuery = '';
-  let collapsedCats = loadCollapsed();   // 收合中的分類名稱
+  let collapsedCats = loadCollapsed();
 
   // ===== 純函式工具 =====
   function normalize(raw) {
@@ -284,7 +291,6 @@
     document.getElementById(id).querySelector('.material-symbols-rounded').textContent = icon;
   }
 
-  // 收合狀態存取（包 try/catch，存不了也不會壞）
   function loadCollapsed() {
     try { const s = localStorage.getItem(COLLAPSE_KEY); return new Set(s ? JSON.parse(s) : []); }
     catch (e) { return new Set(); }
@@ -369,7 +375,7 @@
     return arr.slice().sort((a, b) => {
       const ta = expiryTimestamp(a.expiry), tb = expiryTimestamp(b.expiry);
       if (ta !== tb) return ta - tb;
-      return a.name.localeCompare(b.name, 'zh-Hant-u-co-stroke');   // 次等：筆畫
+      return a.name.localeCompare(b.name, 'zh-Hant-u-co-stroke');
     });
   }
 
@@ -388,14 +394,12 @@
     const searching = searchQuery.trim() !== '';
     const { buy, groups } = partition(items);
 
-    // 「下次要買」區：永遠展開、不收合
     if (buy.length) {
       const block = makeBlock('⚠️ 下次要買', { isBuy: true });
       sortItems(buy).forEach(it => block.body.appendChild(makeRow(it, true)));
       list.appendChild(block.el);
     }
 
-    // 各分類：可收合 + 顯示數量（搜尋中或編輯中則全部展開、不可收合）
     const canCollapse = !searching && !isEditMode;
     orderedCategories(groups).forEach(cat => {
       const arr = sortItems(groups[cat]);
@@ -446,7 +450,6 @@
     return isEditMode ? makeEditRow(item, inBuy) : makeDisplayRow(item, inBuy);
   }
 
-  // 顯示模式
   function makeDisplayRow(item, inBuy) {
     const row = document.createElement('div');
     row.className = 'item-row';
@@ -479,7 +482,6 @@
     return row;
   }
 
-  // 編輯模式
   function makeEditRow(item, inBuy) {
     const draft = editDrafts[item.id];
     const row = document.createElement('div');
@@ -540,7 +542,7 @@
     return row;
   }
 
-  // ===== 搜尋 =====
+  // ===== 搜尋（編輯模式也可用）=====
   function toggleSearch() {
     closeAddForm(); closeHelp();
     const open = document.getElementById('searchBar').classList.toggle('open');
@@ -652,13 +654,12 @@
   function toggleEditMode() { if (isEditMode) cancelEdit(); else enterEditMode(); }
 
   function enterEditMode() {
-    closeAddForm(); closeHelp(); closeSearch();
+    closeAddForm(); closeHelp();          // 搜尋保留，編輯模式也能用
     isEditMode = true;
     deleteSet.clear();
     editDrafts = {};
     allItems.forEach(it => { editDrafts[it.id] = { qty: it.qty, expiry: it.expiry, mustBuy: it.mustBuy }; });
     document.getElementById('btnAdd').classList.add('hidden');
-    document.getElementById('btnSearch').classList.add('hidden');
     document.getElementById('btnUpdate').classList.remove('hidden');
     document.getElementById('btnCopy').disabled = true;
     setBtnIcon('btnEdit', 'close');
@@ -671,7 +672,6 @@
     editDrafts = {};
     deleteSet.clear();
     document.getElementById('btnAdd').classList.remove('hidden');
-    document.getElementById('btnSearch').classList.remove('hidden');
     document.getElementById('btnUpdate').classList.add('hidden');
     document.getElementById('btnCopy').disabled = false;
     setBtnIcon('btnEdit', 'edit');
@@ -722,7 +722,7 @@
       .finally(() => { isBusy = false; btn.disabled = false; });
   }
 
-  // ===== 複製（複製整份，不受搜尋影響）=====
+  // ===== 複製（快過期 ❗️ / 已過期 💩）=====
   function copyList() {
     if (isEditMode || !allItems.length) return;
     const { buy, groups } = partition(allItems);
@@ -738,7 +738,8 @@
     orderedCategories(groups).forEach(cat => {
       out += '🔹 ' + cat + '：\n';
       sortItems(groups[cat]).forEach(it => {
-        const mark = expiryClass(it.expiry) === 'expiry-soon' ? ' ❗️' : '';
+        const cls = expiryClass(it.expiry);
+        const mark = cls === 'expiry-soon' ? ' ❗️' : cls === 'expiry-expired' ? ' 💩' : '';
         out += it.name + ' ' + it.qty + mark + '\n';
       });
       out += '\n';
