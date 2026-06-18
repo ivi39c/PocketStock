@@ -19,23 +19,16 @@
       --text-muted: #8e8e93;
       --text-dim: #636366;
       --border-thin: #e5e5ea;
-      --accent-red: #ff3b30;     /* 即將到期 = 紅 */
-      --accent-purple: #af52de;  /* 已過期 = 紫 */
+      --accent-red: #ff3b30;
+      --accent-purple: #af52de;
       --bg-input: #f2f2f7;
       --bg-dark: #1c1c1e;
     }
 
-    /* touch-action: manipulation → 關閉「快速點兩下放大」 */
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg-main);
-      color: var(--text-main);
-      margin: 0; padding: 0;
-    }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: var(--bg-main); color: var(--text-main); margin: 0; padding: 0; }
 
-    /* 整頁捲動（讓 iOS 點頂部可回到最上面）；標題吸頂 */
     .container { width: 100%; max-width: 420px; margin: 0 auto; }
     .sticky-top-panel { position: sticky; top: 0; background: var(--bg-main); z-index: 100; padding: 16px 16px 12px 16px; border-bottom: 1px solid #f2f2f7; }
 
@@ -43,7 +36,6 @@
     .title-wrap { display: flex; align-items: center; gap: 5px; }
     header h1 { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
 
-    /* 標題後面的小說明圖示 */
     .btn-help-inline { background: transparent; border: none; padding: 0; margin: 0; color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; }
     .btn-help-inline .material-symbols-rounded { font-size: 17px; }
     .btn-help-inline.active { color: var(--accent-red); }
@@ -62,14 +54,24 @@
     .btn-update { background: var(--bg-dark); color: #fff; }
     .hidden { display: none !important; }
 
-    /* ===== 搜尋列 ===== */
+    /* 登入遮罩 */
+    .auth-overlay { position: fixed; inset: 0; background: var(--bg-main); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; }
+    .auth-card { text-align: center; }
+    .auth-card h2 { font-size: 24px; font-weight: 700; margin: 0 0 6px; }
+    .auth-card p { color: var(--text-muted); font-size: 14px; margin: 0 0 22px; }
+    #gbtn { display: inline-flex; justify-content: center; }
+    .auth-msg { color: var(--accent-red); font-size: 13px; margin-top: 16px; min-height: 18px; }
+
+    .btn-logout { margin-top: 4px; background: #f2f2f7; border: none; color: var(--text-dim); padding: 7px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+
+    /* 搜尋列 */
     .search-bar { display: none; align-items: center; gap: 8px; margin-top: 12px; background: var(--bg-input); border: 1px solid var(--border-thin); border-radius: 8px; padding: 0 10px; height: 38px; }
     .search-bar.open { display: flex; }
     .search-bar .search-ico { font-size: 18px; color: var(--text-muted); }
     .search-input { flex: 1; border: none; background: transparent; font-size: 14px; height: 100%; outline: none; color: var(--text-main); }
     .search-clear { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 4px 2px; }
 
-    /* ===== 卡片 ===== */
+    /* 卡片 */
     .form-card { background: #fbfbfa; padding: 16px; border-radius: 8px; border: 1px solid var(--border-thin); margin-top: 12px; display: none; }
     .form-card.open { display: block; }
     .card-title { font-size: 12px; font-weight: 700; margin-bottom: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -88,7 +90,7 @@
     .help-body hr { border: none; border-top: 1px solid var(--border-thin); margin: 12px 0; }
     .legend-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
 
-    /* ===== 清單 ===== */
+    /* 清單 */
     .scroll-content { padding: 0 16px 40px 16px; }
     .category-block { margin-bottom: 24px; }
     .category-header { padding: 12px 4px 8px 4px; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-thin); display: flex; justify-content: space-between; align-items: center; }
@@ -108,7 +110,6 @@
 
     .qty-display { font-size: 13px; font-weight: 600; color: var(--text-dim); flex-shrink: 0; }
 
-    /* ===== 編輯模式 ===== */
     .item-row.editing { flex-direction: column; align-items: stretch; gap: 10px; }
     .item-row.editing.to-delete { opacity: 0.4; }
     .item-row.editing.to-delete .item-name { text-decoration: line-through; }
@@ -137,6 +138,16 @@
 </head>
 <body>
 
+<!-- 登入畫面 -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-card">
+    <h2>PocketStock</h2>
+    <p>請用團隊 Google 帳號登入</p>
+    <div id="gbtn"></div>
+    <div class="auth-msg" id="authMsg"></div>
+  </div>
+</div>
+
 <div class="container">
   <div class="sticky-top-panel">
     <header>
@@ -153,32 +164,32 @@
       </div>
     </header>
 
-    <!-- 搜尋列 -->
     <div class="search-bar" id="searchBar">
       <span class="material-symbols-rounded search-ico">search</span>
       <input type="text" id="searchInput" class="search-input" placeholder="搜尋品名…" oninput="onSearch()">
       <button class="search-clear" onclick="clearSearch()" aria-label="清除">✕</button>
     </div>
 
-    <!-- 使用說明 -->
     <div class="form-card" id="helpCard">
       <div class="card-title">使用說明</div>
       <div class="help-body">
         <p><b>＋ 新增</b>　新增一筆品項。</p>
-        <p><b>✎ 編輯</b>　進入編輯：可改庫存、效期，勾「必買」，或刪除品項。改完按 <b>✓（更新）</b>儲存，按 <b>✕</b> 取消。</p>
-        <p><b>⧉ 複製</b>　把整份盤點清單複製起來，可貼到 LINE。</p>
+        <p><b>✎ 編輯</b>　可改庫存、效期，勾「必買」，或刪除品項。改完按 <b>✓</b> 儲存、<b>✕</b> 取消。</p>
+        <p><b>⧉ 複製</b>　複製整份盤點清單，可貼到 LINE。</p>
         <p><b>🔍 搜尋</b>　輸入品名快速找到項目。</p>
         <hr>
-        <p><b>關於「必買」</b>　勾選後，當這個品項庫存變成 0，會自動移到最上方「⚠️ 下次要買」區，提醒你補貨。</p>
-        <p><b>分類收合</b>　點分類標題可收合／展開，狀態會自動記住。</p>
+        <p><b>關於「必買」</b>　勾選後，當庫存變成 0，會自動移到最上方「⚠️ 下次要買」區。</p>
+        <p><b>分類收合</b>　點分類標題可收合／展開，狀態會記住。</p>
         <hr>
         <p><b>顏色說明</b></p>
         <p><span class="legend-dot" style="background:#ff3b30"></span>紅字：30 天內即將到期</p>
         <p><span class="legend-dot" style="background:#af52de"></span>紫字：已經過期</p>
+        <hr>
+        <p>目前登入：<b id="curUser">—</b></p>
+        <button class="btn-logout" onclick="logout()">登出</button>
       </div>
     </div>
 
-    <!-- 新增表單 -->
     <div class="form-card" id="formCard">
       <div class="card-title">新增品項</div>
       <div class="form-group">
@@ -203,553 +214,328 @@
   </div>
 
   <div class="scroll-content">
-    <div id="statusInfo" class="status-text">載入中…</div>
+    <div id="statusInfo" class="status-text">請先登入…</div>
     <div id="list"></div>
   </div>
 </div>
 
 <script>
-  /* ========================================================================
-     PocketStock 前端　v1.4
-     ======================================================================== */
+  /* ===== ① 你要填：從 Google Cloud 取得的 OAuth 用戶端 ID ===== */
+  const GOOGLE_CLIENT_ID = "請填入你的_CLIENT_ID.apps.googleusercontent.com";
 
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec";
   const NEAR_EXPIRY_DAYS = 30;
-  const FETCH_TIMEOUT_MS = 10000;
+  const FETCH_TIMEOUT_MS = 12000;
   const COLLAPSE_KEY = 'pocketstock_collapsed';
 
-  let allItems = [];
-  let allCategories = [];
-  let isEditMode = false;
-  let editDrafts = {};
-  let deleteSet = new Set();
-  let isBusy = false;
-  let searchQuery = '';
+  let allItems = [], allCategories = [];
+  let isEditMode = false, editDrafts = {}, deleteSet = new Set();
+  let isBusy = false, searchQuery = '';
   let collapsedCats = loadCollapsed();
+  let idToken = '', userEmail = '';
+
+  // ===== Google 登入 =====
+  function initGsi() {
+    if (!window.google || !google.accounts) {
+      document.getElementById('authMsg').textContent = '無法載入 Google 登入元件，請檢查網路後重新整理。';
+      return;
+    }
+    google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleSignIn, auto_select: true });
+    google.accounts.id.renderButton(document.getElementById('gbtn'), { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with' });
+    google.accounts.id.prompt();
+  }
+
+  function onGoogleSignIn(resp) {
+    idToken = resp.credential;
+    userEmail = decodeJwtEmail(idToken);
+    document.getElementById('curUser').textContent = userEmail || '—';
+    document.getElementById('authOverlay').style.display = 'none';
+    loadInventory();
+  }
+
+  function showAuth(msg) {
+    idToken = '';
+    document.getElementById('authMsg').textContent = msg || '';
+    document.getElementById('authOverlay').style.display = 'flex';
+    try { google.accounts.id.prompt(); } catch (e) {}
+  }
+
+  function logout() {
+    idToken = ''; userEmail = '';
+    try { google.accounts.id.disableAutoSelect(); } catch (e) {}
+    showAuth('已登出');
+  }
+
+  function decodeJwtEmail(jwt) {
+    try { const p = JSON.parse(atob(jwt.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))); return p.email || ''; }
+    catch (e) { return ''; }
+  }
 
   // ===== 純函式工具 =====
   function normalize(raw) {
     return {
-      id:       raw['ID'] ?? '',
-      name:     raw['名稱'] ?? '未命名',
-      qty:      String(raw['庫存量'] ?? ''),
-      category: raw['分類'] || '未分類',
-      expiry:   toInputDate(raw['有效日期']),
-      mustBuy:  raw['必買'] === true || String(raw['必買']).toUpperCase() === 'TRUE',
+      id: raw['ID'] ?? '', name: raw['名稱'] ?? '未命名', qty: String(raw['庫存量'] ?? ''),
+      category: raw['分類'] || '未分類', expiry: toInputDate(raw['有效日期']),
+      mustBuy: raw['必買'] === true || String(raw['必買']).toUpperCase() === 'TRUE',
     };
   }
-
-  function isZeroQty(qtyStr) {
-    const m = String(qtyStr ?? '').trim().match(/^(\d+(?:\.\d+)?)/);
-    return m ? parseFloat(m[1]) === 0 : false;
+  function isZeroQty(q) { const m = String(q ?? '').trim().match(/^(\d+(?:\.\d+)?)/); return m ? parseFloat(m[1]) === 0 : false; }
+  function daysUntilExpiry(s) {
+    if (!s) return null; const d = new Date(s); if (isNaN(d.getTime())) return null;
+    const t = new Date(); t.setHours(0, 0, 0, 0); d.setHours(0, 0, 0, 0); return Math.round((d - t) / 86400000);
   }
-
-  function daysUntilExpiry(dateStr) {
-    if (!dateStr) return null;
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return null;
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    d.setHours(0, 0, 0, 0);
-    return Math.round((d - today) / 86400000);
+  function expiryClass(s) { const d = daysUntilExpiry(s); if (d === null) return ''; if (d < 0) return 'expiry-expired'; if (d <= NEAR_EXPIRY_DAYS) return 'expiry-soon'; return ''; }
+  function toInputDate(s) {
+    if (!s) return ''; const d = new Date(s); if (isNaN(d.getTime())) return '';
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
   }
+  function formatDateDisplay(s) { const i = toInputDate(s); return i ? i.replace(/-/g, '/') : ''; }
+  function expiryTimestamp(s) { if (!s) return Infinity; const d = new Date(s); return isNaN(d.getTime()) ? Infinity : d.getTime(); }
+  function todayTitle() { const n = new Date(); return `${n.getMonth() + 1}/${n.getDate()} 盤點表`; }
+  function setBtnIcon(id, icon) { document.getElementById(id).querySelector('.material-symbols-rounded').textContent = icon; }
+  function loadCollapsed() { try { const s = localStorage.getItem(COLLAPSE_KEY); return new Set(s ? JSON.parse(s) : []); } catch (e) { return new Set(); } }
+  function saveCollapsed() { try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...collapsedCats])); } catch (e) {} }
 
-  function expiryClass(dateStr) {
-    const days = daysUntilExpiry(dateStr);
-    if (days === null) return '';
-    if (days < 0) return 'expiry-expired';
-    if (days <= NEAR_EXPIRY_DAYS) return 'expiry-soon';
-    return '';
-  }
-
-  function toInputDate(dateStr) {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '';
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
-
-  function formatDateDisplay(dateStr) {
-    const iso = toInputDate(dateStr);
-    return iso ? iso.replace(/-/g, '/') : '';
-  }
-
-  function expiryTimestamp(dateStr) {
-    if (!dateStr) return Infinity;
-    const d = new Date(dateStr);
-    return isNaN(d.getTime()) ? Infinity : d.getTime();
-  }
-
-  function todayTitle() {
-    const n = new Date();
-    return `${n.getMonth() + 1}/${n.getDate()} 盤點表`;
-  }
-
-  function setBtnIcon(id, icon) {
-    document.getElementById(id).querySelector('.material-symbols-rounded').textContent = icon;
-  }
-
-  function loadCollapsed() {
-    try { const s = localStorage.getItem(COLLAPSE_KEY); return new Set(s ? JSON.parse(s) : []); }
-    catch (e) { return new Set(); }
-  }
-  function saveCollapsed() {
-    try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...collapsedCats])); } catch (e) {}
-  }
-
-  // ===== 與後端溝通 =====
-  function apiFetch(options) {
+  // ===== 與後端溝通（每個請求帶 idToken）=====
+  function apiPost(payload) {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-    return fetch(GAS_WEB_APP_URL, { ...options, signal: controller.signal })
-      .finally(() => clearTimeout(timer));
-  }
-  function apiPost(payload) {
-    return apiFetch({ method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
+    return fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ ...payload, idToken }), signal: controller.signal })
+      .finally(() => clearTimeout(timer))
+      .then(r => r.json())
+      .then(res => { if (res && res.auth === false) { showAuth(res.message || '請重新登入'); }
+        return res; });
   }
 
   // ===== 載入 =====
-  document.addEventListener('DOMContentLoaded', loadInventory);
-
   function loadInventory() {
     showStatus('載入中…');
     document.getElementById('list').innerHTML = '';
-    apiFetch({ method: 'GET' })
-      .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
+    apiPost({ action: 'list' })
       .then(res => {
+        if (!res || res.auth === false) return;
         if (res.status === 'success') {
           allItems = (res.data || []).map(normalize);
           allCategories = res.categories || [];
           renderCategoryDropdown();
           hideStatus();
           renderList();
-        } else {
-          showStatus('載入資料失敗', res.message || '後端未回傳具體原因');
-        }
+        } else { showStatus('載入資料失敗', res.message || '後端未回傳具體原因'); }
       })
       .catch(err => showStatus('連線失敗（請下拉或重新整理頁面再試）', err.toString()));
   }
 
-  // ===== 狀態/錯誤（textContent，防 XSS）=====
   function showStatus(main, detail) {
     const el = document.getElementById('statusInfo');
-    el.style.display = 'block';
-    el.textContent = main;
-    if (detail) {
-      const span = document.createElement('span');
-      span.className = 'detail';
-      span.textContent = '原因：' + detail;
-      el.appendChild(span);
-    }
+    el.style.display = 'block'; el.textContent = main;
+    if (detail) { const s = document.createElement('span'); s.className = 'detail'; s.textContent = '原因：' + detail; el.appendChild(s); }
     document.getElementById('list').innerHTML = '';
   }
   function hideStatus() { document.getElementById('statusInfo').style.display = 'none'; }
 
   // ===== 渲染 =====
-  function filteredItems() {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return allItems;
-    return allItems.filter(it => it.name.toLowerCase().includes(q));
-  }
-
+  function filteredItems() { const q = searchQuery.trim().toLowerCase(); if (!q) return allItems; return allItems.filter(it => it.name.toLowerCase().includes(q)); }
   function partition(items) {
-    const buy = [];
-    const groups = {};
-    items.forEach(it => {
-      if (isZeroQty(it.qty) && it.mustBuy) buy.push(it);
-      else (groups[it.category] = groups[it.category] || []).push(it);
-    });
+    const buy = [], groups = {};
+    items.forEach(it => { if (isZeroQty(it.qty) && it.mustBuy) buy.push(it); else (groups[it.category] = groups[it.category] || []).push(it); });
     return { buy, groups };
   }
-
   function orderedCategories(groups) {
-    const ordered = [];
-    allCategories.forEach(c => { if (groups[c]) ordered.push(c); });
-    Object.keys(groups).forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
-    return ordered;
+    const o = []; allCategories.forEach(c => { if (groups[c]) o.push(c); });
+    Object.keys(groups).forEach(c => { if (!o.includes(c)) o.push(c); }); return o;
   }
-
   function sortItems(arr) {
-    return arr.slice().sort((a, b) => {
-      const ta = expiryTimestamp(a.expiry), tb = expiryTimestamp(b.expiry);
-      if (ta !== tb) return ta - tb;
-      return a.name.localeCompare(b.name, 'zh-Hant-u-co-stroke');
-    });
+    return arr.slice().sort((a, b) => { const ta = expiryTimestamp(a.expiry), tb = expiryTimestamp(b.expiry);
+      if (ta !== tb) return ta - tb; return a.name.localeCompare(b.name, 'zh-Hant-u-co-stroke'); });
   }
 
   function renderList() {
-    const list = document.getElementById('list');
-    list.innerHTML = '';
-
+    const list = document.getElementById('list'); list.innerHTML = '';
     const items = filteredItems();
-    if (!items.length) {
-      list.innerHTML = searchQuery.trim()
-        ? '<div class="status-text">找不到符合的項目。</div>'
-        : '<div class="status-text">清單目前是空的。</div>';
-      return;
-    }
-
+    if (!items.length) { list.innerHTML = searchQuery.trim() ? '<div class="status-text">找不到符合的項目。</div>' : '<div class="status-text">清單目前是空的。</div>'; return; }
     const searching = searchQuery.trim() !== '';
     const { buy, groups } = partition(items);
-
-    if (buy.length) {
-      const block = makeBlock('⚠️ 下次要買', { isBuy: true });
-      sortItems(buy).forEach(it => block.body.appendChild(makeRow(it, true)));
-      list.appendChild(block.el);
-    }
-
+    if (buy.length) { const b = makeBlock('⚠️ 下次要買', { isBuy: true }); sortItems(buy).forEach(it => b.body.appendChild(makeRow(it, true))); list.appendChild(b.el); }
     const canCollapse = !searching && !isEditMode;
     orderedCategories(groups).forEach(cat => {
       const arr = sortItems(groups[cat]);
       const collapsed = canCollapse && collapsedCats.has(cat);
-      const block = makeBlock(cat, { count: arr.length, collapsible: canCollapse, cat, collapsed });
-      if (!collapsed) arr.forEach(it => block.body.appendChild(makeRow(it, false)));
-      list.appendChild(block.el);
+      const b = makeBlock(cat, { count: arr.length, collapsible: canCollapse, cat, collapsed });
+      if (!collapsed) arr.forEach(it => b.body.appendChild(makeRow(it, false)));
+      list.appendChild(b.el);
     });
   }
 
   function makeBlock(title, opts = {}) {
-    const block = document.createElement('div');
-    block.className = 'category-block';
-
+    const block = document.createElement('div'); block.className = 'category-block';
     const header = document.createElement('div');
     header.className = 'category-header' + (opts.isBuy ? ' buy' : '') + (opts.collapsible ? ' collapsible' : '');
-
-    const titleSpan = document.createElement('span');
-    titleSpan.textContent = title;
-    if (opts.count != null) {
-      const c = document.createElement('span');
-      c.className = 'cat-count';
-      c.textContent = `（${opts.count}）`;
-      titleSpan.appendChild(c);
-    }
-    header.appendChild(titleSpan);
-
+    const t = document.createElement('span'); t.textContent = title;
+    if (opts.count != null) { const c = document.createElement('span'); c.className = 'cat-count'; c.textContent = `（${opts.count}）`; t.appendChild(c); }
+    header.appendChild(t);
     if (opts.collapsible) {
-      const chev = document.createElement('span');
-      chev.className = 'material-symbols-rounded chev';
-      chev.textContent = opts.collapsed ? 'chevron_right' : 'expand_more';
-      header.appendChild(chev);
-      header.onclick = () => {
-        if (collapsedCats.has(opts.cat)) collapsedCats.delete(opts.cat);
-        else collapsedCats.add(opts.cat);
-        saveCollapsed();
-        renderList();
-      };
+      const chev = document.createElement('span'); chev.className = 'material-symbols-rounded chev';
+      chev.textContent = opts.collapsed ? 'chevron_right' : 'expand_more'; header.appendChild(chev);
+      header.onclick = () => { if (collapsedCats.has(opts.cat)) collapsedCats.delete(opts.cat); else collapsedCats.add(opts.cat); saveCollapsed(); renderList(); };
     }
-
     block.appendChild(header);
-    const body = document.createElement('div');
-    block.appendChild(body);
+    const body = document.createElement('div'); block.appendChild(body);
     return { el: block, body };
   }
 
-  function makeRow(item, inBuy) {
-    return isEditMode ? makeEditRow(item, inBuy) : makeDisplayRow(item, inBuy);
-  }
+  function makeRow(item, inBuy) { return isEditMode ? makeEditRow(item, inBuy) : makeDisplayRow(item, inBuy); }
 
   function makeDisplayRow(item, inBuy) {
-    const row = document.createElement('div');
-    row.className = 'item-row';
-    const info = document.createElement('div');
-    info.className = 'item-info';
-    const name = document.createElement('div');
-    name.textContent = item.name;
-
-    if (inBuy) {
-      name.className = 'item-name';
-      info.appendChild(name);
-      row.appendChild(info);
-      return row;
-    }
-
-    name.className = 'item-name ' + expiryClass(item.expiry);
-    info.appendChild(name);
-    if (item.expiry) {
-      const sub = document.createElement('div');
-      sub.className = 'item-sub ' + expiryClass(item.expiry);
-      sub.textContent = '效期：' + formatDateDisplay(item.expiry);
-      info.appendChild(sub);
-    }
+    const row = document.createElement('div'); row.className = 'item-row';
+    const info = document.createElement('div'); info.className = 'item-info';
+    const name = document.createElement('div'); name.textContent = item.name;
+    if (inBuy) { name.className = 'item-name'; info.appendChild(name); row.appendChild(info); return row; }
+    name.className = 'item-name ' + expiryClass(item.expiry); info.appendChild(name);
+    if (item.expiry) { const sub = document.createElement('div'); sub.className = 'item-sub ' + expiryClass(item.expiry); sub.textContent = '效期：' + formatDateDisplay(item.expiry); info.appendChild(sub); }
     row.appendChild(info);
-
-    const qty = document.createElement('span');
-    qty.className = 'qty-display';
-    qty.textContent = item.qty;
-    row.appendChild(qty);
+    const qty = document.createElement('span'); qty.className = 'qty-display'; qty.textContent = item.qty; row.appendChild(qty);
     return row;
   }
 
   function makeEditRow(item, inBuy) {
     const draft = editDrafts[item.id];
-    const row = document.createElement('div');
-    row.className = 'item-row editing';
+    const row = document.createElement('div'); row.className = 'item-row editing';
     if (deleteSet.has(item.id)) row.classList.add('to-delete');
-
-    const line1 = document.createElement('div');
-    line1.className = 'edit-line1';
-    const name = document.createElement('div');
-    name.className = 'item-name ' + expiryClass(item.expiry);
-    name.textContent = item.name;
-    const del = document.createElement('button');
-    del.className = 'btn-delete';
-    del.textContent = deleteSet.has(item.id) ? '復原' : '刪除';
-    del.onclick = () => {
-      if (deleteSet.has(item.id)) deleteSet.delete(item.id); else deleteSet.add(item.id);
-      row.classList.toggle('to-delete', deleteSet.has(item.id));
-      del.textContent = deleteSet.has(item.id) ? '復原' : '刪除';
-    };
-    line1.appendChild(name);
-    line1.appendChild(del);
-    row.appendChild(line1);
-
-    const line2 = document.createElement('div');
-    line2.className = 'edit-line2';
-
-    const buyToggle = document.createElement('div');
-    buyToggle.className = 'buy-toggle';
-    const cb = document.createElement('div');
-    cb.className = 'checkbox' + (draft.mustBuy ? ' checked' : '');
-    const buyLabel = document.createElement('span');
-    buyLabel.className = 'buy-label';
-    buyLabel.textContent = '必買';
-    buyToggle.appendChild(cb);
-    buyToggle.appendChild(buyLabel);
+    const line1 = document.createElement('div'); line1.className = 'edit-line1';
+    const name = document.createElement('div'); name.className = 'item-name ' + expiryClass(item.expiry); name.textContent = item.name;
+    const del = document.createElement('button'); del.className = 'btn-delete'; del.textContent = deleteSet.has(item.id) ? '復原' : '刪除';
+    del.onclick = () => { if (deleteSet.has(item.id)) deleteSet.delete(item.id); else deleteSet.add(item.id); row.classList.toggle('to-delete', deleteSet.has(item.id)); del.textContent = deleteSet.has(item.id) ? '復原' : '刪除'; };
+    line1.appendChild(name); line1.appendChild(del); row.appendChild(line1);
+    const line2 = document.createElement('div'); line2.className = 'edit-line2';
+    const buyToggle = document.createElement('div'); buyToggle.className = 'buy-toggle';
+    const cb = document.createElement('div'); cb.className = 'checkbox' + (draft.mustBuy ? ' checked' : '');
+    const buyLabel = document.createElement('span'); buyLabel.className = 'buy-label'; buyLabel.textContent = '必買';
+    buyToggle.appendChild(cb); buyToggle.appendChild(buyLabel);
     buyToggle.onclick = () => { draft.mustBuy = !draft.mustBuy; cb.classList.toggle('checked', draft.mustBuy); };
     line2.appendChild(buyToggle);
-
-    const qtyField = document.createElement('div');
-    qtyField.className = 'edit-field';
-    const qtyLabel = document.createElement('label'); qtyLabel.textContent = '庫存';
-    const qtyInput = document.createElement('input');
-    qtyInput.type = 'text'; qtyInput.className = 'edit-qty'; qtyInput.value = draft.qty;
-    qtyInput.oninput = () => { draft.qty = qtyInput.value; };
-    qtyField.appendChild(qtyLabel); qtyField.appendChild(qtyInput);
-    line2.appendChild(qtyField);
-
-    const expField = document.createElement('div');
-    expField.className = 'edit-field';
-    const expLabel = document.createElement('label'); expLabel.textContent = '效期';
-    const expInput = document.createElement('input');
-    expInput.type = 'date'; expInput.className = 'edit-expiry'; expInput.value = draft.expiry;
-    expInput.oninput = () => { draft.expiry = expInput.value; };
-    expField.appendChild(expLabel); expField.appendChild(expInput);
-    line2.appendChild(expField);
-
-    row.appendChild(line2);
-    return row;
+    const qf = document.createElement('div'); qf.className = 'edit-field';
+    const ql = document.createElement('label'); ql.textContent = '庫存';
+    const qi = document.createElement('input'); qi.type = 'text'; qi.className = 'edit-qty'; qi.value = draft.qty; qi.oninput = () => { draft.qty = qi.value; };
+    qf.appendChild(ql); qf.appendChild(qi); line2.appendChild(qf);
+    const ef = document.createElement('div'); ef.className = 'edit-field';
+    const el = document.createElement('label'); el.textContent = '效期';
+    const ei = document.createElement('input'); ei.type = 'date'; ei.className = 'edit-expiry'; ei.value = draft.expiry; ei.oninput = () => { draft.expiry = ei.value; };
+    ef.appendChild(el); ef.appendChild(ei); line2.appendChild(ef);
+    row.appendChild(line2); return row;
   }
 
-  // ===== 搜尋（編輯模式也可用）=====
+  // ===== 搜尋 =====
   function toggleSearch() {
     closeAddForm(); closeHelp();
     const open = document.getElementById('searchBar').classList.toggle('open');
     document.getElementById('btnSearch').classList.toggle('active', open);
-    if (open) {
-      document.getElementById('searchInput').focus();
-    } else {
-      document.getElementById('searchInput').value = '';
-      if (searchQuery) { searchQuery = ''; renderList(); }
-    }
+    if (open) document.getElementById('searchInput').focus();
+    else { document.getElementById('searchInput').value = ''; if (searchQuery) { searchQuery = ''; renderList(); } }
   }
-  function onSearch() {
-    searchQuery = document.getElementById('searchInput').value;
-    renderList();
-  }
-  function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    searchQuery = '';
-    document.getElementById('searchInput').focus();
-    renderList();
-  }
-  function closeSearch() {
-    document.getElementById('searchBar').classList.remove('open');
-    document.getElementById('btnSearch').classList.remove('active');
-    document.getElementById('searchInput').value = '';
-    if (searchQuery) { searchQuery = ''; renderList(); }
-  }
+  function onSearch() { searchQuery = document.getElementById('searchInput').value; renderList(); }
+  function clearSearch() { document.getElementById('searchInput').value = ''; searchQuery = ''; document.getElementById('searchInput').focus(); renderList(); }
+  function closeSearch() { document.getElementById('searchBar').classList.remove('open'); document.getElementById('btnSearch').classList.remove('active'); document.getElementById('searchInput').value = ''; if (searchQuery) { searchQuery = ''; renderList(); } }
 
   // ===== 使用說明 =====
-  function toggleHelp() {
-    closeAddForm(); closeSearch();
-    const open = document.getElementById('helpCard').classList.toggle('open');
-    document.getElementById('btnHelp').classList.toggle('active', open);
-  }
-  function closeHelp() {
-    document.getElementById('helpCard').classList.remove('open');
-    document.getElementById('btnHelp').classList.remove('active');
-  }
+  function toggleHelp() { closeAddForm(); closeSearch(); const open = document.getElementById('helpCard').classList.toggle('open'); document.getElementById('btnHelp').classList.toggle('active', open); }
+  function closeHelp() { document.getElementById('helpCard').classList.remove('open'); document.getElementById('btnHelp').classList.remove('active'); }
 
   // ===== 新增 =====
   function renderCategoryDropdown() {
-    const sel = document.getElementById('inCategory');
-    sel.innerHTML = '<option value="">請選擇分類…</option>';
-    allCategories.forEach(cat => {
-      const opt = document.createElement('option');
-      opt.value = cat; opt.textContent = cat;
-      sel.appendChild(opt);
-    });
+    const sel = document.getElementById('inCategory'); sel.innerHTML = '<option value="">請選擇分類…</option>';
+    allCategories.forEach(cat => { const o = document.createElement('option'); o.value = cat; o.textContent = cat; sel.appendChild(o); });
   }
-
   function openAddForm() {
-    if (isEditMode) return;
-    closeHelp(); closeSearch();
-    clearForm();
+    if (isEditMode) return; closeHelp(); closeSearch(); clearForm();
     const open = document.getElementById('formCard').classList.toggle('open');
-    setBtnIcon('btnAdd', open ? 'close' : 'add');
-    document.getElementById('btnAdd').classList.toggle('active', open);
+    setBtnIcon('btnAdd', open ? 'close' : 'add'); document.getElementById('btnAdd').classList.toggle('active', open);
   }
-
-  function closeAddForm() {
-    document.getElementById('formCard').classList.remove('open');
-    setBtnIcon('btnAdd', 'add');
-    document.getElementById('btnAdd').classList.remove('active');
-    clearForm();
-  }
-
+  function closeAddForm() { document.getElementById('formCard').classList.remove('open'); setBtnIcon('btnAdd', 'add'); document.getElementById('btnAdd').classList.remove('active'); clearForm(); }
   function clearForm() {
-    document.getElementById('inName').value = '';
-    document.getElementById('inQty').value = '';
-    document.getElementById('inExpiry').value = '';
-    document.getElementById('inCategory').value = '';
-    document.getElementById('inName').classList.remove('error');
-    document.getElementById('nameHint').textContent = '';
-    document.getElementById('btnSubmit').disabled = false;
+    ['inName', 'inQty', 'inExpiry', 'inCategory'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('inName').classList.remove('error'); document.getElementById('nameHint').textContent = ''; document.getElementById('btnSubmit').disabled = false;
   }
-
   function checkNameDuplicate() {
     const name = document.getElementById('inName').value.trim();
-    const dup = name && allItems.some(it => it.name.trim() === name);
+    const dup = name && allItems.some(it => it.name.trim().toLowerCase() === name.toLowerCase());
     document.getElementById('nameHint').textContent = dup ? '名稱已存在' : '';
     document.getElementById('inName').classList.toggle('error', !!dup);
-    document.getElementById('btnSubmit').disabled = !!dup;
-    return dup;
+    document.getElementById('btnSubmit').disabled = !!dup; return dup;
   }
-
   function submitNewItem() {
     if (isBusy) return;
     const name = document.getElementById('inName').value.trim();
     const qty = document.getElementById('inQty').value.trim();
     const expiry = document.getElementById('inExpiry').value;
     const category = document.getElementById('inCategory').value.trim();
-
     if (!name || qty === '' || !category) { alert('請填寫名稱、數量與分類。'); return; }
     if (checkNameDuplicate()) { alert('名稱已存在，請換一個名稱。'); return; }
-
-    isBusy = true;
-    const btn = document.getElementById('btnSubmit');
-    btn.disabled = true; btn.textContent = '新增中…';
+    isBusy = true; const btn = document.getElementById('btnSubmit'); btn.disabled = true; btn.textContent = '新增中…';
     apiPost({ action: 'save', data: { name, qty, category, expiry } })
-      .then(res => {
-        if (res.status === 'success') { closeAddForm(); loadInventory(); }
-        else alert('新增失敗：' + (res.message || '未知錯誤'));
-      })
+      .then(res => { if (!res || res.auth === false) return; if (res.status === 'success') { closeAddForm(); loadInventory(); } else alert('新增失敗：' + (res.message || '未知錯誤')); })
       .catch(err => alert('新增連線失敗：' + err.toString()))
       .finally(() => { isBusy = false; btn.disabled = false; btn.textContent = '確認新增'; });
   }
 
   // ===== 編輯 / 更新 / 取消 =====
   function toggleEditMode() { if (isEditMode) cancelEdit(); else enterEditMode(); }
-
   function enterEditMode() {
-    closeAddForm(); closeHelp();          // 搜尋保留，編輯模式也能用
-    isEditMode = true;
-    deleteSet.clear();
-    editDrafts = {};
+    closeAddForm(); closeHelp(); isEditMode = true; deleteSet.clear(); editDrafts = {};
     allItems.forEach(it => { editDrafts[it.id] = { qty: it.qty, expiry: it.expiry, mustBuy: it.mustBuy }; });
     document.getElementById('btnAdd').classList.add('hidden');
     document.getElementById('btnUpdate').classList.remove('hidden');
     document.getElementById('btnCopy').disabled = true;
-    setBtnIcon('btnEdit', 'close');
-    document.getElementById('btnEdit').classList.add('active');
-    renderList();
+    setBtnIcon('btnEdit', 'close'); document.getElementById('btnEdit').classList.add('active'); renderList();
   }
-
   function exitEditModeUI() {
-    isEditMode = false;
-    editDrafts = {};
-    deleteSet.clear();
+    isEditMode = false; editDrafts = {}; deleteSet.clear();
     document.getElementById('btnAdd').classList.remove('hidden');
     document.getElementById('btnUpdate').classList.add('hidden');
     document.getElementById('btnCopy').disabled = false;
-    setBtnIcon('btnEdit', 'edit');
-    document.getElementById('btnEdit').classList.remove('active');
+    setBtnIcon('btnEdit', 'edit'); document.getElementById('btnEdit').classList.remove('active');
   }
-
   function cancelEdit() { exitEditModeUI(); renderList(); }
-
   function commitEdit() {
     if (isBusy) return;
     const updates = [];
-    allItems.forEach(it => {
-      if (deleteSet.has(it.id)) return;
-      const d = editDrafts[it.id];
-      if (d.qty !== it.qty || d.expiry !== it.expiry || d.mustBuy !== it.mustBuy)
-        updates.push({ id: it.id, qty: d.qty, expiry: d.expiry, mustBuy: d.mustBuy });
-    });
+    allItems.forEach(it => { if (deleteSet.has(it.id)) return; const d = editDrafts[it.id];
+      if (d.qty !== it.qty || d.expiry !== it.expiry || d.mustBuy !== it.mustBuy) updates.push({ id: it.id, qty: d.qty, expiry: d.expiry, mustBuy: d.mustBuy }); });
     const deletes = [...deleteSet];
     if (!updates.length && !deletes.length) { cancelEdit(); return; }
-
     if (deletes.length) {
-      const names = deletes.map(id => {
-        const f = allItems.find(it => String(it.id) === String(id));
-        return '・' + (f ? f.name : id);
-      });
+      const names = deletes.map(id => { const f = allItems.find(it => String(it.id) === String(id)); return '・' + (f ? f.name : id); });
       if (!confirm(`確定要刪除這 ${deletes.length} 筆嗎？此動作無法復原。\n\n${names.join('\n')}`)) return;
     }
-
-    isBusy = true;
-    const btn = document.getElementById('btnUpdate');
-    btn.disabled = true;
-    showStatus('儲存中…');
+    isBusy = true; const btn = document.getElementById('btnUpdate'); btn.disabled = true; showStatus('儲存中…');
     apiPost({ action: 'commit', updates, deletes })
       .then(res => {
+        if (!res || res.auth === false) return;
         if (res.status === 'success') {
-          const failNames = (res.failedItems || []).map(id => {
-            const f = allItems.find(it => String(it.id) === String(id));
-            return f ? f.name : id;
-          });
-          alert(res.failed > 0
-            ? `更新完成：成功 ${res.updated} 筆，失敗 ${res.failed} 筆（${failNames.join('、')}）`
-            : `更新完成：成功 ${res.updated} 筆`);
-          exitEditModeUI();
-          loadInventory();
+          const failNames = (res.failedItems || []).map(id => { const f = allItems.find(it => String(it.id) === String(id)); return f ? f.name : id; });
+          alert(res.failed > 0 ? `更新完成：成功 ${res.updated} 筆，失敗 ${res.failed} 筆（${failNames.join('、')}）` : `更新完成：成功 ${res.updated} 筆`);
+          exitEditModeUI(); loadInventory();
         } else { hideStatus(); alert('更新失敗：' + (res.message || '未知錯誤')); }
       })
       .catch(err => { hideStatus(); alert('更新連線失敗：' + err.toString()); })
       .finally(() => { isBusy = false; btn.disabled = false; });
   }
 
-  // ===== 複製（快過期 ❗️ / 已過期 💩）=====
+  // ===== 複製 =====
   function copyList() {
     if (isEditMode || !allItems.length) return;
     const { buy, groups } = partition(allItems);
-
     let out = todayTitle() + '\n\n';
-
-    if (buy.length) {
-      out += '⚠️ 下次要買：\n';
-      sortItems(buy).forEach(it => { out += it.name + '\n'; });
-      out += '\n';
-    }
-
+    if (buy.length) { out += '⚠️ 下次要買：\n'; sortItems(buy).forEach(it => { out += it.name + '\n'; }); out += '\n'; }
     orderedCategories(groups).forEach(cat => {
       out += '🔹 ' + cat + '：\n';
-      sortItems(groups[cat]).forEach(it => {
-        const cls = expiryClass(it.expiry);
-        const mark = cls === 'expiry-soon' ? ' ❗️' : cls === 'expiry-expired' ? ' 💩' : '';
-        out += it.name + ' ' + it.qty + mark + '\n';
-      });
+      sortItems(groups[cat]).forEach(it => { const c = expiryClass(it.expiry); const mark = c === 'expiry-soon' ? ' ❗️' : c === 'expiry-expired' ? ' 💩' : ''; out += it.name + ' ' + it.qty + mark + '\n'; });
       out += '\n';
     });
-
     out = out.trim();
-    navigator.clipboard.writeText(out)
-      .then(() => alert(`📋 已複製「${todayTitle()}」`))
-      .catch(() => alert('複製失敗，請手動全選複製。'));
+    navigator.clipboard.writeText(out).then(() => alert(`📋 已複製「${todayTitle()}」`)).catch(() => alert('複製失敗，請手動全選複製。'));
   }
 </script>
+<!-- Google 登入元件（放最後，確保上面的函式都已定義）-->
+<script src="https://accounts.google.com/gsi/client" onload="initGsi()" async defer></script>
 </body>
 </html>
