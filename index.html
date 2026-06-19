@@ -54,13 +54,46 @@
     .btn-update { background: var(--bg-dark); color: #fff; }
     .hidden { display: none !important; }
 
-    /* 登入遮罩 */
-    .auth-overlay { position: fixed; inset: 0; background: var(--bg-main); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 24px; }
-    .auth-card { text-align: center; }
-    .auth-card h2 { font-size: 24px; font-weight: 700; margin: 0 0 6px; }
-    .auth-card p { color: var(--text-muted); font-size: 14px; margin: 0 0 22px; }
+    /* ===================== 登入畫面 ===================== */
+    .auth-overlay {
+      position: fixed; inset: 0; z-index: 1000;
+      display: flex; align-items: center; justify-content: center; padding: 24px;
+      background: radial-gradient(125% 90% at 50% 0%, #ffffff 0%, #f7f8fa 55%, #f2f3f5 100%);
+    }
+    .auth-card { display: flex; flex-direction: column; align-items: center; text-align: center; width: 100%; max-width: 360px; }
+
+    .brand-mark {
+      width: 54px; height: 54px; border-radius: 15px; background: #111114;
+      display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+      box-shadow: 0 8px 24px rgba(17,17,20,0.16);
+    }
+    .brand-mark svg { width: 27px; height: 27px; }
+
+    .auth-title { font-size: 30px; font-weight: 700; letter-spacing: -0.022em; color: #0b0b0c; margin: 0; }
+    .auth-tagline { font-size: 15px; color: #5f6570; margin: 11px 0 0; letter-spacing: 0.01em; }
+    .auth-desc { font-size: 12.5px; color: #9aa0a8; margin: 7px 0 0; }
+
+    .auth-actions { margin-top: 30px; min-height: 46px; display: flex; flex-direction: column; align-items: center; gap: 12px; }
     #gbtn { display: inline-flex; justify-content: center; }
-    .auth-msg { color: var(--accent-red); font-size: 13px; margin-top: 16px; min-height: 18px; }
+    .auth-msg { color: var(--accent-red); font-size: 13px; min-height: 18px; }
+
+    .auth-foot { position: absolute; bottom: 22px; left: 0; right: 0; text-align: center; font-size: 11.5px; color: #b7bbc2; letter-spacing: 0.02em; }
+
+    /* 進場動畫初始狀態 */
+    .anim    { opacity: 0; transform: translateY(40px); }
+    .anim-sm { opacity: 0; transform: translateY(10px); }
+    .anim-fade { opacity: 0; }
+
+    .auth-overlay.is-ready .a-mark    { opacity: 1; transform: translateY(0); transition: opacity .55s ease-out 0ms,    transform .75s cubic-bezier(.22,1,.36,1) 0ms; }
+    .auth-overlay.is-ready .a-title   { opacity: 1; transform: translateY(0); transition: opacity .55s ease-out 80ms,   transform .75s cubic-bezier(.22,1,.36,1) 80ms; }
+    .auth-overlay.is-ready .a-tag     { opacity: 1; transform: translateY(0); transition: opacity .5s ease-out 800ms,   transform .6s cubic-bezier(.22,1,.36,1) 800ms; }
+    .auth-overlay.is-ready .a-desc    { opacity: 1; transform: translateY(0); transition: opacity .5s ease-out 920ms,   transform .6s cubic-bezier(.22,1,.36,1) 920ms; }
+    .auth-overlay.is-ready .a-actions { opacity: 1; transform: translateY(0); transition: opacity .5s ease-out 1200ms,  transform .6s cubic-bezier(.22,1,.36,1) 1200ms; }
+    .auth-overlay.is-ready .a-foot    { opacity: 1; transition: opacity .6s ease-out 1500ms; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .anim, .anim-sm, .anim-fade { opacity: 1 !important; transform: none !important; transition: none !important; }
+    }
 
     .btn-logout { margin-top: 4px; background: #f2f2f7; border: none; color: var(--text-dim); padding: 7px 14px; border-radius: 6px; font-size: 13px; cursor: pointer; }
 
@@ -138,13 +171,24 @@
 </head>
 <body>
 
-<!-- 登入畫面 -->
+<!-- 登入畫面（含進場動畫）-->
 <div class="auth-overlay" id="authOverlay">
   <div class="auth-card">
-    <h2>PocketStock</h2>
-    <div id="gbtn"></div>
-    <div class="auth-msg" id="authMsg"></div>
+    <div class="brand-mark a-mark anim" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="3.6" y="6" width="16.8" height="13.4" rx="2.4" stroke="#ffffff" stroke-width="1.8"/>
+        <path d="M3.6 9.6h16.8" stroke="#ffffff" stroke-width="1.8"/>
+        <path d="M8.4 13.4l2.2 2.2 4.4-4.4" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1 class="auth-title a-title anim">PocketStock</h1>
+    <p class="auth-tagline a-tag anim-sm">記得每一件，也記得每一天</p>
+    <div class="auth-actions a-actions anim-sm">
+      <div id="gbtn"></div>
+      <div class="auth-msg" id="authMsg"></div>
+    </div>
   </div>
+  <div class="auth-foot a-foot anim-fade">© 2026 KOTO Studio</div>
 </div>
 
 <div class="container">
@@ -220,7 +264,7 @@
 
 <script>
   /* ===== ① 你要填：從 Google Cloud 取得的 OAuth 用戶端 ID ===== */
-  const GOOGLE_CLIENT_ID = "336652370427-nhis1d8hn5917rae8nv5uqossne05mc3.apps.googleusercontent.com";
+  const GOOGLE_CLIENT_ID = "請填入你的_CLIENT_ID.apps.googleusercontent.com";
 
   const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec";
   const NEAR_EXPIRY_DAYS = 30;
@@ -233,6 +277,12 @@
   let collapsedCats = loadCollapsed();
   let idToken = '', userEmail = '';
 
+  // ===== 進場動畫：載入後觸發一次（之後不重播）=====
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    const o = document.getElementById('authOverlay');
+    if (o) o.classList.add('is-ready');
+  }));
+
   // ===== Google 登入 =====
   function initGsi() {
     if (!window.google || !google.accounts) {
@@ -240,7 +290,9 @@
       return;
     }
     google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: onGoogleSignIn, auto_select: true });
-    google.accounts.id.renderButton(document.getElementById('gbtn'), { theme: 'filled_blue', size: 'large', shape: 'pill', text: 'signin_with' });
+    google.accounts.id.renderButton(document.getElementById('gbtn'), {
+      theme: 'filled_black', size: 'large', shape: 'pill', text: 'continue_with', width: 280
+    });
     google.accounts.id.prompt();
   }
 
@@ -302,8 +354,7 @@
     return fetch(GAS_WEB_APP_URL, { method: 'POST', body: JSON.stringify({ ...payload, idToken }), signal: controller.signal })
       .finally(() => clearTimeout(timer))
       .then(r => r.json())
-      .then(res => { if (res && res.auth === false) { showAuth(res.message || '請重新登入'); }
-        return res; });
+      .then(res => { if (res && res.auth === false) { showAuth(res.message || '請重新登入'); } return res; });
   }
 
   // ===== 載入 =====
