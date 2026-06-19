@@ -133,6 +133,17 @@
       -webkit-appearance: none;
       appearance: none;
       display: block;
+      
+      /* 強制文字置中 */
+      text-align: center;
+    }
+    
+    /* 針對 iOS 內部顯示容器的居中修正 */
+    input[type="date"]#inExpiry::-webkit-datetime-edit {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
     }
     .help-body p { font-size: 13px; color: var(--text-dim); margin: 9px 0; line-height: 1.55; }
     .help-body b { color: var(--text-main); }
