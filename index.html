@@ -158,6 +158,10 @@
     .help-body p { font-size: 13px; color: var(--text-dim); margin: 9px 0; line-height: 1.55; }
     .help-body b { color: var(--text-main); }
     .help-body hr { border: none; border-top: 1px solid var(--border-thin); margin: 12px 0; }
+    .help-body .material-symbols-rounded {
+      vertical-align: middle; /* 强制图标与文字基线对齐 */
+      margin-right: 4px;      /* 图标和文字之间稍微拉开一点距离 */
+    }
     .legend-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
 
     /* 清單 */
@@ -246,10 +250,10 @@
     <div class="form-card" id="helpCard">
       <div class="card-title">使用說明</div>
       <div class="help-body">
-        <p><b>＋ 新增</b>　新增一筆品項。</p>
-        <p><b>✎ 編輯</b>　可改庫存、效期，勾「必買」，或刪除品項。改完按 <b>✓</b> 儲存、<b>✕</b> 取消。</p>
-        <p><b>⧉ 複製</b>　複製整份盤點清單，可貼到 LINE。</p>
-        <p><b>🔍 搜尋</b>　輸入品名快速找到項目。</p>
+        <p><span class="material-symbols-rounded"> <b>新增</b>　新增一筆品項。</p>
+        <p><span class="material-symbols-rounded">edit</span> <b>編輯</b>　可改庫存、效期，勾「必買」，或刪除品項。改完按 <b>✓</b> 儲存、<b>✕</b> 取消。</p>
+        <p><span class="material-symbols-rounded">content_copy</span> <b>複製</b>　複製整份盤點清單，可貼到 LINE。</p>
+        <p><span class="material-symbols-rounded">search</span> <b>搜尋</b>　輸入品名快速找到項目。</p>
         <hr>
         <p><b>關於「必買」</b>　勾選後，當庫存變成 0，會自動移到最上方「⚠️ 下次要買」區。</p>
         <p><b>分類收合</b>　點分類標題可收合／展開，狀態會記住。</p>
