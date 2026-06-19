@@ -134,16 +134,26 @@
       appearance: none;
       display: block;
       
-      /* 強制文字置中 */
+      /* 強制文字居中 */
       text-align: center;
+      
+      /* 關鍵：設定 line-height 等於 height，在大多數瀏覽器中能強制垂直置中 */
+      line-height: 42px; 
+      height: 42px;
     }
     
-    /* 針對 iOS 內部顯示容器的居中修正 */
+    /* 2. 針對 iOS 內部的編輯區塊進行垂直置中處理 */
     input[type="date"]#inExpiry::-webkit-datetime-edit {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 100%;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      padding: 0 !important;
+    }
+    
+    /* 3. 隱藏掉 iOS 預設會在日期文字右側產生的清除按鈕，避免它擠壓文字導致不置中 */
+    input[type="date"]#inExpiry::-webkit-clear-button,
+    input[type="date"]#inExpiry::-webkit-inner-spin-button {
+      display: none;
     }
     .help-body p { font-size: 13px; color: var(--text-dim); margin: 9px 0; line-height: 1.55; }
     .help-body b { color: var(--text-main); }
