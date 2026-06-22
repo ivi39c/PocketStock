@@ -1,755 +1,315 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>PocketStock</title>
-  <meta name="description" content="快速盤點工具，隨手更新庫存、設定有效期限。">
-  <meta property="og:title" content="PocketStock">
-  <meta property="og:description" content="快速盤點工具，隨手更新庫存、設定有效期限。">
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://ivi39c.github.io/PocketStock/">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@24,500,0,0&display=block" rel="stylesheet">
-  <style>
-    :root {
-      --bg-main: #ffffff;
-      --text-main: #000000;
-      --text-muted: #8e8e93;
-      --text-dim: #636366;
-      --border-thin: #e5e5ea;
-      --accent-red: #ff3b30;     /* 即將到期 = 紅 */
-      --accent-purple: #af52de;  /* 已過期 = 紫 */
-      --bg-input: #f2f2f7;
-      --bg-dark: #1c1c1e;
-    }
-
-    /* touch-action: manipulation → 關閉「快速點兩下放大」 */
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg-main);
-      color: var(--text-main);
-      margin: 0; padding: 0;
-    }
-
-    /* 整頁捲動（讓 iOS 點頂部可回到最上面）；標題吸頂 */
-    .container { width: 100%; max-width: 420px; margin: 0 auto; }
-    .sticky-top-panel { position: sticky; top: 0; background: var(--bg-main); z-index: 100; padding: 16px 16px 12px 16px; border-bottom: 1px solid #f2f2f7; }
-
-    header { display: flex; justify-content: space-between; align-items: center; }
-    .title-wrap { display: flex; align-items: center; gap: 5px; }
-    header h1 { font-size: 19px; font-weight: 700; margin: 0; letter-spacing: -0.5px; }
-
-    /* 標題後面的小說明圖示 */
-    .btn-help-inline { background: transparent; border: none; padding: 0; margin: 0; color: var(--text-muted); cursor: pointer; display: inline-flex; align-items: center; }
-    .btn-help-inline .material-symbols-rounded { font-size: 17px; }
-    .btn-help-inline.active { color: var(--accent-red); }
-
-    .header-ops { display: flex; gap: 4px; align-items: center; }
-
-    .material-symbols-rounded { font-size: 20px; line-height: 1; }
-    .btn-base { height: 34px; width: 38px; padding: 0; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
-    .btn-base[disabled] { opacity: 0.35; cursor: default; }
-    .btn-ghost { background: transparent; color: var(--text-dim); }
-    .btn-ghost.active { background: transparent; color: var(--accent-red); }
-    .btn-add { background: var(--bg-dark); color: #fff; }
-    .btn-add.active { background: var(--accent-red); }
-    .btn-edit { background: #f2f2f7; color: var(--text-main); }
-    .btn-edit.active { background: var(--accent-red); color: #fff; }
-    .btn-update { background: var(--bg-dark); color: #fff; }
-    .hidden { display: none !important; }
-
-    /* ===== 搜尋列 ===== */
-    .search-bar { display: none; align-items: center; gap: 8px; margin-top: 12px; background: var(--bg-input); border: 1px solid var(--border-thin); border-radius: 8px; padding: 0 10px; height: 38px; }
-    .search-bar.open { display: flex; }
-    .search-bar .search-ico { font-size: 18px; color: var(--text-muted); }
-    .search-input { flex: 1; border: none; background: transparent; font-size: 14px; height: 100%; outline: none; color: var(--text-main); }
-    .search-clear { background: none; border: none; color: var(--text-muted); font-size: 14px; cursor: pointer; padding: 4px 2px; }
-
-    /* ===== 卡片 ===== */
-    .form-card { background: #fbfbfa; padding: 16px; border-radius: 8px; border: 1px solid var(--border-thin); margin-top: 12px; display: none; }
-    .form-card.open { display: block; }
-    .card-title { font-size: 12px; font-weight: 700; margin-bottom: 14px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-    .form-group { margin-bottom: 12px; }
-    .form-group label { display: block; font-size: 12px; margin-bottom: 6px; color: var(--text-muted); font-weight: 500; }
-    .form-control { width: 100%; height: 38px; padding: 0 10px; background: var(--bg-input); border: 1px solid var(--border-thin); border-radius: 6px; font-size: 14px; color: var(--text-main); }
-    .form-control:focus { outline: none; border-color: #aeaea3; }
-    .form-control.error { border-color: var(--accent-red); }
-    select.form-control { -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path fill='%238e8e93' d='M0 0l5 5 5-5z'/></svg>"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 30px; }
-    .field-hint { font-size: 11px; color: var(--accent-red); margin-top: 5px; min-height: 14px; }
-    .btn-submit { width: 100%; height: 40px; background: var(--bg-dark); color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; margin-top: 6px; }
-    .btn-submit[disabled] { opacity: 0.4; cursor: default; }
-
-    .help-body p { font-size: 13px; color: var(--text-dim); margin: 9px 0; line-height: 1.55; }
-    .help-body b { color: var(--text-main); }
-    .help-body hr { border: none; border-top: 1px solid var(--border-thin); margin: 12px 0; }
-    .legend-dot { display: inline-block; width: 11px; height: 11px; border-radius: 50%; margin-right: 7px; vertical-align: middle; }
-
-    /* ===== 清單 ===== */
-    .scroll-content { padding: 0 16px 40px 16px; }
-    .category-block { margin-bottom: 24px; }
-    .category-header { padding: 12px 4px 8px 4px; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 1px solid var(--border-thin); display: flex; justify-content: space-between; align-items: center; }
-    .category-header.buy { color: var(--accent-red); font-weight: 700; }
-    .category-header.collapsible { cursor: pointer; }
-    .cat-count { color: #c7c7cc; font-weight: 400; }
-    .chev { font-size: 20px; color: var(--text-muted); }
-
-    .item-row { padding: 12px 4px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f7; min-height: 54px; }
-    .item-info { display: flex; flex-direction: column; gap: 2px; flex-grow: 1; overflow: hidden; padding-right: 8px; }
-    .item-name { font-size: 15px; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .item-name.expiry-soon { color: var(--accent-red); }
-    .item-name.expiry-expired { color: var(--accent-purple); }
-    .item-sub { font-size: 11px; color: var(--text-muted); }
-    .item-sub.expiry-soon { color: var(--accent-red); }
-    .item-sub.expiry-expired { color: var(--accent-purple); }
-
-    .qty-display { font-size: 13px; font-weight: 600; color: var(--text-dim); flex-shrink: 0; }
-
-    /* ===== 編輯模式 ===== */
-    .item-row.editing { flex-direction: column; align-items: stretch; gap: 10px; }
-    .item-row.editing.to-delete { opacity: 0.4; }
-    .item-row.editing.to-delete .item-name { text-decoration: line-through; }
-    .edit-line1 { display: flex; align-items: center; gap: 10px; }
-    .edit-line1 .item-name { flex-grow: 1; }
-    .edit-line2 { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
-
-    .buy-toggle { display: flex; align-items: center; gap: 6px; cursor: pointer; }
-    .buy-label { font-size: 13px; color: var(--text-dim); }
-    .checkbox { width: 22px; height: 22px; border-radius: 5px; border: 1px solid #d1d1d6; position: relative; background: transparent; flex-shrink: 0; }
-    .checkbox.checked { background: var(--bg-dark); border-color: var(--bg-dark); }
-    .checkbox.checked::after { content: ''; position: absolute; width: 4px; height: 8px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg); top: 4px; left: 8px; }
-
-    .edit-field { display: flex; align-items: center; gap: 6px; }
-    .edit-field label { font-size: 11px; color: var(--text-muted); }
-    .edit-qty { width: 72px; height: 32px; background: #f4f4f6; border: 1px solid var(--border-thin); border-radius: 5px; text-align: center; font-size: 13px; padding: 0; }
-    .edit-expiry { width: 150px; height: 32px; background: #f4f4f6; border: 1px solid var(--border-thin); border-radius: 5px; font-size: 12px; padding: 0 6px; }
-    .edit-qty:focus, .edit-expiry:focus { outline: none; border-color: var(--text-muted); background: #fff; }
-
-    .btn-delete { margin-left: auto; background: #ffebeb; border: none; color: var(--accent-red); padding: 0 10px; height: 30px; border-radius: 5px; cursor: pointer; font-size: 12px; font-weight: 600; flex-shrink: 0; }
-    .item-row.editing.to-delete .btn-delete { background: #eef7ee; color: #34a853; }
-
-    .status-text { text-align: center; color: var(--text-muted); font-size: 13px; padding: 30px; }
-    .status-text .detail { font-size: 11px; color: #aeaea3; display: block; margin-top: 6px; word-break: break-all; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KOTO Studio — 把重要的事，說清楚</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=IBM+Plex+Mono:wght@400;600&family=Noto+Sans+TC:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div class="container">
-  <div class="sticky-top-panel">
-    <header>
-      <div class="title-wrap">
-        <h1>PocketStock</h1>
-        <button class="btn-help-inline" id="btnHelp" onclick="toggleHelp()" aria-label="說明"><span class="material-symbols-rounded">help</span></button>
-      </div>
-      <div class="header-ops">
-        <button class="btn-base btn-ghost"  id="btnSearch" onclick="toggleSearch()"   aria-label="搜尋"><span class="material-symbols-rounded">search</span></button>
-        <button class="btn-base btn-ghost"  id="btnCopy"   onclick="copyList()"       aria-label="複製"><span class="material-symbols-rounded">content_copy</span></button>
-        <button class="btn-base btn-edit"   id="btnEdit"   onclick="toggleEditMode()" aria-label="編輯"><span class="material-symbols-rounded">edit</span></button>
-        <button class="btn-base btn-update hidden" id="btnUpdate" onclick="commitEdit()" aria-label="更新"><span class="material-symbols-rounded">check</span></button>
-        <button class="btn-base btn-add"    id="btnAdd"    onclick="openAddForm()"    aria-label="新增"><span class="material-symbols-rounded">add</span></button>
-      </div>
-    </header>
-
-    <!-- 搜尋列 -->
-    <div class="search-bar" id="searchBar">
-      <span class="material-symbols-rounded search-ico">search</span>
-      <input type="text" id="searchInput" class="search-input" placeholder="搜尋品名…" oninput="onSearch()">
-      <button class="search-clear" onclick="clearSearch()" aria-label="清除">✕</button>
-    </div>
-
-    <!-- 使用說明 -->
-    <div class="form-card" id="helpCard">
-      <div class="card-title">使用說明</div>
-      <div class="help-body">
-        <p><b>＋ 新增</b>　新增一筆品項。</p>
-        <p><b>✎ 編輯</b>　進入編輯：可改庫存、效期，勾「必買」，或刪除品項。改完按 <b>✓（更新）</b>儲存，按 <b>✕</b> 取消。</p>
-        <p><b>⧉ 複製</b>　把整份盤點清單複製起來，可貼到 LINE。</p>
-        <p><b>🔍 搜尋</b>　輸入品名快速找到項目。</p>
-        <hr>
-        <p><b>關於「必買」</b>　勾選後，當這個品項庫存變成 0，會自動移到最上方「⚠️ 下次要買」區，提醒你補貨。</p>
-        <p><b>分類收合</b>　點分類標題可收合／展開，狀態會自動記住。</p>
-        <hr>
-        <p><b>顏色說明</b></p>
-        <p><span class="legend-dot" style="background:#ff3b30"></span>紅字：30 天內即將到期</p>
-        <p><span class="legend-dot" style="background:#af52de"></span>紫字：已經過期</p>
-      </div>
-    </div>
-
-    <!-- 新增表單 -->
-    <div class="form-card" id="formCard">
-      <div class="card-title">新增品項</div>
-      <div class="form-group">
-        <label>項目名稱</label>
-        <input type="text" id="inName" class="form-control" placeholder="例：雞蛋" oninput="checkNameDuplicate()">
-        <div class="field-hint" id="nameHint"></div>
-      </div>
-      <div class="form-group">
-        <label>數量單位</label>
-        <input type="text" id="inQty" class="form-control" placeholder="例：0、2顆">
-      </div>
-      <div class="form-group">
-        <label>有效期限（選填）</label>
-        <input type="date" id="inExpiry" class="form-control">
-      </div>
-      <div class="form-group">
-        <label>分類</label>
-        <select id="inCategory" class="form-control"><option value="">載入中…</option></select>
-      </div>
-      <button type="button" id="btnSubmit" class="btn-submit" onclick="submitNewItem()">確認新增</button>
-    </div>
+<header id="hdr">
+  <div class="wrap">
+    <button class="logo" data-go="home">KOTO <small>Studio</small></button>
+    <nav class="main">
+      <button data-go="quickscan">快篩</button>
+      <button data-go="about">關於</button>
+    </nav>
+    <button class="btn btn-primary nav-cta" data-go="quickscan">預約快篩</button>
+    <button class="burger" id="burger" aria-label="選單" aria-expanded="false">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
   </div>
-
-  <div class="scroll-content">
-    <div id="statusInfo" class="status-text">載入中…</div>
-    <div id="list"></div>
+  <div class="menu-panel" id="menu">
+    <button class="nav" data-go="quickscan">快篩</button>
+    <button class="nav" data-go="about">關於</button>
+    <button class="btn btn-primary" data-go="quickscan">預約快篩</button>
   </div>
-</div>
-
-<script>
-  /* ========================================================================
-     PocketStock 前端　v1.4
-     ======================================================================== */
-
-  const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyNjYRw4t6aWZmdxuQzT2HNjwgF-GUvxtsYfi49GM_2cM31fEXOoDMn8ZQ4l4ExsiZS2A/exec";
-  const NEAR_EXPIRY_DAYS = 30;
-  const FETCH_TIMEOUT_MS = 10000;
-  const COLLAPSE_KEY = 'pocketstock_collapsed';
-
-  let allItems = [];
-  let allCategories = [];
-  let isEditMode = false;
-  let editDrafts = {};
-  let deleteSet = new Set();
-  let isBusy = false;
-  let searchQuery = '';
-  let collapsedCats = loadCollapsed();
-
-  // ===== 純函式工具 =====
-  function normalize(raw) {
-    return {
-      id:       raw['ID'] ?? '',
-      name:     raw['名稱'] ?? '未命名',
-      qty:      String(raw['庫存量'] ?? ''),
-      category: raw['分類'] || '未分類',
-      expiry:   toInputDate(raw['有效日期']),
-      mustBuy:  raw['必買'] === true || String(raw['必買']).toUpperCase() === 'TRUE',
-    };
-  }
-
-  function isZeroQty(qtyStr) {
-    const m = String(qtyStr ?? '').trim().match(/^(\d+(?:\.\d+)?)/);
-    return m ? parseFloat(m[1]) === 0 : false;
-  }
-
-  function daysUntilExpiry(dateStr) {
-    if (!dateStr) return null;
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return null;
-    const today = new Date(); today.setHours(0, 0, 0, 0);
-    d.setHours(0, 0, 0, 0);
-    return Math.round((d - today) / 86400000);
-  }
-
-  function expiryClass(dateStr) {
-    const days = daysUntilExpiry(dateStr);
-    if (days === null) return '';
-    if (days < 0) return 'expiry-expired';
-    if (days <= NEAR_EXPIRY_DAYS) return 'expiry-soon';
-    return '';
-  }
-
-  function toInputDate(dateStr) {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    if (isNaN(d.getTime())) return '';
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${y}-${m}-${day}`;
-  }
-
-  function formatDateDisplay(dateStr) {
-    const iso = toInputDate(dateStr);
-    return iso ? iso.replace(/-/g, '/') : '';
-  }
-
-  function expiryTimestamp(dateStr) {
-    if (!dateStr) return Infinity;
-    const d = new Date(dateStr);
-    return isNaN(d.getTime()) ? Infinity : d.getTime();
-  }
-
-  function todayTitle() {
-    const n = new Date();
-    return `${n.getMonth() + 1}/${n.getDate()} 盤點表`;
-  }
-
-  function setBtnIcon(id, icon) {
-    document.getElementById(id).querySelector('.material-symbols-rounded').textContent = icon;
-  }
-
-  function loadCollapsed() {
-    try { const s = localStorage.getItem(COLLAPSE_KEY); return new Set(s ? JSON.parse(s) : []); }
-    catch (e) { return new Set(); }
-  }
-  function saveCollapsed() {
-    try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify([...collapsedCats])); } catch (e) {}
-  }
-
-  // ===== 與後端溝通 =====
-  function apiFetch(options) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
-    return fetch(GAS_WEB_APP_URL, { ...options, signal: controller.signal })
-      .finally(() => clearTimeout(timer));
-  }
-  function apiPost(payload) {
-    return apiFetch({ method: 'POST', body: JSON.stringify(payload) }).then(r => r.json());
-  }
-
-  // ===== 載入 =====
-  document.addEventListener('DOMContentLoaded', loadInventory);
-
-  function loadInventory() {
-    showStatus('載入中…');
-    document.getElementById('list').innerHTML = '';
-    apiFetch({ method: 'GET' })
-      .then(res => { if (!res.ok) throw new Error('HTTP ' + res.status); return res.json(); })
-      .then(res => {
-        if (res.status === 'success') {
-          allItems = (res.data || []).map(normalize);
-          allCategories = res.categories || [];
-          renderCategoryDropdown();
-          hideStatus();
-          renderList();
-        } else {
-          showStatus('載入資料失敗', res.message || '後端未回傳具體原因');
-        }
-      })
-      .catch(err => showStatus('連線失敗（請下拉或重新整理頁面再試）', err.toString()));
-  }
-
-  // ===== 狀態/錯誤（textContent，防 XSS）=====
-  function showStatus(main, detail) {
-    const el = document.getElementById('statusInfo');
-    el.style.display = 'block';
-    el.textContent = main;
-    if (detail) {
-      const span = document.createElement('span');
-      span.className = 'detail';
-      span.textContent = '原因：' + detail;
-      el.appendChild(span);
-    }
-    document.getElementById('list').innerHTML = '';
-  }
-  function hideStatus() { document.getElementById('statusInfo').style.display = 'none'; }
-
-  // ===== 渲染 =====
-  function filteredItems() {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return allItems;
-    return allItems.filter(it => it.name.toLowerCase().includes(q));
-  }
-
-  function partition(items) {
-    const buy = [];
-    const groups = {};
-    items.forEach(it => {
-      if (isZeroQty(it.qty) && it.mustBuy) buy.push(it);
-      else (groups[it.category] = groups[it.category] || []).push(it);
-    });
-    return { buy, groups };
-  }
-
-  function orderedCategories(groups) {
-    const ordered = [];
-    allCategories.forEach(c => { if (groups[c]) ordered.push(c); });
-    Object.keys(groups).forEach(c => { if (!ordered.includes(c)) ordered.push(c); });
-    return ordered;
-  }
-
-  function sortItems(arr) {
-    return arr.slice().sort((a, b) => {
-      const ta = expiryTimestamp(a.expiry), tb = expiryTimestamp(b.expiry);
-      if (ta !== tb) return ta - tb;
-      return a.name.localeCompare(b.name, 'zh-Hant-u-co-stroke');
-    });
-  }
-
-  function renderList() {
-    const list = document.getElementById('list');
-    list.innerHTML = '';
-
-    const items = filteredItems();
-    if (!items.length) {
-      list.innerHTML = searchQuery.trim()
-        ? '<div class="status-text">找不到符合的項目。</div>'
-        : '<div class="status-text">清單目前是空的。</div>';
-      return;
-    }
-
-    const searching = searchQuery.trim() !== '';
-    const { buy, groups } = partition(items);
-
-    if (buy.length) {
-      const block = makeBlock('⚠️ 下次要買', { isBuy: true });
-      sortItems(buy).forEach(it => block.body.appendChild(makeRow(it, true)));
-      list.appendChild(block.el);
-    }
-
-    const canCollapse = !searching && !isEditMode;
-    orderedCategories(groups).forEach(cat => {
-      const arr = sortItems(groups[cat]);
-      const collapsed = canCollapse && collapsedCats.has(cat);
-      const block = makeBlock(cat, { count: arr.length, collapsible: canCollapse, cat, collapsed });
-      if (!collapsed) arr.forEach(it => block.body.appendChild(makeRow(it, false)));
-      list.appendChild(block.el);
-    });
-  }
-
-  function makeBlock(title, opts = {}) {
-    const block = document.createElement('div');
-    block.className = 'category-block';
-
-    const header = document.createElement('div');
-    header.className = 'category-header' + (opts.isBuy ? ' buy' : '') + (opts.collapsible ? ' collapsible' : '');
-
-    const titleSpan = document.createElement('span');
-    titleSpan.textContent = title;
-    if (opts.count != null) {
-      const c = document.createElement('span');
-      c.className = 'cat-count';
-      c.textContent = `（${opts.count}）`;
-      titleSpan.appendChild(c);
-    }
-    header.appendChild(titleSpan);
-
-    if (opts.collapsible) {
-      const chev = document.createElement('span');
-      chev.className = 'material-symbols-rounded chev';
-      chev.textContent = opts.collapsed ? 'chevron_right' : 'expand_more';
-      header.appendChild(chev);
-      header.onclick = () => {
-        if (collapsedCats.has(opts.cat)) collapsedCats.delete(opts.cat);
-        else collapsedCats.add(opts.cat);
-        saveCollapsed();
-        renderList();
-      };
-    }
-
-    block.appendChild(header);
-    const body = document.createElement('div');
-    block.appendChild(body);
-    return { el: block, body };
-  }
-
-  function makeRow(item, inBuy) {
-    return isEditMode ? makeEditRow(item, inBuy) : makeDisplayRow(item, inBuy);
-  }
-
-  function makeDisplayRow(item, inBuy) {
-    const row = document.createElement('div');
-    row.className = 'item-row';
-    const info = document.createElement('div');
-    info.className = 'item-info';
-    const name = document.createElement('div');
-    name.textContent = item.name;
-
-    if (inBuy) {
-      name.className = 'item-name';
-      info.appendChild(name);
-      row.appendChild(info);
-      return row;
-    }
-
-    name.className = 'item-name ' + expiryClass(item.expiry);
-    info.appendChild(name);
-    if (item.expiry) {
-      const sub = document.createElement('div');
-      sub.className = 'item-sub ' + expiryClass(item.expiry);
-      sub.textContent = '效期：' + formatDateDisplay(item.expiry);
-      info.appendChild(sub);
-    }
-    row.appendChild(info);
-
-    const qty = document.createElement('span');
-    qty.className = 'qty-display';
-    qty.textContent = item.qty;
-    row.appendChild(qty);
-    return row;
-  }
-
-  function makeEditRow(item, inBuy) {
-    const draft = editDrafts[item.id];
-    const row = document.createElement('div');
-    row.className = 'item-row editing';
-    if (deleteSet.has(item.id)) row.classList.add('to-delete');
-
-    const line1 = document.createElement('div');
-    line1.className = 'edit-line1';
-    const name = document.createElement('div');
-    name.className = 'item-name ' + expiryClass(item.expiry);
-    name.textContent = item.name;
-    const del = document.createElement('button');
-    del.className = 'btn-delete';
-    del.textContent = deleteSet.has(item.id) ? '復原' : '刪除';
-    del.onclick = () => {
-      if (deleteSet.has(item.id)) deleteSet.delete(item.id); else deleteSet.add(item.id);
-      row.classList.toggle('to-delete', deleteSet.has(item.id));
-      del.textContent = deleteSet.has(item.id) ? '復原' : '刪除';
-    };
-    line1.appendChild(name);
-    line1.appendChild(del);
-    row.appendChild(line1);
-
-    const line2 = document.createElement('div');
-    line2.className = 'edit-line2';
-
-    const buyToggle = document.createElement('div');
-    buyToggle.className = 'buy-toggle';
-    const cb = document.createElement('div');
-    cb.className = 'checkbox' + (draft.mustBuy ? ' checked' : '');
-    const buyLabel = document.createElement('span');
-    buyLabel.className = 'buy-label';
-    buyLabel.textContent = '必買';
-    buyToggle.appendChild(cb);
-    buyToggle.appendChild(buyLabel);
-    buyToggle.onclick = () => { draft.mustBuy = !draft.mustBuy; cb.classList.toggle('checked', draft.mustBuy); };
-    line2.appendChild(buyToggle);
-
-    const qtyField = document.createElement('div');
-    qtyField.className = 'edit-field';
-    const qtyLabel = document.createElement('label'); qtyLabel.textContent = '庫存';
-    const qtyInput = document.createElement('input');
-    qtyInput.type = 'text'; qtyInput.className = 'edit-qty'; qtyInput.value = draft.qty;
-    qtyInput.oninput = () => { draft.qty = qtyInput.value; };
-    qtyField.appendChild(qtyLabel); qtyField.appendChild(qtyInput);
-    line2.appendChild(qtyField);
-
-    const expField = document.createElement('div');
-    expField.className = 'edit-field';
-    const expLabel = document.createElement('label'); expLabel.textContent = '效期';
-    const expInput = document.createElement('input');
-    expInput.type = 'date'; expInput.className = 'edit-expiry'; expInput.value = draft.expiry;
-    expInput.oninput = () => { draft.expiry = expInput.value; };
-    expField.appendChild(expLabel); expField.appendChild(expInput);
-    line2.appendChild(expField);
-
-    row.appendChild(line2);
-    return row;
-  }
-
-  // ===== 搜尋（編輯模式也可用）=====
-  function toggleSearch() {
-    closeAddForm(); closeHelp();
-    const open = document.getElementById('searchBar').classList.toggle('open');
-    document.getElementById('btnSearch').classList.toggle('active', open);
-    if (open) {
-      document.getElementById('searchInput').focus();
-    } else {
-      document.getElementById('searchInput').value = '';
-      if (searchQuery) { searchQuery = ''; renderList(); }
-    }
-  }
-  function onSearch() {
-    searchQuery = document.getElementById('searchInput').value;
-    renderList();
-  }
-  function clearSearch() {
-    document.getElementById('searchInput').value = '';
-    searchQuery = '';
-    document.getElementById('searchInput').focus();
-    renderList();
-  }
-  function closeSearch() {
-    document.getElementById('searchBar').classList.remove('open');
-    document.getElementById('btnSearch').classList.remove('active');
-    document.getElementById('searchInput').value = '';
-    if (searchQuery) { searchQuery = ''; renderList(); }
-  }
-
-  // ===== 使用說明 =====
-  function toggleHelp() {
-    closeAddForm(); closeSearch();
-    const open = document.getElementById('helpCard').classList.toggle('open');
-    document.getElementById('btnHelp').classList.toggle('active', open);
-  }
-  function closeHelp() {
-    document.getElementById('helpCard').classList.remove('open');
-    document.getElementById('btnHelp').classList.remove('active');
-  }
-
-  // ===== 新增 =====
-  function renderCategoryDropdown() {
-    const sel = document.getElementById('inCategory');
-    sel.innerHTML = '<option value="">請選擇分類…</option>';
-    allCategories.forEach(cat => {
-      const opt = document.createElement('option');
-      opt.value = cat; opt.textContent = cat;
-      sel.appendChild(opt);
-    });
-  }
-
-  function openAddForm() {
-    if (isEditMode) return;
-    closeHelp(); closeSearch();
-    clearForm();
-    const open = document.getElementById('formCard').classList.toggle('open');
-    setBtnIcon('btnAdd', open ? 'close' : 'add');
-    document.getElementById('btnAdd').classList.toggle('active', open);
-  }
-
-  function closeAddForm() {
-    document.getElementById('formCard').classList.remove('open');
-    setBtnIcon('btnAdd', 'add');
-    document.getElementById('btnAdd').classList.remove('active');
-    clearForm();
-  }
-
-  function clearForm() {
-    document.getElementById('inName').value = '';
-    document.getElementById('inQty').value = '';
-    document.getElementById('inExpiry').value = '';
-    document.getElementById('inCategory').value = '';
-    document.getElementById('inName').classList.remove('error');
-    document.getElementById('nameHint').textContent = '';
-    document.getElementById('btnSubmit').disabled = false;
-  }
-
-  function checkNameDuplicate() {
-    const name = document.getElementById('inName').value.trim();
-    const dup = name && allItems.some(it => it.name.trim() === name);
-    document.getElementById('nameHint').textContent = dup ? '名稱已存在' : '';
-    document.getElementById('inName').classList.toggle('error', !!dup);
-    document.getElementById('btnSubmit').disabled = !!dup;
-    return dup;
-  }
-
-  function submitNewItem() {
-    if (isBusy) return;
-    const name = document.getElementById('inName').value.trim();
-    const qty = document.getElementById('inQty').value.trim();
-    const expiry = document.getElementById('inExpiry').value;
-    const category = document.getElementById('inCategory').value.trim();
-
-    if (!name || qty === '' || !category) { alert('請填寫名稱、數量與分類。'); return; }
-    if (checkNameDuplicate()) { alert('名稱已存在，請換一個名稱。'); return; }
-
-    isBusy = true;
-    const btn = document.getElementById('btnSubmit');
-    btn.disabled = true; btn.textContent = '新增中…';
-    apiPost({ action: 'save', data: { name, qty, category, expiry } })
-      .then(res => {
-        if (res.status === 'success') { closeAddForm(); loadInventory(); }
-        else alert('新增失敗：' + (res.message || '未知錯誤'));
-      })
-      .catch(err => alert('新增連線失敗：' + err.toString()))
-      .finally(() => { isBusy = false; btn.disabled = false; btn.textContent = '確認新增'; });
-  }
-
-  // ===== 編輯 / 更新 / 取消 =====
-  function toggleEditMode() { if (isEditMode) cancelEdit(); else enterEditMode(); }
-
-  function enterEditMode() {
-    closeAddForm(); closeHelp();          // 搜尋保留，編輯模式也能用
-    isEditMode = true;
-    deleteSet.clear();
-    editDrafts = {};
-    allItems.forEach(it => { editDrafts[it.id] = { qty: it.qty, expiry: it.expiry, mustBuy: it.mustBuy }; });
-    document.getElementById('btnAdd').classList.add('hidden');
-    document.getElementById('btnUpdate').classList.remove('hidden');
-    document.getElementById('btnCopy').disabled = true;
-    setBtnIcon('btnEdit', 'close');
-    document.getElementById('btnEdit').classList.add('active');
-    renderList();
-  }
-
-  function exitEditModeUI() {
-    isEditMode = false;
-    editDrafts = {};
-    deleteSet.clear();
-    document.getElementById('btnAdd').classList.remove('hidden');
-    document.getElementById('btnUpdate').classList.add('hidden');
-    document.getElementById('btnCopy').disabled = false;
-    setBtnIcon('btnEdit', 'edit');
-    document.getElementById('btnEdit').classList.remove('active');
-  }
-
-  function cancelEdit() { exitEditModeUI(); renderList(); }
-
-  function commitEdit() {
-    if (isBusy) return;
-    const updates = [];
-    allItems.forEach(it => {
-      if (deleteSet.has(it.id)) return;
-      const d = editDrafts[it.id];
-      if (d.qty !== it.qty || d.expiry !== it.expiry || d.mustBuy !== it.mustBuy)
-        updates.push({ id: it.id, qty: d.qty, expiry: d.expiry, mustBuy: d.mustBuy });
-    });
-    const deletes = [...deleteSet];
-    if (!updates.length && !deletes.length) { cancelEdit(); return; }
-
-    if (deletes.length) {
-      const names = deletes.map(id => {
-        const f = allItems.find(it => String(it.id) === String(id));
-        return '・' + (f ? f.name : id);
-      });
-      if (!confirm(`確定要刪除這 ${deletes.length} 筆嗎？此動作無法復原。\n\n${names.join('\n')}`)) return;
-    }
-
-    isBusy = true;
-    const btn = document.getElementById('btnUpdate');
-    btn.disabled = true;
-    showStatus('儲存中…');
-    apiPost({ action: 'commit', updates, deletes })
-      .then(res => {
-        if (res.status === 'success') {
-          const failNames = (res.failedItems || []).map(id => {
-            const f = allItems.find(it => String(it.id) === String(id));
-            return f ? f.name : id;
-          });
-          alert(res.failed > 0
-            ? `更新完成：成功 ${res.updated} 筆，失敗 ${res.failed} 筆（${failNames.join('、')}）`
-            : `更新完成：成功 ${res.updated} 筆`);
-          exitEditModeUI();
-          loadInventory();
-        } else { hideStatus(); alert('更新失敗：' + (res.message || '未知錯誤')); }
-      })
-      .catch(err => { hideStatus(); alert('更新連線失敗：' + err.toString()); })
-      .finally(() => { isBusy = false; btn.disabled = false; });
-  }
-
-  // ===== 複製（快過期 ❗️ / 已過期 💩）=====
-  function copyList() {
-    if (isEditMode || !allItems.length) return;
-    const { buy, groups } = partition(allItems);
-
-    let out = todayTitle() + '\n\n';
-
-    if (buy.length) {
-      out += '⚠️ 下次要買：\n';
-      sortItems(buy).forEach(it => { out += it.name + '\n'; });
-      out += '\n';
-    }
-
-    orderedCategories(groups).forEach(cat => {
-      out += '🔹 ' + cat + '：\n';
-      sortItems(groups[cat]).forEach(it => {
-        const cls = expiryClass(it.expiry);
-        const mark = cls === 'expiry-soon' ? ' ❗️' : cls === 'expiry-expired' ? ' 💩' : '';
-        out += it.name + ' ' + it.qty + mark + '\n';
-      });
-      out += '\n';
-    });
-
-    out = out.trim();
-    navigator.clipboard.writeText(out)
-      .then(() => alert(`📋 已複製「${todayTitle()}」`))
-      .catch(() => alert('複製失敗，請手動全選複製。'));
-  }
-</script>
+</header>
+
+<!-- ===================== HOME ===================== -->
+<main class="page active" id="home">
+  <section class="hero center">
+    <div class="wrap c-wide">
+      <h1 class="display">你的網站有人看，<br>卻沒有人詢價。</h1>
+      <p class="body-lg mt-lg">問題通常不是流量不夠，<br>而是買家看完，還是看不懂你在賣什麼。</p>
+      <p class="audience mt-lg">為 10–100 人的 B2B 公司而做。</p>
+      <div class="hero-actions mt-xl">
+        <button class="btn btn-primary" data-go="quickscan">了解網站快篩</button>
+        <button class="link" data-go="about">KOTO 是什麼 →</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default">
+      <h2 class="h2">買家在你的網站上，看不懂這五件事：</h2>
+      <ul class="barrier-list mt-lg">
+        <li><span class="idx">01</span><span>看不懂你到底在做什麼</span></li>
+        <li><span class="idx">02</span><span>看不懂你是賣給誰的</span></li>
+        <li><span class="idx">03</span><span>看不懂你和別人有什麼不同</span></li>
+        <li><span class="idx">04</span><span>看不懂為什麼該相信你</span></li>
+        <li><span class="idx">05</span><span>看不懂下一步該怎麼做</span></li>
+      </ul>
+      <p class="mt-xl">只要其中一件看不懂，買家就會關掉網頁，去看下一家。<br>而他不會告訴你他為什麼走。</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-wide">
+      <h2 class="h2">KOTO 怎麼幫你：</h2>
+      <div class="grid-3 mt-lg">
+        <div class="step"><div class="idx">1</div><div class="name">看</div><div class="desc">我們用買家的角度，重新看一次你的網站。</div></div>
+        <div class="step"><div class="idx">2</div><div class="name">指出</div><div class="desc">告訴你哪裡讓人看不懂，並附上你網站上的原文證據。</div></div>
+        <div class="step"><div class="idx">3</div><div class="name">你決定</div><div class="desc">要不要修、找誰修，都由你決定。我們不推銷。</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default">
+      <div class="product-card">
+        <div class="eyebrow">入口產品</div>
+        <h2 class="h2">網站快篩</h2>
+        <p class="mt-md muted">48 小時，讓你看見「你想說的」和「網站實際說的」差了多遠。<br>不用大改版，先花一個小成本，確認問題在哪。</p>
+        <div class="mt-xl"><button class="btn btn-primary" data-go="quickscan">了解網站快篩</button></div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default center">
+      <p class="trust-stmt">我們不講感覺，只講證據。報告裡的每一個判斷，都會附上你網站上的原文或畫面，你可以自己對照，確認我們說的對不對。</p>
+      <p class="founder-line">KOTO 是一人工作室。你的網站，從頭到尾由同一個人負責看，沒有轉手、沒有對接窗口。</p>
+      <div class="case-slot">案例位（預留・隱藏）— 有可公開案例後填入</div>
+    </div>
+  </section>
+
+  <section class="surface-block cta-block">
+    <div class="wrap c-default">
+      <h2 class="h2">你的網站，陌生買家三分鐘看得懂嗎？</h2>
+      <div class="mt-xl"><button class="btn btn-primary" data-go="quickscan">了解網站快篩</button></div>
+    </div>
+  </section>
+</main>
+
+<!-- ===================== QUICK SCAN ===================== -->
+<main class="page" id="quickscan">
+  <section class="hero">
+    <div class="wrap c-wide">
+      <div class="qs-hero">
+        <div>
+          <div class="eyebrow">網站快篩</div>
+          <h1 class="display">網站快篩</h1>
+          <p class="body-lg mt-lg muted">48 小時內，找出你想說的，和網站實際說的，中間差在哪。</p>
+          <p class="qs-meta">48 小時內交付</p>
+          <div class="mt-xl"><button class="btn btn-primary" data-go="contact">預約網站快篩 — <span class="price">NT$3,800</span></button></div>
+        </div>
+        <aside class="deliver-card">
+          <div class="caption">你會拿到：</div>
+          <ul>
+            <li>一份 PDF 報告（約 5 頁）</li>
+            <li>一段錄影解說（約 10 分鐘）</li>
+          </ul>
+        </aside>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default">
+      <h2 class="h2">報告長這樣：</h2>
+      <div class="samples mt-lg">
+        <figure class="sample">
+          <div class="ph"><span>總覽頁截圖・待補</span></div>
+          <figcaption>總覽頁：五個理解障礙，一眼看出哪裡卡住。</figcaption>
+        </figure>
+        <figure class="sample">
+          <div class="ph"><span>對照頁截圖・待補</span></div>
+          <figcaption>對照頁：左邊是你說你在賣什麼，右邊是網站實際傳達的——中間的落差，就是買家看不懂的地方。</figcaption>
+        </figure>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default">
+      <h2 class="h2">這份報告包含：</h2>
+      <ul class="num-list mt-lg">
+        <li><span class="idx">1</span><div><div class="name">網站訊息總覽</div><div class="desc">買家看你的網站，第一眼接收到什麼。</div></div></li>
+        <li><span class="idx">2</span><div><div class="name">你說的 vs 網站說的</div><div class="desc">你以為網站在表達的，和它實際表達的，擺在一起看。</div></div></li>
+        <li><span class="idx">3</span><div><div class="name">三個主要理解障礙</div><div class="desc">最該優先處理的三個地方，以及為什麼。</div></div></li>
+        <li><span class="idx">4</span><div><div class="name">一句改寫示範</div><div class="desc">挑你網站上最關鍵的一句話，直接示範改寫前後的差別。</div></div></li>
+        <li><span class="idx">5</span><div><div class="name">三個改善方向</div><div class="desc">接下來可以往哪裡走，你自己評估。</div></div></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default">
+      <h2 class="h2">怎麼進行：</h2>
+      <div class="stepbar mt-lg">
+        <div class="s"><span class="idx">1</span><span>你填一份表單（大約 8 分鐘）。</span></div>
+        <span class="arrow">→</span>
+        <div class="s"><span class="idx">2</span><span>我們用買家的角度分析你的網站。</span></div>
+        <span class="arrow">→</span>
+        <div class="s"><span class="idx">3</span><span>48 小時內，交付報告與錄影。</span></div>
+        <span class="arrow">→</span>
+        <div class="s"><span class="idx">4</span><span>要不要採取下一步，由你決定。</span></div>
+      </div>
+      <div class="nomeeting">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+        全程不需開會。
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default">
+      <h2 class="h2">我們會看這三頁：</h2>
+      <div class="scope mt-lg">
+        <div class="item">首頁</div>
+        <div class="item">一個主力產品 / 服務頁（你指定）</div>
+        <div class="item">關於頁</div>
+      </div>
+      <p class="caption mt-lg">我們不分析全站。這三頁是買家做決定前一定會看的頁——看得準，比看得多重要。</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-wide">
+      <h2 class="h2">跟免費網站健檢有什麼不同</h2>
+      <div class="cmp mt-lg">
+        <div class="col left">
+          <div class="colhead">免費網站健檢</div>
+          <div class="row">多半在看 SEO、網站速度、技術分數</div>
+          <div class="row">看的是機器</div>
+        </div>
+        <div class="col right">
+          <div class="colhead">KOTO 網站快篩</div>
+          <div class="row">看的是買家到底看不看得懂</div>
+          <div class="row">看的是人</div>
+        </div>
+      </div>
+      <p class="cmp-note">免費健檢告訴你網站「跑得快不快」。我們告訴你網站「說得清不清楚」。</p>
+
+      <h2 class="h2 mt-2xl">跟我自己丟給 AI 有什麼不同</h2>
+      <div class="c-default cmp-para">
+        <p>AI 可以給你一堆建議，而且免費。但 AI 不會為它的結論負責，不會人工核對，也沒有人具名。KOTO 的每一個判斷都經過人工驗證、附上你網站的原文證據，最後掛的是一個真人的名字。工具我們也用，但對結論負責的，是人。</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default center">
+      <div class="price-big">NT$3,800</div>
+      <p class="mt-md">如果你看完覺得沒講到重點，我們免費再做一版，不另外收費。</p>
+      <p class="mt-sm muted">這筆費用，可全額折抵後續的網站服務。</p>
+    </div>
+  </section>
+
+  <section class="surface-block cta-block">
+    <div class="wrap c-default">
+      <h2 class="h2">花一個小成本，先用買家的眼睛，重看一次自己的網站。</h2>
+      <div class="mt-xl"><button class="btn btn-primary" data-go="contact">預約網站快篩 — <span class="price">NT$3,800</span></button></div>
+    </div>
+  </section>
+</main>
+
+<!-- ===================== ABOUT ===================== -->
+<main class="page" id="about">
+  <section class="hero">
+    <div class="wrap c-default">
+      <h1 class="h1">KOTO 在解決一個很少有人說出口的問題。</h1>
+      <p class="mt-lg">很多 B2B 公司產品很強，網站也有人看，但詢價就是不來。不是因為東西不好，是因為買家看不懂——看不懂你在做什麼、跟別人差在哪、為什麼該相信你。</p>
+      <p class="mt-md">這種流失是無聲的。沒有人會寫信告訴你「我本來想問，但你的網站讓我看不懂」。KOTO 做的，就是把這些看不懂的地方找出來。</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default">
+      <h2 class="h2">從頭到尾，由同一個人負責。</h2>
+      <p class="mt-lg">KOTO 是一人工作室。你的網站從第一眼到報告完成，都是同一個人在看，沒有轉手、沒有外包、沒有「對接窗口」。</p>
+      <p class="mt-md">長期幫 B2B 與製造業的公司做網站，看過太多「產品很好、網站卻說不清楚」的例子。這份工作，就是把你心裡知道、但網站沒講出來的價值，變成買家看得懂的樣子。</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default">
+      <h2 class="h2">有些事，我們刻意不做：</h2>
+      <ul class="reject-list mt-lg">
+        <li><span class="dash">—</span>不做 SEO</li>
+        <li><span class="dash">—</span>不做廣告投放</li>
+        <li><span class="dash">—</span>不做流量成長</li>
+        <li><span class="dash">—</span>不做數位行銷顧問</li>
+      </ul>
+      <p class="mt-xl">我們只專注一件事：找出網站裡讓買家看不懂的地方。專心做一件事，才做得深。</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap c-default">
+      <h2 class="h2">跟 KOTO 合作，你可以預期：</h2>
+      <div class="stance mt-lg">
+        <div class="s"><div class="p">只講證據，不講感覺。</div><div class="d">每個判斷都附上你網站的原文，你可以自己核對。</div></div>
+        <div class="s"><div class="p">做得到才說，做不到先講。</div><div class="d">我們不誇大、不承諾我們控制不了的結果。</div></div>
+        <div class="s"><div class="p">指出問題，不製造焦慮。</div><div class="d">我們用事實讓你看清現況，不靠嚇你來成交。</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="surface-block cta-block">
+    <div class="wrap c-default">
+      <h2 class="h2">不論你想先試一次，還是先聊聊，都可以。</h2>
+      <div class="dual-cta mt-xl">
+        <button class="btn btn-primary" data-go="contact">預約網站快篩</button>
+        <button class="btn btn-secondary" data-go="contact">先聊聊</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===================== CONTACT ===================== -->
+<main class="page" id="contact">
+  <section class="hero">
+    <div class="wrap c-narrow center">
+      <h1 class="h1">告訴我們，你想處理的事。</h1>
+      <p class="mt-lg muted">不用準備得很完整，把現在的狀況講給我們就好。我們會在兩個工作天內回信，不會有業務電話、不會一直追著你。</p>
+    </div>
+  </section>
+
+  <section class="pt0">
+    <div class="wrap c-narrow">
+      <div class="form" id="ksForm">
+        <div class="field"><label>怎麼稱呼你？</label><input type="text" name="name"></div>
+        <div class="field"><label>Email</label><input type="email" name="email">
+          <div class="err"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16h.01"/></svg>請填寫有效的 Email</div></div>
+        <div class="field"><label>你的公司網址</label><input type="text" name="url"></div>
+        <div class="field"><label>想處理什麼？（簡單講講就好）</label><textarea name="msg"></textarea></div>
+        <div><button class="btn btn-primary btn-block" id="submitBtn">送出</button></div>
+      </div>
+      <p class="post-submit mt-xl" id="postSubmit">送出後，我們會在兩個工作天內，用 Email 回覆你。接下來怎麼進行，我們信裡會說清楚。</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap c-wide foot">
+    <div class="name">KOTO Studio</div>
+    <nav>
+      <button data-go="home">首頁</button>
+      <button data-go="quickscan">快篩</button>
+      <button data-go="about">關於</button>
+      <button data-go="contact">聯絡</button>
+    </nav>
+    <div class="email">kotostudio.net@gmail.com</div>
+    <div class="copy">© 2026 KOTO Studio</div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
 </body>
 </html>
