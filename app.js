@@ -144,11 +144,13 @@ function rowHtml(it) {
       '<div class="item editing ' + (marked ? 'to-delete' : '') + '" data-id="' + escAttr(it.id) + '">' +
         '<div class="ie-top">' +
           '<span class="iname">' + esc(it.name) + '</span>' +
-          '<button class="ie-del" data-trash>' + (marked ? '復原' : '刪除') + '</button>' +
+          '<div class="ie-top-right">' + // 新增容器
+            '<label class="ie-mb"><input class="ie-mbx" type="checkbox" ' + (it.mustBuy ? 'checked' : '') + '>必買</label>' +
+            '<button class="ie-del" data-trash>' + (marked ? '復原' : '刪除') + '</button>' +
+          '</div>' + // 關閉容器
         '</div>' +
         '<div class="ie-fields">' +
           '<label class="ie-f ie-f-qty">數量<input class="ie-qty num" type="text" value="' + escAttr(it.qty) + '"></label>' +
-          '<label class="ie-mb"><input class="ie-mbx" type="checkbox" ' + (it.mustBuy ? 'checked' : '') + '>必買</label>' +
           '<label class="ie-f ie-f-expiry">效期<input class="ie-expiry num" type="date" value="' + escAttr(it.expiry) + '"></label>' +
         '</div>' +
       '</div>'
