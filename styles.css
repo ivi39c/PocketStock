@@ -141,9 +141,9 @@ html, body {
 }
 .ie-f input:focus { border-color: var(--green); }
 .ie-f-qty { flex: 0 0 auto; }
-.ie-f-qty input { width: 10ch; }          /* 約 10 個字寬 */
-.ie-f-expiry { flex: 1 1 100%; }           /* 效期獨佔一行 */
-.ie-f-expiry input { width: 100%; }
+.ie-f-qty input { width: 15ch; }          /* 約 15 個字寬 */
+/*.ie-f-expiry { flex: 1 1 100%; }           /* 效期獨佔一行 */
+.ie-f-expiry input { width: 25ch; }         /* 約 25 個字寬 */
 .ie-mb { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-soft); align-self: flex-end; padding-bottom: 9px; white-space: nowrap; }
 
 /* Google Material 圖示 */
