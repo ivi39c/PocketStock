@@ -134,10 +134,11 @@ html, body {
 .item.to-delete .ie-del { background: var(--red); color: #fff; border-color: var(--red); }
 
 /* 數量＋必買同一行；效期自己一行（避免 iOS 擠爆）*/
+.ie-f, .field { gap: 6px; }          /* 让标签和输入框的间距统一 */
 .ie-fields { display: grid; grid-template-columns: 3fr 7fr; align-items: flex-end; gap: 10px; }
 .ie-f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-soft); min-width: 0; }
 .ie-f input {
-  font-size: 16px; padding: 9px 10px; border: 1px solid var(--line);
+  font-size: 16px; padding: 10px 12px; height: 44px; border: 1px solid var(--line);
   border-radius: 9px; background: #fff; outline: none; box-sizing: border-box; width: 100%;
 }
 .ie-f input:focus { border-color: var(--green); }
@@ -199,8 +200,8 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--green); 
 .field { display: flex; flex-direction: column; gap: 5px; font-size: 13px; color: var(--ink-soft); margin-bottom: 12px; }
 .field.full { width: 100%; }
 .field input {
-  width: 100%; padding: 12px; font-size: 16px; color: var(--ink);
-  background: #fff; border: 1px solid var(--line); border-radius: 10px; outline: none;
+  width: 100%; padding: 10px 12px; height: 44px; font-size: 16px; color: var(--ink);
+  background: #fff; border: 1px solid var(--line); border-radius: 10px; outline: none; box-sizing: border-box;
   -webkit-appearance: none; appearance: none;
 }
 .field input:focus { border-color: var(--green); }
