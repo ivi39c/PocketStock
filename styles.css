@@ -116,24 +116,43 @@ html, body {
 .exp-soon { color: var(--red) !important; }
 .exp-over { color: var(--purple) !important; }
 
-/* ---------- 編輯模式 ---------- */
-.item.editing { flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; }
+/* ---------- 編輯模式（iOS 友善）---------- */
+.item.editing { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; }
 .item.editing .ie-top { display: flex; align-items: center; gap: 10px; }
-.item.editing .iname { font-weight: 600; }
-.ie-trash {
-  margin-left: auto; width: 36px; height: 36px; border-radius: 9px;
-  border: 1px solid var(--line); background: #fff; cursor: pointer; font-size: 16px;
+.item.editing .iname { font-weight: 600; flex: 1; min-width: 0; }
+
+.ie-del {
+  flex: 0 0 auto; padding: 7px 14px; border-radius: 9px;
+  border: 1px solid #E6C8C2; background: #fff; color: var(--red);
+  cursor: pointer; font-size: 14px; font-weight: 600;
 }
-.ie-trash:active { transform: scale(.94); }
+.ie-del:active { transform: scale(.96); }
 .item.to-delete { background: #FBEDEA; }
 .item.to-delete .iname { text-decoration: line-through; color: var(--red); }
 .item.to-delete .ie-fields { opacity: .45; }
+.item.to-delete .ie-del { background: var(--red); color: #fff; border-color: var(--red); }
 
-.ie-fields { display: grid; grid-template-columns: 1fr 1fr auto; gap: 8px; align-items: end; }
-.ie-f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-soft); }
-.ie-f input { padding: 9px 10px; font-size: 15px; border: 1px solid var(--line); border-radius: 9px; background: #fff; outline: none; width: 100%; }
+/* 數量＋必買同一行；效期自己一行（避免 iOS 擠爆）*/
+.ie-fields { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px 16px; }
+.ie-f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-soft); min-width: 0; }
+.ie-f input {
+  font-size: 16px; padding: 9px 10px; border: 1px solid var(--line);
+  border-radius: 9px; background: #fff; outline: none; box-sizing: border-box;
+}
 .ie-f input:focus { border-color: var(--green); }
-.ie-mb { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink-soft); padding-bottom: 9px; white-space: nowrap; }
+.ie-f-qty { flex: 0 0 auto; }
+.ie-f-qty input { width: 10ch; }          /* 約 10 個字寬 */
+.ie-f-expiry { flex: 1 1 100%; }           /* 效期獨佔一行 */
+.ie-f-expiry input { width: 100%; }
+.ie-mb { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-soft); align-self: flex-end; padding-bottom: 9px; white-space: nowrap; }
+
+/* Google Material 圖示 */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal; font-style: normal; line-height: 1;
+  font-size: 20px; vertical-align: -5px;
+}
+.help-row b .material-symbols-outlined { margin-right: 7px; color: var(--ink); }
 
 input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--green); }
 
