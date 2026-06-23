@@ -141,9 +141,9 @@ html, body {
   border-radius: 9px; background: #fff; outline: none; box-sizing: border-box; width: 100%;
 }
 .ie-f input:focus { border-color: var(--green); }
-.ie-f-qty,.ie-f-expiry { grid-column: 1 ; }
+.ie-f-qty { grid-column: 1/ 2; }
 .ie-f-qty input { width: 10ch; }          /* 約 10 個字寬 */
-/*.ie-f-expiry { fgrid-column: 2 / 3; }           /* 效期獨佔一行 */
+.ie-f-expiry { fgrid-column: 2 / 3; }           /* 效期獨佔一行 */
 .ie-f-expiry input { width: 100%; }
 .ie-mb { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-soft); white-space: nowrap; }
 
