@@ -134,7 +134,7 @@ html, body {
 .item.to-delete .ie-del { background: var(--red); color: #fff; border-color: var(--red); }
 
 /* 數量＋必買同一行；效期自己一行（避免 iOS 擠爆）*/
-.ie-fields { display: grid; grid-template-columns: 1fr 1fr; align-items: flex-end; gap: 10px; }
+.ie-fields { display: grid; grid-template-columns: 3fr 7fr; align-items: flex-end; gap: 10px; }
 .ie-f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-soft); min-width: 0; }
 .ie-f input {
   font-size: 16px; padding: 9px 10px; border: 1px solid var(--line);
