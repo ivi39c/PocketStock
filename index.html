@@ -3,16 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>PocketStock</title>
+  <title>PocketStock 庫存</title>
 
-  <!-- 字體 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="styles.css">
-
-  <!-- Google 登入 -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
@@ -20,74 +17,74 @@
   <!-- ========== 登入畫面 ========== -->
   <section id="login-screen">
     <div class="brand">PocketStock<span class="dot">.</span></div>
-    <p class="tagline">手機友善的庫存盤點工具</p>
+    <p class="tagline">手機友善的庫存盤點工具。請用 Google 帳號登入後開始。</p>
     <div id="google-btn"></div>
   </section>
 
   <!-- ========== 主程式 ========== -->
   <main id="app-screen">
 
+    <!-- 固定頂欄 -->
     <header class="topbar">
-      <div class="title">PocketStock<span class="dot">.</span></div>
-      <button id="btn-refresh" class="btn btn-ghost btn-sm" data-lock>重新整理</button>
+      <div class="tb-left">
+        <span class="title">PocketStock<span class="dot">.</span></span>
+        <button id="btn-help" class="icon-btn icon-help" aria-label="使用說明">?</button>
+      </div>
+      <div class="tb-right">
+        <button id="btn-search" class="icon-btn" aria-label="搜尋">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="20.5" y1="20.5" x2="16" y2="16"/></svg>
+        </button>
+        <button id="btn-copy" class="icon-btn" aria-label="複製清單">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+        </button>
+        <button id="btn-edit" class="icon-btn" aria-label="編輯">
+          <svg viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>
+        </button>
+        <button id="btn-add" class="icon-btn icon-add" aria-label="新增">＋</button>
+      </div>
     </header>
 
-    <!-- 新增 -->
-    <section class="card">
-      <h2>新增項目</h2>
-      <div class="form-grid">
-        <label class="field full">名稱
-          <input type="text" id="f-name" placeholder="例如：雞蛋" autocomplete="off">
-        </label>
-        <label class="field">數量
-          <input type="text" id="f-qty" class="num" placeholder="例如：2顆 / 0" autocomplete="off">
-        </label>
-        <label class="field">分類
-          <input type="text" id="f-category" list="category-options" placeholder="選擇或輸入" autocomplete="off">
-        </label>
-        <label class="field full">有效日期（選填）
-          <input type="date" id="f-expiry" class="num">
-        </label>
-      </div>
-      <div style="margin-top:12px; display:flex; justify-content:flex-end;">
-        <button id="btn-create" class="btn btn-primary" data-lock>新增</button>
-      </div>
-    </section>
+    <!-- 搜尋（預設隱藏，點放大鏡才出現）-->
+    <div id="search-wrap" class="search-wrap" style="display:none;">
+      <input type="text" id="search" placeholder="搜尋名稱或分類…" autocomplete="off">
+      <span id="count-hint" class="count-hint"></span>
+    </div>
+    <div id="count-bar" class="count-bar"></div>
+
+    <!-- 錯誤橫幅 -->
+    <div id="banner" class="banner" style="display:none;">
+      <div class="banner-msg" id="banner-msg"></div>
+      <button class="btn btn-sm btn-ghost" id="banner-retry">重試</button>
+    </div>
 
     <!-- 清單 -->
-    <section class="card">
-      <div class="list-head">
-        <h2 style="margin:0;">庫存清單</h2>
-        <label class="select-all-wrap">
-          <input type="checkbox" id="select-all"> 全選
-        </label>
-      </div>
+    <div id="item-list" class="item-list"></div>
+    <div id="empty-hint" class="empty-hint" style="display:none;">目前沒有符合的項目。</div>
 
-      <div class="table">
-        <div id="item-rows"></div>
-        <div id="empty-hint">目前沒有庫存項目，從上面新增一筆吧。</div>
-      </div>
-    </section>
+    <!-- 編輯模式下方工具列 -->
+    <div id="edit-bar" class="edit-bar" style="display:none;">
+      <button id="edit-cancel" class="btn btn-ghost" data-lock>✕ 取消</button>
+      <button id="edit-save" class="btn btn-primary" data-lock>✓ 儲存</button>
+    </div>
 
   </main>
 
-  <!-- 批量操作浮列 -->
-  <div id="batch-bar">
-    <span class="count">已選 <b id="batch-count">0</b> 筆</span>
-    <span class="spacer"></span>
-    <button id="btn-clear-sel" class="btn btn-ghost btn-sm" data-lock>取消選取</button>
-    <button id="btn-update" class="btn btn-primary btn-sm" data-lock>更新所選</button>
-    <button id="btn-delete" class="btn btn-danger btn-sm" data-lock>刪除所選</button>
+  <!-- 共用視窗（新增 / 說明）-->
+  <div id="modal" class="modal" style="display:none;">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-card" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="modal-title"></h3>
+        <button class="modal-x" data-close aria-label="關閉">✕</button>
+      </div>
+      <div id="modal-body"></div>
+    </div>
   </div>
 
-  <!-- 載入遮罩 / toast -->
-  <div id="loading"><div class="spinner"></div></div>
+  <div id="loading" class="loading"><div class="spinner"></div></div>
   <div id="toast" class="toast"></div>
-
-  <!-- 分類下拉來源 -->
   <datalist id="category-options"></datalist>
 
-  <!-- 三層腳本（順序很重要：設定 → API → 狀態 → 畫面）-->
   <script src="config.js"></script>
   <script src="api-client.js"></script>
   <script src="store.js"></script>
