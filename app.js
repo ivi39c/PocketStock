@@ -144,12 +144,12 @@ function rowHtml(it) {
       '<div class="item editing ' + (marked ? 'to-delete' : '') + '" data-id="' + escAttr(it.id) + '">' +
         '<div class="ie-top">' +
           '<span class="iname">' + esc(it.name) + '</span>' +
-          '<button class="ie-trash" data-trash aria-label="刪除">🗑</button>' +
+          '<button class="ie-del" data-trash>' + (marked ? '復原' : '刪除') + '</button>' +
         '</div>' +
         '<div class="ie-fields">' +
-          '<label class="ie-f">數量<input class="ie-qty num" type="text" value="' + escAttr(it.qty) + '"></label>' +
-          '<label class="ie-f">效期<input class="ie-expiry num" type="date" value="' + escAttr(it.expiry) + '"></label>' +
+          '<label class="ie-f ie-f-qty">數量<input class="ie-qty num" type="text" value="' + escAttr(it.qty) + '"></label>' +
           '<label class="ie-mb"><input class="ie-mbx" type="checkbox" ' + (it.mustBuy ? 'checked' : '') + '>必買</label>' +
+          '<label class="ie-f ie-f-expiry">效期<input class="ie-expiry num" type="date" value="' + escAttr(it.expiry) + '"></label>' +
         '</div>' +
       '</div>'
     );
@@ -229,14 +229,14 @@ function bindListEvents() {
     });
   });
 
-  // 編輯模式：垃圾桶標記刪除
+  // 編輯模式：刪除／復原標記
   if (mode === 'edit') {
-    Array.prototype.forEach.call(listEl.querySelectorAll('.ie-trash'), function (b) {
+    Array.prototype.forEach.call(listEl.querySelectorAll('.ie-del'), function (b) {
       b.addEventListener('click', function () {
         const item = b.closest('.item');
         const id = item.getAttribute('data-id');
-        if (deleteMarks.has(id)) { deleteMarks.delete(id); item.classList.remove('to-delete'); }
-        else { deleteMarks.add(id); item.classList.add('to-delete'); }
+        if (deleteMarks.has(id)) { deleteMarks.delete(id); item.classList.remove('to-delete'); b.textContent = '刪除'; }
+        else { deleteMarks.add(id); item.classList.add('to-delete'); b.textContent = '復原'; }
       });
     });
   }
@@ -291,19 +291,30 @@ async function saveEdit() {
 }
 
 /* ====== 複製整份清單（貼 LINE）====== */
+function todayStr() {
+  const d = new Date();
+  const p = function (n) { return String(n).padStart(2, '0'); };
+  return d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate());
+}
+function expiryMark(it) {
+  const c = expiryInfo(it.expiry).cls;
+  if (c === 'exp-soon') return ' ❗';
+  if (c === 'exp-over') return ' 💩';
+  return '';
+}
 function copyList() {
   const all = InventoryStore.state.items;
   if (!all.length) { toast('沒有可複製的項目', 'info'); return; }
   const g = buildGroups(all);
-  const lines = ['📦 PocketStock 庫存清單', ''];
+  const lines = [todayStr() + ' 盤點表', ''];
   if (g.buy.length) {
     lines.push('【下次要買】');
-    g.buy.forEach(function (it) { lines.push('・' + it.name); });
+    g.buy.forEach(function (it) { lines.push('・' + it.name + expiryMark(it)); });
     lines.push('');
   }
   g.groups.forEach(function (grp) {
     lines.push('【' + grp.cat + '】');
-    grp.items.forEach(function (it) { lines.push('・' + it.name + (it.qty ? ' ' + it.qty : '')); });
+    grp.items.forEach(function (it) { lines.push('・' + it.name + (it.qty ? ' ' + it.qty : '') + expiryMark(it)); });
     lines.push('');
   });
   const text = lines.join('\n').trim();
@@ -378,16 +389,20 @@ async function submitAdd() {
 }
 
 /* ====== 使用說明 ====== */
+function hrow(icon, title, desc) {
+  return '<div class="help-row"><b><span class="material-symbols-outlined">' + icon + '</span>' + title + '</b><span>' + desc + '</span></div>';
+}
 function openHelp() {
   openModal('使用說明',
     '<div class="help">' +
-      '<div class="help-row"><b>＋ 新增</b><span>新增一筆品項。</span></div>' +
-      '<div class="help-row"><b>✏️ 編輯</b><span>可改庫存、效期、勾「必買」，或刪除品項。改完按 ✓儲存、✕取消。</span></div>' +
-      '<div class="help-row"><b>⧉ 複製</b><span>複製整份盤點清單，可貼到 LINE。</span></div>' +
-      '<div class="help-row"><b>🔍 搜尋</b><span>輸入品名快速找到項目。</span></div>' +
-      '<div class="help-row"><b>關於「必買」</b><span>勾選後，當庫存變成 0，會自動移到最上方「⚠️ 下次要買」區。</span></div>' +
-      '<div class="help-row"><b>分類收合</b><span>點分類標題可收合／展開，狀態會記住。</span></div>' +
-      '<div class="help-row"><b>顏色說明</b><span><span class="exp-soon">● 紅字：30 天內即將到期</span>　<span class="exp-over">● 紫字：已經過期</span></span></div>' +
+      hrow('add', '新增', '新增一筆品項。') +
+      hrow('edit', '編輯', '可改庫存、效期、勾「必買」，或刪除品項。改完按「✓ 儲存」、「✕ 取消」。') +
+      hrow('content_copy', '複製', '複製整份盤點清單（自動帶當天日期），可貼到 LINE。') +
+      hrow('search', '搜尋', '輸入品名快速找到項目。') +
+      hrow('warning', '關於「必買」', '勾選後，當庫存變成 0，會自動移到最上方「下次要買」區。') +
+      hrow('unfold_less', '分類收合', '點分類標題可收合／展開，狀態會記住。') +
+      '<div class="help-row"><b><span class="material-symbols-outlined">palette</span>顏色說明</b>' +
+        '<span><span class="exp-soon">● 紅字 / ❗ 30 天內即將到期</span>　<span class="exp-over">● 紫字 / 💩 已經過期</span></span></div>' +
     '</div>'
   );
 }
