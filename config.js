@@ -3,10 +3,10 @@
  * =======================================================*/
 
 // ① 你的 GAS 網頁應用程式網址（部署 → 管理部署 → 複製網址）
-const GAS_WEB_APP_URL = '請填入你的_GAS_WEB_APP_URL';
+const GAS_WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbwLBfR1xQmjlapP7wY77KdTaLK4bHcm0G12Bt9N4bsp5Ge0Y7gjtF0HNaL2HVP3a2DY/exec';
 
 // ② 你的 Google OAuth Client ID（要和後端 Config.gs 的 CLIENT_ID 一模一樣）
-const GOOGLE_CLIENT_ID = '請填入你的_GOOGLE_OAUTH_CLIENT_ID';
+const GOOGLE_CLIENT_ID = '336652370427-nhis1d8hn5917rae8nv5uqossne05mc3.apps.googleusercontent.com';
 
 /* ---------------------------------------------------------
  * API 契約裡「庫存項目」的欄位名稱（後端回傳用這些中文鍵）
@@ -22,4 +22,4 @@ const FIELDS = {
 };
 
 // 效期「快到期」的天數門檻（含當天）
-const EXPIRY_SOON_DAYS = 3;
+const EXPIRY_SOON_DAYS = 30;
