@@ -117,7 +117,7 @@ html, body {
 .exp-over { color: var(--purple) !important; }
 
 /* ---------- 編輯模式（iOS 友善）---------- */
-.item.editing { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; }
+.item.editing { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; width: 100%; }
 .item.editing .ie-top  { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .ie-top-right {display: flex; align-items: center; gap: 12px; }
 .item.editing .iname { font-weight: 600; flex: 1; min-width: 0; }
@@ -140,6 +140,7 @@ html, body {
 .ie-f input {
   font-size: 16px; padding: 10px 12px; height: 44px; border: 1px solid var(--line);
   border-radius: 9px; background: #fff; outline: none; box-sizing: border-box; width: 100%;
+  -webkit-appearance: none; /* 必须加这一行，去掉 iOS 默认样式 */
 }
 .ie-f input:focus { border-color: var(--green); }
 .ie-f-qty { grid-column: 1/ 2; }
