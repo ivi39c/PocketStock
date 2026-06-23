@@ -118,7 +118,7 @@ html, body {
 
 /* ---------- 編輯模式（iOS 友善）---------- */
 .item.editing { display: flex; flex-direction: column; align-items: stretch; gap: 10px; padding: 14px 16px; }
-.item.editing .ie-top  { display: flex; align-items: center; justify-content: space-between; }
+.item.editing .ie-top  { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .ie-top-right {display: flex; align-items: center; gap: 12px; }
 .item.editing .iname { font-weight: 600; flex: 1; min-width: 0; }
 
@@ -138,14 +138,14 @@ html, body {
 .ie-f { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--ink-soft); min-width: 0; }
 .ie-f input {
   font-size: 16px; padding: 9px 10px; border: 1px solid var(--line);
-  border-radius: 9px; background: #fff; outline: none; box-sizing: border-box;
+  border-radius: 9px; background: #fff; outline: none; box-sizing: border-box; width: 100%;
 }
 .ie-f input:focus { border-color: var(--green); }
-.ie-f-qty { grid-column: 1 / 2; }
+.ie-f-qty,.ie-f-expiry { grid-column: 1 ; }
 .ie-f-qty input { width: 10ch; }          /* 約 10 個字寬 */
-.ie-f-expiry { fgrid-column: 2 / 3; }           /* 效期獨佔一行 */
+/*.ie-f-expiry { fgrid-column: 2 / 3; }           /* 效期獨佔一行 */
 .ie-f-expiry input { width: 100%; }
-.ie-mb { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-soft); align-self: flex-end; padding-bottom: 0px; white-space: nowrap; }
+.ie-mb { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-soft); white-space: nowrap; }
 
 /* Google Material 圖示 */
 .material-symbols-outlined {
