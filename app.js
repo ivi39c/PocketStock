@@ -396,6 +396,9 @@ function openHelp() {
 window.addEventListener('load', function () {
   initLogin();
 
+  // 狀態一變就同步畫面（這條線之前漏接了 → 轉圈圈收不掉）
+  InventoryStore.subscribe(syncEditChrome);
+
   document.getElementById('btn-help').addEventListener('click', openHelp);
   document.getElementById('btn-search').addEventListener('click', toggleSearch);
   document.getElementById('btn-copy').addEventListener('click', copyList);
