@@ -350,11 +350,16 @@ function toggleSearch() {
 
 /* ====== 共用視窗（新增）====== */
 function openModal(title, bodyHtml) {
+  document.body.style.overflow = 'hidden';  // 1. 禁止背景滚动
+  
   document.getElementById('modal-title').textContent = title;
   document.getElementById('modal-body').innerHTML = bodyHtml;
   document.getElementById('modal').style.display = 'block';
 }
-function closeModal() { document.getElementById('modal').style.display = 'none'; }
+function closeModal() {
+  document.body.style.overflow = '';  // 2. 恢复背景滚动
+  document.getElementById('modal').style.display = 'none'; 
+}
 
 function openAddModal() {
   openModal('新增項目',
