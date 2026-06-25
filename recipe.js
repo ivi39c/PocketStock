@@ -10,6 +10,7 @@
 const RecipeState = {
   recipes: [],
   loaded: false,
+  filterText: '',           // 搜尋關鍵字
   selectionMode: false,
   selectedIds: new Set(),   // 選取模式中被勾選的食譜
   cart: new Set(),          // 採購單裡的食譜
@@ -71,11 +72,22 @@ async function loadRecipes() {
 function renderRecipeList() {
   const listEl = document.getElementById('recipe-list');
   const emptyEl = document.getElementById('recipe-empty');
-  const recipes = RecipeState.recipes;
+  const all = RecipeState.recipes;
+
+  // 搜尋過濾（依食譜名稱）
+  const kw = RecipeState.filterText.trim().toLowerCase();
+  const recipes = kw
+    ? all.filter(function (r) { return (r.recipe_name || '').toLowerCase().indexOf(kw) >= 0; })
+    : all;
+
+  const hint = document.getElementById('recipe-count-hint');
+  if (hint) hint.textContent = !all.length ? '' : (kw ? recipes.length + ' / ' + all.length + ' 道' : all.length + ' 道');
 
   if (!recipes.length) {
     listEl.innerHTML = '';
-    emptyEl.textContent = '目前沒有食譜。可在 Google 試算表的「食譜總覽表」新增。';
+    emptyEl.textContent = all.length
+      ? '找不到符合的食譜。'
+      : '目前沒有食譜。可在 Google 試算表的「食譜總覽表」新增。';
     emptyEl.style.display = 'block';
     updateSelBar();
     return;
@@ -350,10 +362,31 @@ function copyPurchaseList() {
   copyText(lines.join('\n').trim());
 }
 
+/* ====== 食譜搜尋 ====== */
+let recipeSearchVisible = false;
+function toggleRecipeSearch() {
+  recipeSearchVisible = !recipeSearchVisible;
+  const wrap = document.getElementById('recipe-search-wrap');
+  wrap.style.display = recipeSearchVisible ? 'flex' : 'none';
+  if (recipeSearchVisible) {
+    document.getElementById('recipe-search').focus();
+  } else {
+    RecipeState.filterText = '';
+    document.getElementById('recipe-search').value = '';
+    renderRecipeList();
+  }
+}
+
 /* ====== 啟動：綁定導覽與按鈕 ====== */
 window.addEventListener('load', function () {
   document.getElementById('nav-inventory').addEventListener('click', function () { View.show('inventory'); });
   document.getElementById('nav-recipe').addEventListener('click', openRecipeTab);
+
+  document.getElementById('btn-recipe-search').addEventListener('click', toggleRecipeSearch);
+  document.getElementById('recipe-search').addEventListener('input', function (e) {
+    RecipeState.filterText = e.target.value;
+    renderRecipeList();
+  });
 
   document.getElementById('btn-build-purchase').addEventListener('click', toggleSelectionMode);
   document.getElementById('sel-cancel').addEventListener('click', exitSelectionMode);
