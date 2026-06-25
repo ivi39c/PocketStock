@@ -64,6 +64,14 @@ const InventoryApiClient = {
     return this._request({ action: 'recipeDetail', recipeId: id });
   },
 
+  // ── AI 找食譜 ──
+  recipeAI(query) {
+    return this._request({ action: 'recipeAI', query: query });
+  },
+  recipeAISave(recipe, ingredients) {
+    return this._request({ action: 'recipeAISave', recipe: recipe, ingredients: ingredients });
+  },
+
   // ── 核心：送出請求 + 處理回應（_isRetry 用來限制只重試一次）──
   async _request(payload, _isRetry) {
     if (!this._idToken) {
@@ -151,6 +159,8 @@ const InventoryApiClient = {
         ingredients: (data && data.ingredients) || [],
       };
     }
+    // recipeAI     → { recipe_name, cook_time, base_servings, steps[], ingredients[] }
+    // recipeAISave → { recipe_id }
     return data || {};
   },
 
