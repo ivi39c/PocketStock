@@ -25,48 +25,112 @@
   <!-- ========== 主程式 ========== -->
   <main id="app-screen">
 
-    <!-- 固定頂欄 -->
-    <header class="topbar">
-      <div class="tb-left">
-        <span class="title">PocketStock<span class="dot">.</span></span>
-        <button id="btn-help" class="icon-btn icon-help" aria-label="使用說明">?</button>
+    <!-- ===== 檢視：庫存（你的原版，只是包進容器）===== -->
+    <div id="view-inventory">
+      <!-- 固定頂欄 -->
+      <header class="topbar">
+        <div class="tb-left">
+          <span class="title">PocketStock<span class="dot">.</span></span>
+          <button id="btn-help" class="icon-btn icon-help" aria-label="使用說明">?</button>
+        </div>
+        <div class="tb-right">
+          <button id="btn-search" class="icon-btn" aria-label="搜尋">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="20.5" y1="20.5" x2="16" y2="16"/></svg>
+          </button>
+          <button id="btn-copy" class="icon-btn" aria-label="複製清單">
+            <svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+          </button>
+          <button id="btn-edit" class="icon-btn" aria-label="編輯">
+            <svg viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>
+          </button>
+          <button id="btn-add" class="icon-btn icon-add" aria-label="新增">＋</button>
+        </div>
+      </header>
+
+      <!-- 搜尋（預設隱藏，點放大鏡才出現）-->
+      <div id="search-wrap" class="search-wrap" style="display:none;">
+        <input type="text" id="search" placeholder="搜尋名稱或分類…" autocomplete="off">
+        <span id="count-hint" class="count-hint"></span>
       </div>
-      <div class="tb-right">
-        <button id="btn-search" class="icon-btn" aria-label="搜尋">
-          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="20.5" y1="20.5" x2="16" y2="16"/></svg>
-        </button>
-        <button id="btn-copy" class="icon-btn" aria-label="複製清單">
-          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
-        </button>
-        <button id="btn-edit" class="icon-btn" aria-label="編輯">
-          <svg viewBox="0 0 24 24"><path d="M4 20h4L18.5 9.5l-4-4L4 16z"/><path d="M14 6l4 4"/></svg>
-        </button>
-        <button id="btn-add" class="icon-btn icon-add" aria-label="新增">＋</button>
+      <div id="count-bar" class="count-bar"></div>
+
+      <!-- 錯誤橫幅 -->
+      <div id="banner" class="banner" style="display:none;">
+        <div class="banner-msg" id="banner-msg"></div>
+        <button class="btn btn-sm btn-ghost" id="banner-retry">重試</button>
       </div>
-    </header>
 
-    <!-- 搜尋（預設隱藏，點放大鏡才出現）-->
-    <div id="search-wrap" class="search-wrap" style="display:none;">
-      <input type="text" id="search" placeholder="搜尋名稱或分類…" autocomplete="off">
-      <span id="count-hint" class="count-hint"></span>
-    </div>
-    <div id="count-bar" class="count-bar"></div>
+      <!-- 清單 -->
+      <div id="item-list" class="item-list"></div>
+      <div id="empty-hint" class="empty-hint" style="display:none;">目前沒有符合的項目。</div>
 
-    <!-- 錯誤橫幅 -->
-    <div id="banner" class="banner" style="display:none;">
-      <div class="banner-msg" id="banner-msg"></div>
-      <button class="btn btn-sm btn-ghost" id="banner-retry">重試</button>
+      <!-- 編輯模式下方工具列 -->
+      <div id="edit-bar" class="edit-bar" style="display:none;">
+        <button id="edit-cancel" class="btn btn-ghost" data-lock>✕ 取消</button>
+        <button id="edit-save" class="btn btn-primary" data-lock>✓ 儲存</button>
+      </div>
     </div>
 
-    <!-- 清單 -->
-    <div id="item-list" class="item-list"></div>
-    <div id="empty-hint" class="empty-hint" style="display:none;">目前沒有符合的項目。</div>
+    <!-- ===== 檢視：食譜清單 ===== -->
+    <div id="view-recipe" style="display:none;">
+      <header class="topbar">
+        <div class="tb-left"><span class="title">食譜</span></div>
+        <div class="tb-right">
+          <button id="btn-build-purchase" class="btn btn-ghost btn-sm">建立採購單</button>
+        </div>
+      </header>
 
-    <!-- 編輯模式下方工具列 -->
-    <div id="edit-bar" class="edit-bar" style="display:none;">
-      <button id="edit-cancel" class="btn btn-ghost" data-lock>✕ 取消</button>
-      <button id="edit-save" class="btn btn-primary" data-lock>✓ 儲存</button>
+      <div id="recipe-list" class="recipe-list"></div>
+      <div id="recipe-empty" class="empty-hint" style="display:none;"></div>
+
+      <div id="recipe-sel-bar" class="sel-bar" style="display:none;">
+        <span class="sel-count-wrap">已選擇 <b id="sel-count">0</b> 個食譜</span>
+        <span class="spacer"></span>
+        <button id="sel-cancel" class="btn btn-ghost btn-sm">取消</button>
+        <button id="sel-build" class="btn btn-primary btn-sm">建立採購單</button>
+      </div>
     </div>
+
+    <!-- ===== 檢視：食譜詳情 ===== -->
+    <div id="view-recipe-detail" style="display:none;">
+      <header class="topbar">
+        <button id="detail-back" class="icon-btn" aria-label="返回"><span class="material-symbols-outlined">arrow_back</span></button>
+        <span id="detail-title" class="title page-title"></span>
+        <span class="tb-spacer"></span>
+      </header>
+      <div id="recipe-detail-body" class="page-body"></div>
+      <div class="page-action">
+        <button id="detail-add" class="btn btn-primary" style="width:100%;">加入採購單</button>
+      </div>
+    </div>
+
+    <!-- ===== 檢視：採購單 ===== -->
+    <div id="view-purchase" style="display:none;">
+      <header class="topbar">
+        <button id="purchase-back" class="icon-btn" aria-label="返回"><span class="material-symbols-outlined">arrow_back</span></button>
+        <span class="title page-title">採購單</span>
+        <span class="tb-spacer"></span>
+      </header>
+      <div class="page-body">
+        <div class="people-row">
+          <label for="people-input">用餐人數</label>
+          <input type="number" id="people-input" min="1" value="2" class="num">
+        </div>
+        <div id="purchase-body"></div>
+      </div>
+    </div>
+
+    <!-- ===== 底部導覽 ===== -->
+    <nav id="bottom-nav">
+      <button id="nav-inventory" class="nav-btn active">
+        <span class="material-symbols-outlined">inventory_2</span>
+        <span>庫存</span>
+      </button>
+      <button id="nav-recipe" class="nav-btn">
+        <span class="material-symbols-outlined">restaurant_menu</span>
+        <span>食譜</span>
+      </button>
+    </nav>
 
   </main>
 
@@ -90,5 +154,6 @@
   <script src="api-client.js"></script>
   <script src="store.js"></script>
   <script src="app.js"></script>
+  <script src="recipe.js"></script>
 </body>
 </html>

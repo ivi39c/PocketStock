@@ -145,7 +145,7 @@ html, body {
 .ie-f input:focus { border-color: var(--green); }
 .ie-f-qty { grid-column: 1/ 2; }
 .ie-f-qty input { width: 10ch; }          /* 約 10 個字寬 */
-.ie-f-expiry { grid-column: 2 / 3; }           /* 效期獨佔一行 */
+.ie-f-expiry { grid-column: 2 / 3; }           /* 效期欄 */
 .ie-f-expiry input { width: 100%; }
 .ie-mb { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-soft); white-space: nowrap; }
 
@@ -230,3 +230,113 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--green); 
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 .toast.success { background: var(--green-deep); }
 .toast.error { background: var(--red); }
+
+/* =========================================================
+ * Sprint 2：食譜模組樣式（疊加，不影響庫存）
+ * =======================================================*/
+
+/* 主程式底部留白給導覽列 */
+#app-screen { padding-bottom: 78px; }
+body.subview #app-screen { padding-bottom: 90px; }
+
+/* ---------- 底部導覽 ---------- */
+#bottom-nav {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
+  display: flex; max-width: 720px; margin: 0 auto;
+  background: rgba(255,255,255,.96); backdrop-filter: blur(8px);
+  border-top: 1px solid var(--line);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-btn {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 8px 0 6px; background: none; border: none; cursor: pointer;
+  color: var(--ink-soft); font-size: 11px;
+}
+.nav-btn .material-symbols-outlined { font-size: 25px; vertical-align: 0; }
+.nav-btn.active { color: var(--green); }
+.nav-btn:active { transform: scale(.95); }
+
+/* 編輯 / 選取 / 子頁時，隱藏底部導覽 */
+body.editing-mode #bottom-nav,
+body.selection-mode #bottom-nav,
+body.subview #bottom-nav { display: none; }
+
+/* ---------- 子頁頂欄（返回鍵）---------- */
+.topbar .page-title {
+  flex: 1; text-align: left; font-family: -apple-system, "PingFang TC", sans-serif;
+  font-size: 18px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  margin: 0 6px;
+}
+.tb-spacer { width: 38px; flex: 0 0 auto; }
+.icon-btn .material-symbols-outlined { font-size: 22px; }
+
+/* ---------- 食譜清單 ---------- */
+.recipe-list { padding-top: 4px; }
+.recipe-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 15px 16px; border-bottom: 1px solid var(--line); cursor: pointer;
+}
+.recipe-row:active { background: var(--soft); }
+.recipe-row.is-selected { background: rgba(46,111,82,.07); }
+.rr-check { flex: 0 0 auto; display: flex; align-items: center; }
+.rr-cb { pointer-events: none; }
+.rr-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.rr-name { font-weight: 600; }
+.rr-meta { font-size: 13px; color: var(--ink-soft); }
+.rr-arrow { color: var(--ink-soft); font-size: 22px; }
+
+/* 選取模式底部列 */
+.sel-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  display: none; align-items: center; gap: 10px;
+  max-width: 720px; margin: 0 auto;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: var(--ink); color: #fff; border-top: 1px solid var(--line);
+}
+.sel-bar .sel-count-wrap { font-size: 14px; }
+.sel-bar .sel-count-wrap b { color: #FFD9A0; }
+.sel-bar .spacer { flex: 1; }
+.sel-bar .btn-ghost { color: #fff; border-color: rgba(255,255,255,.3); background: transparent; }
+
+/* ---------- 詳情 / 採購單共用頁面 ---------- */
+.page-body { padding: 16px; }
+.page-action {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 30;
+  max-width: 720px; margin: 0 auto;
+  padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+  background: rgba(255,255,255,.96); backdrop-filter: blur(8px); border-top: 1px solid var(--line);
+}
+
+.rd-meta { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.rd-chip {
+  font-size: 13px; color: var(--ink-soft); background: var(--soft);
+  border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px;
+}
+.rd-desc { color: var(--ink-soft); margin: 0 0 16px; line-height: 1.6; }
+.rd-h { font-size: 13px; font-weight: 700; letter-spacing: .06em; color: var(--ink-soft); margin: 4px 0 8px; }
+.rd-ings { display: flex; flex-direction: column; }
+.rd-ing {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 2px; border-bottom: 1px solid var(--line);
+}
+.rd-ing-name { font-weight: 500; }
+.rd-ing-qty { color: var(--ink-soft); white-space: nowrap; }
+.rd-empty { color: var(--ink-soft); padding: 14px 2px; }
+
+/* ---------- 採購單 ---------- */
+.people-row {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+  padding: 12px 14px; background: var(--soft); border: 1px solid var(--line); border-radius: 12px;
+}
+.people-row label { font-weight: 600; }
+.people-row input {
+  width: 80px; margin-left: auto; padding: 9px 10px; font-size: 16px;
+  border: 1px solid var(--line); border-radius: 9px; background: #fff; outline: none; text-align: center;
+}
+.people-row input:focus { border-color: var(--green); }
+
+.pc-card { border: 1px solid var(--line); border-radius: 14px; padding: 14px; margin-bottom: 14px; background: #fff; }
+.pc-head { display: flex; align-items: center; gap: 10px; }
+.pc-name { font-weight: 700; flex: 1; }
+.pc-remove { flex: 0 0 auto; background: none; border: 1px solid var(--line); border-radius: 8px; padding: 5px 10px; font-size: 13px; color: var(--ink-soft); cursor: pointer; }
+.pc-note { font-size: 12px; color: var(--ink-soft); margin: 4px 0 8px; }

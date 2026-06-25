@@ -56,6 +56,14 @@ const InventoryApiClient = {
     });
   },
 
+  // ── 食譜（Sprint 2）──
+  recipeList() {
+    return this._request({ action: 'recipeList' });
+  },
+  recipeDetail(id) {
+    return this._request({ action: 'recipeDetail', recipeId: id });
+  },
+
   // ── 核心：送出請求 + 處理回應（_isRetry 用來限制只重試一次）──
   async _request(payload, _isRetry) {
     if (!this._idToken) {
@@ -134,6 +142,15 @@ const InventoryApiClient = {
 
     // save  → { id, name }
     // commit→ { updated, deleted, failed, failedItems }
+    if (action === 'recipeList') {
+      return (data && data.recipes) || [];
+    }
+    if (action === 'recipeDetail') {
+      return {
+        recipe: (data && data.recipe) || null,
+        ingredients: (data && data.ingredients) || [],
+      };
+    }
     return data || {};
   },
 
