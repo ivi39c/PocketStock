@@ -265,6 +265,37 @@ function inventoryById() {
   return map;
 }
 
+/* 常備調味料：庫存有記錄就當「家裡有」，不列入要買 */
+const STAPLE_SEASONINGS = [
+  '鹽', '糖', '醬油', '蠔油', '沙拉油', '橄欖油', '香油', '油',
+  '胡椒', '米酒', '料理酒', '醋', '烏醋', '白醋', '太白粉',
+  '番茄醬', '辣椒醬', '味醂', '雞粉', '味精', '胡椒鹽',
+];
+function isStaple(name) {
+  const n = String(name || '');
+  return STAPLE_SEASONINGS.some(function (k) { return n.indexOf(k) >= 0; });
+}
+
+/* 單位正規化：把常見同義單位統一，提高「同單位」判斷成功率 */
+function normUnit(u) {
+  u = String(u || '').trim().toLowerCase();
+  const map = { '公克': 'g', '克': 'g', '毫升': 'ml', 'cc': 'ml', '公升': 'l', '個': '顆' };
+  return map[u] || u;
+}
+/* 庫存沒寫單位（純數字）時，視為與食譜同單位 */
+function unitsComparable(invUnit, needUnit) {
+  const a = normUnit(invUnit), b = normUnit(needUnit);
+  return a === b || a === '';
+}
+
+/* 從自由文字拆出「數字 + 單位」：例如 "3顆"→{num:3,unit:"顆"}、"1, 1/6"→{num:1,unit:", 1/6"} */
+function parseQtyUnit(s) {
+  s = String(s == null ? '' : s).trim();
+  const m = s.match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
+  if (!m) return { num: NaN, unit: '', raw: s };
+  return { num: parseFloat(m[1]), unit: (m[2] || '').trim(), raw: s };
+}
+
 /* 合併所有食材（換算 + 加總）並比對庫存，回傳採購建議清單 */
 function buildPurchaseItems() {
   const people = RecipeState.people;
@@ -302,15 +333,19 @@ function buildPurchaseItems() {
 
     if (inv) {
       haveRaw = String(inv.qty == null ? '' : inv.qty).trim();
-      const haveNum = parseFloat(haveRaw);
-      if (it.needHasNum && !isNaN(haveNum)) {
-        buyNum = Math.round((it.needSum - haveNum) * 100) / 100;
+      const parsed = parseQtyUnit(haveRaw);
+      const hasStock = haveRaw !== '' && haveRaw !== '0';
+
+      if (isStaple(it.name) && hasStock) {
+        status = 'staple';                          // 調味料且有庫存 → 家裡應該有
+      } else if (it.needHasNum && !isNaN(parsed.num) && unitsComparable(parsed.unit, it.unit)) {
+        buyNum = Math.round((it.needSum - parsed.num) * 100) / 100;   // 同單位才相減
         status = (buyNum > 0) ? 'buy' : 'enough';
-      } else if (haveRaw === '' || haveRaw === '0') {
-        status = 'buy';                       // 庫存為 0 → 要買
+      } else if (!hasStock) {
+        status = 'buy';                             // 庫存 0/空 → 要買全部
         buyNum = it.needHasNum ? it.needSum : null;
       } else {
-        status = 'have-unknown';              // 庫存有，但數量非數字、無法相減
+        status = 'check';                           // 有庫存但單位對不上/算不出 → 自行確認
       }
     }
     return {
@@ -344,9 +379,9 @@ function purchaseRowHtml(it) {
   } else if (it.status === 'enough') {
     amount = '庫存足夠';
     note = '需要 ' + fmtNum(it.needSum) + esc(it.unit) + '・庫存 ' + esc(it.haveRaw);
-  } else if (it.status === 'have-unknown') {
-    amount = '庫存：' + esc(it.haveRaw);
-    note = it.needHasNum ? ('需要 ' + fmtNum(it.needSum) + esc(it.unit) + '，請自行確認') : '請自行確認';
+  } else if (it.status === 'check' || it.status === 'staple') {
+    amount = it.needHasNum ? ('需要 ' + fmtNum(it.needSum) + u) : esc(it.texts.join('、') || '適量');
+    note = '庫存 ' + esc(it.haveRaw) + (it.status === 'check' ? '，請自行確認' : '');
   }
 
   return '<div class="pc-row"><div class="pc-row-main"><span class="pc-row-name">' + esc(it.name) + '</span>' +
@@ -373,7 +408,7 @@ function renderPurchase() {
 
   const items = buildPurchaseItems();
   const buyItems  = items.filter(function (it) { return it.status === 'buy' || it.status === 'no-data'; });
-  const haveItems = items.filter(function (it) { return it.status === 'enough' || it.status === 'have-unknown'; });
+  const haveItems = items.filter(function (it) { return it.status === 'enough' || it.status === 'check' || it.status === 'staple'; });
 
   html += '<h4 class="rd-h">🛒 建議採買</h4><div class="rd-ings">';
   if (buyItems.length) {
@@ -384,7 +419,7 @@ function renderPurchase() {
   html += '</div>';
 
   if (haveItems.length) {
-    html += '<h4 class="rd-h rd-h-muted">✓ 庫存已有（自行確認是否足夠）</h4><div class="rd-ings rd-ings-muted">';
+    html += '<h4 class="rd-h rd-h-muted">✓ 家裡應該有（自行確認是否足夠）</h4><div class="rd-ings rd-ings-muted">';
     haveItems.forEach(function (it) { html += purchaseRowHtml(it); });
     html += '</div>';
   }
