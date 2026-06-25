@@ -350,3 +350,42 @@ body.subview #bottom-nav { display: none; }
   display: flex; align-items: center; justify-content: center; margin-top: 1px;
 }
 .rd-step-tx { flex: 1; line-height: 1.6; }
+
+/* ---------- 採購建議（庫存比對）---------- */
+.pc-recipes { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 18px; }
+.pc-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 13px; font-weight: 500; background: var(--soft); border: 1px solid var(--line);
+  border-radius: 999px; padding: 5px 6px 5px 12px;
+}
+.pc-chip-x {
+  width: 20px; height: 20px; border-radius: 50%; border: none; cursor: pointer;
+  background: #fff; color: var(--ink-soft); font-size: 11px; line-height: 1;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+
+/* 分區小標題 */
+.rd-h { display: flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 700; color: var(--ink); margin: 4px 0 6px; letter-spacing: 0; }
+.rd-h-muted { color: var(--ink-soft); margin-top: 24px; }
+
+/* 採購建議卡片群組（只在採購單頁，避免影響詳情頁食材清單）*/
+#purchase-body .rd-ings { border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+#purchase-body .rd-ings-muted { background: var(--soft); }
+
+.pc-row { padding: 13px 14px; border-bottom: 1px solid var(--line); }
+.pc-row:last-child { border-bottom: none; }
+.pc-row-main { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pc-row-name { font-weight: 600; font-size: 15px; }
+.pc-row-amt {
+  flex: 0 0 auto; white-space: nowrap; font-weight: 700; font-size: 14px;
+  color: var(--green-deep); background: rgba(46,111,82,.1);
+  padding: 4px 11px; border-radius: 999px;
+}
+.pc-row-note { font-size: 12px; color: var(--ink-soft); margin-top: 5px; }
+
+/* 「庫存已有」區：淡化，金額不做膠囊 */
+.rd-ings-muted .pc-row-name { font-weight: 500; color: var(--ink-soft); }
+.rd-ings-muted .pc-row-amt { background: none; padding: 0; color: var(--ink-soft); font-weight: 500; }
+
+/* 採購單頁的空狀態置中一點 */
+#purchase-body .rd-empty { text-align: center; }
