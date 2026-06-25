@@ -194,6 +194,17 @@ function renderDetail(d) {
     html += '<div class="rd-empty">尚未設定食材</div>';
   }
   html += '</div>';
+
+  // 做法（用換行拆成一步一步）
+  const steps = String(r.steps || '').split(/\r?\n/).map(function (s) { return s.trim(); }).filter(Boolean);
+  if (steps.length) {
+    html += '<h4 class="rd-h">做法</h4><div class="rd-steps">';
+    steps.forEach(function (s, idx) {
+      html += '<div class="rd-step"><span class="rd-step-no">' + (idx + 1) + '</span><span class="rd-step-tx">' + esc(s) + '</span></div>';
+    });
+    html += '</div>';
+  }
+
   document.getElementById('recipe-detail-body').innerHTML = html;
 }
 
@@ -246,13 +257,15 @@ function renderPurchase() {
     const d = RecipeState.details[id];
     if (!d) return;
     const r = d.recipe;
-    const base = r.base_servings || 1;
+    const baseNum = parseFloat(r.base_servings);
+    const base = (baseNum && baseNum > 0) ? baseNum : 1;   // 確實轉成數字，避免被當成 1
     const factor = people / base;
+    const factorTxt = Math.round(factor * 100) / 100;
 
     html += '<div class="pc-card">';
     html += '<div class="pc-head"><span class="pc-name">' + esc(r.recipe_name) + '</span>' +
             '<button class="pc-remove" data-remove="' + escAttr(id) + '">移除</button></div>';
-    html += '<div class="pc-note">原 ' + esc(base) + ' 人份 → 換算 ' + people + ' 人份</div>';
+    html += '<div class="pc-note">原 ' + esc(base) + ' 人份 → ' + people + ' 人份（×' + factorTxt + '）</div>';
     html += '<div class="rd-ings">';
     if (d.ingredients.length) {
       d.ingredients.forEach(function (ing) {
