@@ -263,9 +263,21 @@ async function openPurchase() {
   }
 }
 
+// 把數量字串轉成數字：支援分數(1/2→0.5)、混合數(1 1/2→1.5)、小數、含單位(200g→200)；非數字回 NaN
+function qtyToNumber(s) {
+  s = String(s == null ? '' : s).trim();
+  if (!s) return NaN;
+  const mixed = s.match(/^(\d+)\s+(\d+)\/(\d+)/);          // 1 1/2
+  if (mixed) { const d = parseFloat(mixed[3]); return d ? parseFloat(mixed[1]) + parseFloat(mixed[2]) / d : NaN; }
+  const frac = s.match(/^(\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)/); // 1/2、1/6
+  if (frac) { const d = parseFloat(frac[2]); return d ? parseFloat(frac[1]) / d : NaN; }
+  const n = parseFloat(s);                                  // 2、0.5、200g
+  return isNaN(n) ? NaN : n;
+}
+
 // 依比例換算食材數量：數字才換算，「適量」之類原樣保留
 function scaleQty(qtyStr, factor) {
-  const n = parseFloat(qtyStr);
+  const n = qtyToNumber(qtyStr);
   if (isNaN(n)) return qtyStr;
   let v = Math.round(n * factor * 100) / 100; // 取到小數兩位
   return String(v);
@@ -305,9 +317,10 @@ function unitsComparable(invUnit, needUnit) {
 /* 從自由文字拆出「數字 + 單位」：例如 "3顆"→{num:3,unit:"顆"}、"1, 1/6"→{num:1,unit:", 1/6"} */
 function parseQtyUnit(s) {
   s = String(s == null ? '' : s).trim();
-  const m = s.match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
+  // 數字部分支援：混合數 1 1/2、分數 1/2、小數/整數 1.5
+  const m = s.match(/^(\d+\s+\d+\/\d+|\d+(?:\.\d+)?\/\d+(?:\.\d+)?|\d+(?:\.\d+)?)\s*(.*)$/);
   if (!m) return { num: NaN, unit: '', raw: s };
-  return { num: parseFloat(m[1]), unit: (m[2] || '').trim(), raw: s };
+  return { num: qtyToNumber(m[1]), unit: (m[2] || '').trim(), raw: s };
 }
 
 /* 合併所有食材（換算 + 加總）並比對庫存，回傳採購建議清單 */
@@ -329,7 +342,7 @@ function buildPurchaseItems() {
       const key = ing.ingredient_name + '\u0001' + unit;
       if (!map[key]) { map[key] = { name: ing.ingredient_name, unit: unit, itemId: '', needSum: 0, needHasNum: false, texts: [] }; order.push(key); }
       if (ing.item_id && !map[key].itemId) map[key].itemId = ing.item_id;
-      const n = parseFloat(ing.qty);
+      const n = qtyToNumber(ing.qty);
       if (isNaN(n)) {
         const t = String(ing.qty || '').trim();
         if (t && map[key].texts.indexOf(t) < 0) map[key].texts.push(t);
