@@ -76,9 +76,17 @@
       <header class="topbar">
         <div class="tb-left"><span class="title">食譜</span></div>
         <div class="tb-right">
+          <button id="btn-recipe-search" class="icon-btn" aria-label="搜尋食譜">
+            <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><line x1="20.5" y1="20.5" x2="16" y2="16"/></svg>
+          </button>
           <button id="btn-build-purchase" class="btn btn-ghost btn-sm">建立採購單</button>
         </div>
       </header>
+
+      <div id="recipe-search-wrap" class="search-wrap" style="display:none;">
+        <input type="text" id="recipe-search" placeholder="搜尋食譜名稱…" autocomplete="off">
+        <span id="recipe-count-hint" class="count-hint"></span>
+      </div>
 
       <div id="recipe-list" class="recipe-list"></div>
       <div id="recipe-empty" class="empty-hint" style="display:none;"></div>
