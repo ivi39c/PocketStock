@@ -419,7 +419,7 @@ function renderPurchase() {
   html += '</div>';
 
   if (haveItems.length) {
-    html += '<h4 class="rd-h rd-h-muted">✓ 家裡應該有（自行確認是否足夠）</h4><div class="rd-ings rd-ings-muted">';
+    html += '<h4 class="rd-h rd-h-muted">✓ 庫存應該有（自行確認是否足夠）</h4><div class="rd-ings rd-ings-muted">';
     haveItems.forEach(function (it) { html += purchaseRowHtml(it); });
     html += '</div>';
   }
