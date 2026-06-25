@@ -240,6 +240,7 @@ async function openPurchase() {
       }
     }
     renderPurchase();
+    document.getElementById('people-input').value = RecipeState.people;
     View.show('purchase');
   } catch (err) {
     // 已由 client 處理
@@ -256,40 +257,138 @@ function scaleQty(qtyStr, factor) {
   return String(v);
 }
 
+/* 把庫存做成「ID → 品項」對照表，方便比對 */
+function inventoryById() {
+  const map = {};
+  const items = (typeof InventoryStore !== 'undefined' && InventoryStore.state.items) ? InventoryStore.state.items : [];
+  items.forEach(function (it) { map[it.id] = it; });
+  return map;
+}
+
+/* 合併所有食材（換算 + 加總）並比對庫存，回傳採購建議清單 */
+function buildPurchaseItems() {
+  const people = RecipeState.people;
+  const invMap = inventoryById();
+  const map = {};   // key -> { name, unit, itemId, needSum, needHasNum, texts[] }
+  const order = [];
+
+  Array.from(RecipeState.cart).forEach(function (id) {
+    const d = RecipeState.details[id];
+    if (!d) return;
+    const baseNum = parseFloat(d.recipe.base_servings);
+    const base = (baseNum && baseNum > 0) ? baseNum : 1;
+    const factor = people / base;
+
+    d.ingredients.forEach(function (ing) {
+      const unit = ing.unit || '';
+      const key = ing.ingredient_name + '\u0001' + unit;
+      if (!map[key]) { map[key] = { name: ing.ingredient_name, unit: unit, itemId: '', needSum: 0, needHasNum: false, texts: [] }; order.push(key); }
+      if (ing.item_id && !map[key].itemId) map[key].itemId = ing.item_id;
+      const n = parseFloat(ing.qty);
+      if (isNaN(n)) {
+        const t = String(ing.qty || '').trim();
+        if (t && map[key].texts.indexOf(t) < 0) map[key].texts.push(t);
+      } else {
+        map[key].needSum += n * factor;
+        map[key].needHasNum = true;
+      }
+    });
+  });
+
+  return order.map(function (key) {
+    const it = map[key];
+    const inv = it.itemId ? invMap[it.itemId] : null;
+    let status = 'no-data', haveRaw = '', buyNum = null;
+
+    if (inv) {
+      haveRaw = String(inv.qty == null ? '' : inv.qty).trim();
+      const haveNum = parseFloat(haveRaw);
+      if (it.needHasNum && !isNaN(haveNum)) {
+        buyNum = Math.round((it.needSum - haveNum) * 100) / 100;
+        status = (buyNum > 0) ? 'buy' : 'enough';
+      } else if (haveRaw === '' || haveRaw === '0') {
+        status = 'buy';                       // 庫存為 0 → 要買
+        buyNum = it.needHasNum ? it.needSum : null;
+      } else {
+        status = 'have-unknown';              // 庫存有，但數量非數字、無法相減
+      }
+    }
+    return {
+      name: it.name, unit: it.unit, itemId: it.itemId,
+      needSum: it.needSum, needHasNum: it.needHasNum, texts: it.texts,
+      haveRaw: haveRaw, buyNum: buyNum, status: status,
+    };
+  });
+}
+
+/* 單列採購建議 HTML */
+function purchaseRowHtml(it) {
+  const u = it.unit ? ' ' + esc(it.unit) : '';
+  let amount = '', note = '';
+
+  if (it.status === 'buy') {
+    if (it.buyNum != null) {
+      amount = '買 ' + fmtNum(it.buyNum) + u;
+      note = '需要 ' + fmtNum(it.needSum) + esc(it.unit) + '・庫存 ' + esc(it.haveRaw || '0');
+    } else if (it.needHasNum) {
+      amount = '買 ' + fmtNum(it.needSum) + u;
+      note = '庫存 ' + esc(it.haveRaw || '0');
+    }
+    if (it.texts.length) amount += (amount ? '＋' : '') + esc(it.texts.join('、'));
+    if (!amount) amount = esc(it.texts.join('、') || '適量');
+  } else if (it.status === 'no-data') {
+    if (it.needHasNum) amount = fmtNum(it.needSum) + u;
+    if (it.texts.length) amount += (amount ? '＋' : '') + esc(it.texts.join('、'));
+    if (!amount) amount = esc(it.texts.join('、') || '適量');
+    note = '無庫存資料';
+  } else if (it.status === 'enough') {
+    amount = '庫存足夠';
+    note = '需要 ' + fmtNum(it.needSum) + esc(it.unit) + '・庫存 ' + esc(it.haveRaw);
+  } else if (it.status === 'have-unknown') {
+    amount = '庫存：' + esc(it.haveRaw);
+    note = it.needHasNum ? ('需要 ' + fmtNum(it.needSum) + esc(it.unit) + '，請自行確認') : '請自行確認';
+  }
+
+  return '<div class="pc-row"><div class="pc-row-main"><span class="pc-row-name">' + esc(it.name) + '</span>' +
+         '<span class="pc-row-amt num">' + amount + '</span></div>' +
+         (note ? '<div class="pc-row-note">' + note + '</div>' : '') + '</div>';
+}
+
 function renderPurchase() {
   const people = RecipeState.people;
-  document.getElementById('people-input').value = people;
 
   const body = document.getElementById('purchase-body');
   const ids = Array.from(RecipeState.cart);
   if (!ids.length) { body.innerHTML = '<div class="rd-empty">採購單是空的</div>'; return; }
 
-  let html = '';
+  // 包含的食譜（可移除）
+  let html = '<div class="pc-recipes">';
   ids.forEach(function (id) {
     const d = RecipeState.details[id];
     if (!d) return;
-    const r = d.recipe;
-    const baseNum = parseFloat(r.base_servings);
-    const base = (baseNum && baseNum > 0) ? baseNum : 1;   // 確實轉成數字，避免被當成 1
-    const factor = people / base;
-    const factorTxt = Math.round(factor * 100) / 100;
-
-    html += '<div class="pc-card">';
-    html += '<div class="pc-head"><span class="pc-name">' + esc(r.recipe_name) + '</span>' +
-            '<button class="pc-remove" data-remove="' + escAttr(id) + '">移除</button></div>';
-    html += '<div class="pc-note">原 ' + esc(base) + ' 人份 → ' + people + ' 人份（×' + factorTxt + '）</div>';
-    html += '<div class="rd-ings">';
-    if (d.ingredients.length) {
-      d.ingredients.forEach(function (ing) {
-        const q = scaleQty(ing.qty, factor);
-        html += '<div class="rd-ing"><span class="rd-ing-name">' + esc(ing.ingredient_name) + '</span>' +
-          '<span class="rd-ing-qty num">' + esc(q) + (ing.unit ? ' ' + esc(ing.unit) : '') + '</span></div>';
-      });
-    } else {
-      html += '<div class="rd-empty">無食材</div>';
-    }
-    html += '</div></div>';
+    html += '<span class="pc-chip">' + esc(d.recipe.recipe_name) +
+            '<button class="pc-chip-x" data-remove="' + escAttr(id) + '" aria-label="移除">✕</button></span>';
   });
+  html += '</div>';
+
+  const items = buildPurchaseItems();
+  const buyItems  = items.filter(function (it) { return it.status === 'buy' || it.status === 'no-data'; });
+  const haveItems = items.filter(function (it) { return it.status === 'enough' || it.status === 'have-unknown'; });
+
+  html += '<h4 class="rd-h">🛒 建議採買</h4><div class="rd-ings">';
+  if (buyItems.length) {
+    buyItems.forEach(function (it) { html += purchaseRowHtml(it); });
+  } else {
+    html += '<div class="rd-empty">庫存都夠，不用買 🎉</div>';
+  }
+  html += '</div>';
+
+  if (haveItems.length) {
+    html += '<h4 class="rd-h rd-h-muted">✓ 庫存已有（自行確認是否足夠）</h4><div class="rd-ings rd-ings-muted">';
+    haveItems.forEach(function (it) { html += purchaseRowHtml(it); });
+    html += '</div>';
+  }
+
   body.innerHTML = html;
 
   Array.prototype.forEach.call(body.querySelectorAll('[data-remove]'), function (b) {
@@ -317,44 +416,26 @@ function copyText(text) {
 function copyPurchaseList() {
   const ids = Array.from(RecipeState.cart);
   if (!ids.length) { toast('採購單是空的', 'info'); return; }
-  const people = RecipeState.people;
 
-  const map = {};        // key -> { name, unit, sum, hasNum, texts[] }
-  const order = [];      // 保留第一次出現的順序
-  const recipeNames = [];
-
-  ids.forEach(function (id) {
-    const d = RecipeState.details[id];
-    if (!d) return;
-    recipeNames.push(d.recipe.recipe_name);
-    const baseNum = parseFloat(d.recipe.base_servings);
-    const base = (baseNum && baseNum > 0) ? baseNum : 1;
-    const factor = people / base;
-
-    d.ingredients.forEach(function (ing) {
-      const unit = ing.unit || '';
-      const key = ing.ingredient_name + '\u0001' + unit;
-      if (!map[key]) { map[key] = { name: ing.ingredient_name, unit: unit, sum: 0, hasNum: false, texts: [] }; order.push(key); }
-      const n = parseFloat(ing.qty);
-      if (isNaN(n)) {
-        const t = String(ing.qty || '').trim();   // 例如「適量」
-        if (t && map[key].texts.indexOf(t) < 0) map[key].texts.push(t);
-      } else {
-        map[key].sum += n * factor;
-        map[key].hasNum = true;
-      }
-    });
-  });
+  const items = buildPurchaseItems().filter(function (it) { return it.status === 'buy' || it.status === 'no-data'; });
+  const recipeNames = ids.map(function (id) { const d = RecipeState.details[id]; return d ? d.recipe.recipe_name : ''; }).filter(Boolean);
 
   const now = new Date();
-  const lines = [(now.getMonth() + 1) + '/' + now.getDate() + ' 採購清單（' + people + ' 人份）', ''];
-  order.forEach(function (key) {
-    const it = map[key];
-    let qty = '';
-    if (it.hasNum) qty = ' ' + fmtNum(it.sum) + (it.unit ? ' ' + it.unit : '');
-    if (it.texts.length) qty += (it.hasNum ? '＋' : ' ') + it.texts.join('、');
-    lines.push('・' + it.name + qty);
-  });
+  const lines = [(now.getMonth() + 1) + '/' + now.getDate() + ' 採購清單（' + RecipeState.people + ' 人份）', ''];
+
+  if (!items.length) {
+    lines.push('（庫存都夠，不用買）');
+  } else {
+    items.forEach(function (it) {
+      let amt = '';
+      if (it.status === 'buy' && it.buyNum != null) amt = fmtNum(it.buyNum) + (it.unit ? ' ' + it.unit : '');
+      else if (it.needHasNum) amt = fmtNum(it.needSum) + (it.unit ? ' ' + it.unit : '');
+      if (it.texts.length) amt += (amt ? '＋' : '') + it.texts.join('、');
+      if (!amt) amt = it.texts.join('、') || '適量';
+      lines.push('・' + it.name + ' ' + amt);
+    });
+  }
+
   lines.push('');
   lines.push('———');
   lines.push(recipeNames.join('、'));
@@ -397,9 +478,27 @@ window.addEventListener('load', function () {
 
   document.getElementById('purchase-back').addEventListener('click', function () { View.show('recipe'); });
   document.getElementById('purchase-copy').addEventListener('click', copyPurchaseList);
-  document.getElementById('people-input').addEventListener('input', function (e) {
+
+  const peopleInput = document.getElementById('people-input');
+  // 點一下就全選，直接打字覆蓋（不用先刪掉原本的數字）
+  peopleInput.addEventListener('focus', function () { this.select(); });
+  // 打字當下：有效數字才更新清單；留空不打斷，讓你慢慢打
+  peopleInput.addEventListener('input', function (e) {
     const n = parseInt(e.target.value, 10);
-    RecipeState.people = (isNaN(n) || n < 1) ? 1 : n;
-    renderPurchase();
+    if (!isNaN(n) && n >= 1) {
+      RecipeState.people = n;
+      renderPurchase();
+    }
+  });
+  // 離開欄位：若留空或無效，還原成上一個有效人數
+  peopleInput.addEventListener('blur', function (e) {
+    const n = parseInt(e.target.value, 10);
+    if (isNaN(n) || n < 1) {
+      e.target.value = RecipeState.people;
+    } else {
+      RecipeState.people = n;
+      e.target.value = n;          // 去掉前導 0 之類
+      renderPurchase();
+    }
   });
 });
