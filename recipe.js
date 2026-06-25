@@ -289,6 +289,67 @@ function renderPurchase() {
   });
 }
 
+/* ====== 複製採購清單（合併加總成純文字）====== */
+function fmtNum(n) {
+  return String(Math.round(n * 100) / 100);
+}
+function copyText(text) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(function () { toast('已複製採購清單', 'success'); })
+      .catch(function () { fallbackCopy(text); });   // fallbackCopy 來自 app.js
+  } else {
+    fallbackCopy(text);
+  }
+}
+function copyPurchaseList() {
+  const ids = Array.from(RecipeState.cart);
+  if (!ids.length) { toast('採購單是空的', 'info'); return; }
+  const people = RecipeState.people;
+
+  const map = {};        // key -> { name, unit, sum, hasNum, texts[] }
+  const order = [];      // 保留第一次出現的順序
+  const recipeNames = [];
+
+  ids.forEach(function (id) {
+    const d = RecipeState.details[id];
+    if (!d) return;
+    recipeNames.push(d.recipe.recipe_name);
+    const baseNum = parseFloat(d.recipe.base_servings);
+    const base = (baseNum && baseNum > 0) ? baseNum : 1;
+    const factor = people / base;
+
+    d.ingredients.forEach(function (ing) {
+      const unit = ing.unit || '';
+      const key = ing.ingredient_name + '\u0001' + unit;
+      if (!map[key]) { map[key] = { name: ing.ingredient_name, unit: unit, sum: 0, hasNum: false, texts: [] }; order.push(key); }
+      const n = parseFloat(ing.qty);
+      if (isNaN(n)) {
+        const t = String(ing.qty || '').trim();   // 例如「適量」
+        if (t && map[key].texts.indexOf(t) < 0) map[key].texts.push(t);
+      } else {
+        map[key].sum += n * factor;
+        map[key].hasNum = true;
+      }
+    });
+  });
+
+  const now = new Date();
+  const lines = [(now.getMonth() + 1) + '/' + now.getDate() + ' 採購清單（' + people + ' 人份）', ''];
+  order.forEach(function (key) {
+    const it = map[key];
+    let qty = '';
+    if (it.hasNum) qty = ' ' + fmtNum(it.sum) + (it.unit ? ' ' + it.unit : '');
+    if (it.texts.length) qty += (it.hasNum ? '＋' : ' ') + it.texts.join('、');
+    lines.push('・' + it.name + qty);
+  });
+  lines.push('');
+  lines.push('———');
+  lines.push(recipeNames.join('、'));
+
+  copyText(lines.join('\n').trim());
+}
+
 /* ====== 啟動：綁定導覽與按鈕 ====== */
 window.addEventListener('load', function () {
   document.getElementById('nav-inventory').addEventListener('click', function () { View.show('inventory'); });
@@ -302,6 +363,7 @@ window.addEventListener('load', function () {
   document.getElementById('detail-add').addEventListener('click', addCurrentDetailToCart);
 
   document.getElementById('purchase-back').addEventListener('click', function () { View.show('recipe'); });
+  document.getElementById('purchase-copy').addEventListener('click', copyPurchaseList);
   document.getElementById('people-input').addEventListener('input', function (e) {
     const n = parseInt(e.target.value, 10);
     RecipeState.people = (isNaN(n) || n < 1) ? 1 : n;
