@@ -125,6 +125,12 @@ function buildGroups(items) {
   Object.keys(map).forEach(function (c) {
     if (!seen[c]) groups.push({ cat: c, items: map[c] });
   });
+  // 每個分類內依品名注音排序
+  const byZhuyin = function (a, b) {
+    return String(a.name || '').localeCompare(String(b.name || ''), 'zh-Hant-u-co-zhuyin');
+  };
+  groups.forEach(function (g) { g.items.sort(byZhuyin); });
+  buy.sort(byZhuyin);
 
   return { buy: buy, groups: groups };
 }
