@@ -250,6 +250,13 @@ function syncEditChrome() {
   document.getElementById('edit-bar').style.display = mode === 'edit' ? 'flex' : 'none';
   document.getElementById('btn-edit').classList.toggle('active', mode === 'edit');
   document.body.classList.toggle('editing-mode', mode === 'edit');
+
+  // 編輯狀態時，停用「新增」按鈕（避免一邊編輯一邊新增）
+  const editing = mode === 'edit';
+  const addBtn = document.getElementById('btn-add');
+  addBtn.disabled = editing;
+  addBtn.style.opacity = editing ? '.35' : '';
+  addBtn.style.pointerEvents = editing ? 'none' : '';
 }
 
 /* ====== 編輯：進入 / 取消 / 儲存 ====== */
