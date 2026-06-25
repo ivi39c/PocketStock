@@ -53,19 +53,9 @@ function openRecipeTab() {
   if (!RecipeState.loaded) loadRecipes();
 }
 
-function recipeSkeleton(n) {
-  let h = '';
-  for (let i = 0; i < n; i++) {
-    h += '<div class="recipe-row sk-row">' +
-           '<div class="rr-main"><span class="sk sk-name"></span><span class="sk sk-meta"></span></div>' +
-         '</div>';
-  }
-  return h;
-}
-
 async function loadRecipes() {
   document.getElementById('recipe-empty').style.display = 'none';
-  document.getElementById('recipe-list').innerHTML = recipeSkeleton(6);   // 骨架屏
+  setRecipeLoading(true);
   try {
     const recipes = await InventoryApiClient.recipeList();
     RecipeState.recipes = recipes;
@@ -76,6 +66,8 @@ async function loadRecipes() {
     const empty = document.getElementById('recipe-empty');
     empty.textContent = '讀取食譜失敗：' + (err.message || '未知錯誤');
     empty.style.display = 'block';
+  } finally {
+    setRecipeLoading(false);
   }
 }
 
