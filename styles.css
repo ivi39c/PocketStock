@@ -283,7 +283,7 @@ body.subview #bottom-nav { display: none; }
 .rr-check { flex: 0 0 auto; display: flex; align-items: center; }
 .rr-cb { pointer-events: none; }
 .rr-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.rr-name { font-family: "Fraunces", "Noto Serif TC", Georgia, serif; font-weight: 600; font-size: 16px; }
+.rr-name { font-family: "Fraunces", "Noto Serif TC", Georgia, serif; font-weight: 600; font-size: 17px; }
 .rr-meta { font-size: 13px; color: var(--ink-soft); }
 .rr-arrow { color: var(--ink-soft); font-size: 22px; }
 
