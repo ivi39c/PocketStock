@@ -11,6 +11,8 @@ const RecipeState = {
   recipes: [],
   loaded: false,
   filterText: '',           // 搜尋關鍵字
+  aiDraft: null,            // AI 生成、待確認的食譜
+  aiQuery: '',              // 上次輸入的菜名
   selectionMode: false,
   selectedIds: new Set(),   // 選取模式中被勾選的食譜
   cart: new Set(),          // 採購單裡的食譜
@@ -419,7 +421,7 @@ function renderPurchase() {
   html += '</div>';
 
   if (haveItems.length) {
-    html += '<h4 class="rd-h rd-h-muted">✓ 庫存應該有（自行確認是否足夠）</h4><div class="rd-ings rd-ings-muted">';
+    html += '<h4 class="rd-h rd-h-muted">✓ 家裡應該有（自行確認是否足夠）</h4><div class="rd-ings rd-ings-muted">';
     haveItems.forEach(function (it) { html += purchaseRowHtml(it); });
     html += '</div>';
   }
@@ -493,12 +495,108 @@ function toggleRecipeSearch() {
   }
 }
 
+/* ====== AI 找食譜 ====== */
+function openAiModal() {
+  openModal('✨ AI 找食譜', '');
+  renderAiInput('');
+}
+
+function renderAiInput(errMsg) {
+  document.getElementById('modal-body').innerHTML =
+    '<div class="ai-box">' +
+      '<label class="field full">想做什麼菜？' +
+        '<input id="ai-query" type="text" placeholder="例如：打拋豬、麻婆豆腐" autocomplete="off" value="' + escAttr(RecipeState.aiQuery || '') + '"></label>' +
+      (errMsg ? '<div class="ai-err">' + esc(errMsg) + '</div>' : '') +
+      '<div class="modal-actions"><button class="btn btn-primary" id="ai-gen">✨ 生成食譜</button></div>' +
+      '<p class="ai-tip">AI 會生成參考食譜，你確認後才會存進清單。</p>' +
+    '</div>';
+  const input = document.getElementById('ai-query');
+  document.getElementById('ai-gen').addEventListener('click', aiGenerate);
+  input.addEventListener('keydown', function (e) { if (e.key === 'Enter') aiGenerate(); });
+  input.focus();
+}
+
+function renderAiLoading(name) {
+  document.getElementById('modal-body').innerHTML =
+    '<div class="ai-loading"><div class="spinner"></div><p>正在為你想「' + esc(name) + '」的食譜…</p></div>';
+}
+
+function renderAiPreview(d) {
+  let html = '<div class="ai-preview">';
+  html += '<div class="ap-title">' + esc(d.recipe_name) + '</div>';
+  html += '<div class="rd-meta">';
+  if (d.cook_time)     html += '<span class="rd-chip">⏱ ' + esc(d.cook_time) + ' 分鐘</span>';
+  if (d.base_servings) html += '<span class="rd-chip">👥 ' + esc(d.base_servings) + ' 人份</span>';
+  html += '</div>';
+
+  html += '<h4 class="rd-h">食材</h4><div class="rd-ings">';
+  (d.ingredients || []).forEach(function (i) {
+    html += '<div class="rd-ing"><span class="rd-ing-name">' + esc(i.ingredient_name) + '</span>' +
+      '<span class="rd-ing-qty num">' + esc(i.qty) + (i.unit ? ' ' + esc(i.unit) : '') + '</span></div>';
+  });
+  html += '</div>';
+
+  const steps = d.steps || [];
+  if (steps.length) {
+    html += '<h4 class="rd-h">做法</h4><div class="rd-steps">';
+    steps.forEach(function (s, idx) {
+      html += '<div class="rd-step"><span class="rd-step-no">' + (idx + 1) + '</span><span class="rd-step-tx">' + esc(s) + '</span></div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<div class="ai-actions">' +
+            '<button class="btn btn-ghost" id="ai-again">重新生成</button>' +
+            '<button class="btn btn-primary" id="ai-save">存成我的食譜</button>' +
+          '</div>';
+  html += '</div>';
+
+  document.getElementById('modal-body').innerHTML = html;
+  document.getElementById('ai-again').addEventListener('click', function () { renderAiInput(''); });
+  document.getElementById('ai-save').addEventListener('click', aiSave);
+}
+
+async function aiGenerate() {
+  const input = document.getElementById('ai-query');
+  const name = (input ? input.value : '').trim();
+  if (!name) { toast('請先輸入菜名', 'info'); return; }
+  RecipeState.aiQuery = name;
+  renderAiLoading(name);
+  try {
+    const draft = await InventoryApiClient.recipeAI(name);
+    RecipeState.aiDraft = draft;
+    renderAiPreview(draft);
+  } catch (e) {
+    renderAiInput(e && e.message ? e.message : 'AI 生成失敗，請再試一次');
+  }
+}
+
+async function aiSave() {
+  const d = RecipeState.aiDraft;
+  if (!d) return;
+  const btn = document.getElementById('ai-save');
+  if (btn) { btn.disabled = true; btn.textContent = '儲存中…'; }
+  try {
+    await InventoryApiClient.recipeAISave(d, d.ingredients);
+    closeModal();
+    toast('已存成食譜 🎉', 'success');
+    RecipeState.aiDraft = null;
+    RecipeState.loaded = false;     // 強制重抓，讓新食譜出現
+    await loadRecipes();
+    View.show('recipe');
+  } catch (e) {
+    if (btn) { btn.disabled = false; btn.textContent = '存成我的食譜'; }
+    toast('存檔失敗：' + (e && e.message ? e.message : ''), 'error');
+  }
+}
+
 /* ====== 啟動：綁定導覽與按鈕 ====== */
 window.addEventListener('load', function () {
   document.getElementById('nav-inventory').addEventListener('click', function () { View.show('inventory'); });
   document.getElementById('nav-recipe').addEventListener('click', openRecipeTab);
 
   document.getElementById('btn-recipe-search').addEventListener('click', toggleRecipeSearch);
+  document.getElementById('btn-ai-recipe').addEventListener('click', openAiModal);
   document.getElementById('recipe-search').addEventListener('input', function (e) {
     RecipeState.filterText = e.target.value;
     renderRecipeList();
