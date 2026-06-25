@@ -32,7 +32,7 @@ html, body {
   align-items: center; justify-content: center; gap: 22px; padding: 24px; text-align: center;
   background: var(--soft);
 }
-.brand { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 40px; letter-spacing: -.01em; }
+.brand { font-family: "Fraunces", "Noto Serif TC", Georgia, serif; font-weight: 600; font-size: 40px; letter-spacing: -.01em; }
 .brand .dot, .title .dot { color: var(--green); }
 .tagline { color: var(--ink-soft); max-width: 22em; }
 
@@ -47,7 +47,7 @@ html, body {
   border-bottom: 1px solid var(--line);
 }
 .tb-left { display: flex; align-items: center; gap: 8px; }
-.title { font-family: "Fraunces", Georgia, serif; font-weight: 600; font-size: 22px; letter-spacing: -.01em; }
+.title { font-family: "Fraunces", "Noto Serif TC", Georgia, serif; font-weight: 600; font-size: 22px; letter-spacing: -.01em; }
 .tb-right { display: flex; align-items: center; gap: 4px; }
 
 .icon-btn {
@@ -268,6 +268,8 @@ body.subview #bottom-nav { display: none; }
   margin: 0 6px;
 }
 .tb-spacer { width: 38px; flex: 0 0 auto; }
+/* 詳情頁標題是「菜名」，用襯線；採購單等功能頁標題維持原樣 */
+#detail-title { font-family: "Fraunces", "Noto Serif TC", Georgia, serif; }
 .icon-btn .material-symbols-outlined { font-size: 22px; }
 
 /* ---------- 食譜清單 ---------- */
@@ -281,7 +283,7 @@ body.subview #bottom-nav { display: none; }
 .rr-check { flex: 0 0 auto; display: flex; align-items: center; }
 .rr-cb { pointer-events: none; }
 .rr-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
-.rr-name { font-weight: 600; }
+.rr-name { font-family: "Fraunces", "Noto Serif TC", Georgia, serif; font-weight: 600; font-size: 16px; }
 .rr-meta { font-size: 13px; color: var(--ink-soft); }
 .rr-arrow { color: var(--ink-soft); font-size: 22px; }
 
@@ -389,3 +391,14 @@ body.subview #bottom-nav { display: none; }
 
 /* 採購單頁的空狀態置中一點 */
 #purchase-body .rd-empty { text-align: center; }
+
+/* ---------- AI 找食譜視窗 ---------- */
+.icon-ai { font-size: 18px; }
+.ai-loading { text-align: center; padding: 26px 0; color: var(--ink-soft); }
+.ai-loading .spinner { margin: 0 auto 14px; }
+.ai-loading p { margin: 0; }
+.ai-err { color: var(--red); font-size: 13px; margin: -4px 0 10px; }
+.ai-tip { font-size: 12px; color: var(--ink-soft); margin: 10px 0 0; }
+.ap-title { font-size: 20px; font-weight: 700; font-family: "Fraunces", "Noto Serif TC", Georgia, serif; margin-bottom: 10px; }
+.ai-actions { display: flex; gap: 10px; margin-top: 18px; }
+.ai-actions .btn { flex: 1; }
