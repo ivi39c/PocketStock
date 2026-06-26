@@ -71,6 +71,9 @@ const InventoryApiClient = {
   recipeAISave(recipe, ingredients) {
     return this._request({ action: 'recipeAISave', recipe: recipe, ingredients: ingredients });
   },
+  recipeDelete(id) {
+    return this._request({ action: 'recipeDelete', recipeId: id });
+  },
 
   // ── 核心：送出請求 + 處理回應（_isRetry 用來限制只重試一次）──
   async _request(payload, _isRetry) {
