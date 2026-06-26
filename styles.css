@@ -402,3 +402,24 @@ body.subview #bottom-nav { display: none; }
 .ap-title { font-size: 20px; font-weight: 700; font-family: "Fraunces", "Noto Serif TC", Georgia, serif; margin-bottom: 10px; }
 .ai-actions { display: flex; gap: 10px; margin-top: 18px; }
 .ai-actions .btn { flex: 1; }
+
+/* ---------- 骨架屏（載入中的灰色佔位）---------- */
+.sk {
+  display: block; border-radius: 6px;
+  background: linear-gradient(90deg, #ECE7DD 25%, #F7F3EC 37%, #ECE7DD 63%);
+  background-size: 400% 100%;
+  animation: sk-shimmer 1.4s linear infinite;
+}
+@keyframes sk-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: 0 50%; } }
+.sk-row { pointer-events: none; }
+.sk-name { width: 45%; height: 17px; margin-bottom: 8px; }
+.sk-meta { width: 28%; height: 12px; }
+
+/* ---------- 視窗內的下拉選單（分類）---------- */
+.field select {
+  width: 100%; padding: 10px 12px; height: 44px; font-size: 16px; color: var(--ink);
+  background: #fff; border: 1px solid var(--line); border-radius: 10px; outline: none;
+  box-sizing: border-box; cursor: pointer;
+}
+.field select:focus { border-color: var(--green); }
+.field select:invalid { color: var(--ink-soft); }   /* 還沒選時，placeholder 呈灰色 */
