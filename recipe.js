@@ -225,7 +225,36 @@ function renderDetail(d) {
     html += '</div>';
   }
 
+  // 刪除這份食譜
+  html += '<div class="rd-danger"><button class="btn-delete-recipe" id="btn-del-recipe">' +
+            '<span class="material-symbols-rounded">delete</span>刪除這份食譜</button></div>';
+
   document.getElementById('recipe-detail-body').innerHTML = html;
+
+  const delBtn = document.getElementById('btn-del-recipe');
+  if (delBtn) delBtn.addEventListener('click', function () { confirmDeleteRecipe(r); });
+}
+
+/* 刪除確認 + 執行 */
+async function confirmDeleteRecipe(r) {
+  const name = r.recipe_name || '這份食譜';
+  if (!window.confirm('確定要刪除「' + name + '」嗎？\n刪除後無法復原。')) return;
+
+  const id = r.recipe_id || RecipeState.currentDetailId;
+  if (!id) return;
+  try {
+    await InventoryApiClient.recipeDelete(id);
+    toast('已刪除：' + name, 'success');
+    // 清掉本地快取與採購單中的這道菜
+    delete RecipeState.details[id];
+    RecipeState.cart.delete(id);
+    RecipeState.selectedIds.delete(id);
+    RecipeState.loaded = false;     // 強制下次重抓
+    View.show('recipe');            // 回到食譜清單
+    await loadRecipes();
+  } catch (err) {
+    toast('刪除失敗：' + (err.message || '未知錯誤'), 'error');
+  }
 }
 
 function addCurrentDetailToCart() {
