@@ -379,7 +379,14 @@ function openAddModal() {
     '<label class="field full">名稱<input id="m-name" type="text" placeholder="例如：雞蛋" autocomplete="off"></label>' +
     '<div class="grid2">' +
       '<label class="field">數量<input id="m-qty" class="num" type="text" placeholder="例如：2顆 / 0" autocomplete="off"></label>' +
-      '<label class="field">分類<input id="m-category" list="category-options" placeholder="選擇或輸入" autocomplete="off"></label>' +
+      '<label class="field">分類' +
+        '<select id="m-category" class="m-select">' +
+          '<option value="">請選擇分類</option>' +
+          InventoryStore.state.categories.map(function (c) {
+            return '<option value="' + escAttr(c) + '">' + esc(c) + '</option>';
+          }).join('') +
+        '</select>' +
+      '</label>' +
     '</div>' +
     '<label class="field full">有效日期（選填）<input id="m-expiry" class="num" type="date"></label>' +
     '<div class="modal-actions"><button class="btn btn-primary" id="m-add" data-lock>新增</button></div>'
