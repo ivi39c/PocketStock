@@ -10,6 +10,7 @@
 const RecipeState = {
   recipes: [],
   loaded: false,
+  synonyms: {},             // 食材對照表（別名小寫 -> 標準名），庫存比對用
   filterText: '',           // 搜尋關鍵字
   aiDraft: null,            // AI 生成、待確認的食譜
   aiQuery: '',              // 上次輸入的菜名
@@ -57,8 +58,9 @@ async function loadRecipes() {
   document.getElementById('recipe-empty').style.display = 'none';
   setRecipeLoading(true);
   try {
-    const recipes = await InventoryApiClient.recipeList();
-    RecipeState.recipes = recipes;
+    const res = await InventoryApiClient.recipeList();
+    RecipeState.recipes = res.recipes || [];
+    RecipeState.synonyms = res.synonyms || {};
     RecipeState.loaded = true;
     renderRecipeList();
   } catch (err) {
@@ -315,10 +317,29 @@ function parseQtyUnit(s) {
   return { num: qtyToNumber(m[1]), unit: (m[2] || '').trim(), raw: s };
 }
 
+/* 用對照表把名稱正規化成標準名（土豆 -> 馬鈴薯）；對不到回原名 */
+function normalizeName(name) {
+  const raw = String(name == null ? '' : name).trim();
+  if (!raw) return raw;
+  const syn = RecipeState.synonyms || {};
+  return syn[raw.toLowerCase()] || raw;
+}
+
+/* 庫存「標準名 -> 品項」索引（同名取第一筆）；用名字比對庫存時用 */
+function inventoryByName() {
+  const m = {};
+  ((InventoryStore && InventoryStore.state && InventoryStore.state.items) || []).forEach(function (it) {
+    const key = normalizeName(it.name);
+    if (key && !m[key]) m[key] = it;
+  });
+  return m;
+}
+
 /* 合併所有食材（換算 + 加總）並比對庫存，回傳採購建議清單 */
 function buildPurchaseItems() {
   const people = RecipeState.people;
   const invMap = inventoryById();
+  const invName = inventoryByName();
   const map = {};   // key -> { name, unit, itemId, needSum, needHasNum, texts[] }
   const order = [];
 
@@ -330,9 +351,10 @@ function buildPurchaseItems() {
     const factor = people / base;
 
     d.ingredients.forEach(function (ing) {
+      const nm = normalizeName(ing.ingredient_name);   // 土豆/馬鈴薯 統一成標準名再合併
       const unit = ing.unit || '';
-      const key = ing.ingredient_name + '\u0001' + unit;
-      if (!map[key]) { map[key] = { name: ing.ingredient_name, unit: unit, itemId: '', needSum: 0, needHasNum: false, texts: [] }; order.push(key); }
+      const key = nm + '\u0001' + unit;
+      if (!map[key]) { map[key] = { name: nm, unit: unit, itemId: '', needSum: 0, needHasNum: false, texts: [] }; order.push(key); }
       if (ing.item_id && !map[key].itemId) map[key].itemId = ing.item_id;
       const n = qtyToNumber(ing.qty);
       if (isNaN(n)) {
@@ -347,7 +369,9 @@ function buildPurchaseItems() {
 
   return order.map(function (key) {
     const it = map[key];
-    const inv = it.itemId ? invMap[it.itemId] : null;
+    // 先用 item_id 比對；沒有就用標準名去找庫存（讓 AI 食譜也對得到）
+    let inv = it.itemId ? invMap[it.itemId] : null;
+    if (!inv) inv = invName[it.name] || null;
     let status = 'no-data', haveRaw = '', buyNum = null;
 
     if (inv) {
