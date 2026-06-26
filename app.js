@@ -381,7 +381,6 @@ function openAddModal() {
       '<label class="field">數量<input id="m-qty" class="num" type="text" placeholder="例如：2顆 / 0" autocomplete="off"></label>' +
       '<label class="field">分類' +
         '<select id="m-category" class="m-select">' +
-          '<option value="">請選擇分類</option>' +
           InventoryStore.state.categories.map(function (c) {
             return '<option value="' + escAttr(c) + '">' + esc(c) + '</option>';
           }).join('') +
