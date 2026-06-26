@@ -422,4 +422,3 @@ body.subview #bottom-nav { display: none; }
   box-sizing: border-box; cursor: pointer;
 }
 .field select:focus { border-color: var(--green); }
-.field select:invalid { color: var(--ink-soft); }   /* 還沒選時，placeholder 呈灰色 */
