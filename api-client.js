@@ -151,7 +151,10 @@ const InventoryApiClient = {
     // save  → { id, name }
     // commit→ { updated, deleted, failed, failedItems }
     if (action === 'recipeList') {
-      return (data && data.recipes) || [];
+      return {
+        recipes: (data && data.recipes) || [],
+        synonyms: (data && data.synonyms) || {},
+      };
     }
     if (action === 'recipeDetail') {
       return {
