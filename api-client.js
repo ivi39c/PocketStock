@@ -56,6 +56,11 @@ const InventoryApiClient = {
     });
   },
 
+  // ── 更新記錄（讀 Log）──
+  logList() {
+    return this._request({ action: 'logList' });
+  },
+
   // ── 食譜（Sprint 2）──
   recipeList() {
     return this._request({ action: 'recipeList' });
@@ -153,6 +158,9 @@ const InventoryApiClient = {
 
     // save  → { id, name }
     // commit→ { updated, deleted, failed, failedItems }
+    if (action === 'logList') {
+      return (data && data.logs) || [];
+    }
     if (action === 'recipeList') {
       return {
         recipes: (data && data.recipes) || [],
