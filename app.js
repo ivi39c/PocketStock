@@ -433,6 +433,29 @@ function openHelp() {
   );
 }
 
+/* ====== 更新记录 ====== */
+async function openLogModal() {
+  openModal('更新記錄', '<div id="log-body" class="log-loading">讀取中…</div>');
+  try {
+    const logs = await InventoryApiClient.logList();
+    const box = document.getElementById('log-body');
+    if (!box) return;
+    if (!logs.length) { box.className = ''; box.innerHTML = '<p class="log-empty">目前沒有記錄</p>'; return; }
+    box.className = 'log-list';
+    box.innerHTML = logs.map(function (g) {
+      return '<div class="log-row">' +
+               '<div class="log-top"><span class="log-act">' + esc(g.action || '') + '</span>' +
+               '<span class="log-time">' + esc(g.time || '') + '</span></div>' +
+               '<div class="log-user">' + esc(g.user || '') + '</div>' +
+               (g.content ? '<div class="log-content">' + esc(g.content) + '</div>' : '') +
+             '</div>';
+    }).join('');
+  } catch (err) {
+    const box = document.getElementById('log-body');
+    if (box) { box.className = ''; box.innerHTML = '<p class="log-empty">讀取失敗：' + esc(err.message || '未知錯誤') + '</p>'; }
+  }
+}
+
 /* ====== 啟動 ====== */
 window.addEventListener('load', function () {
   initLogin();
@@ -446,7 +469,9 @@ window.addEventListener('load', function () {
   document.getElementById('btn-edit').addEventListener('click', function () {
     if (mode === 'edit') cancelEdit(); else enterEdit();
   });
-  document.getElementById('btn-add').addEventListener('click', openAddModal);
+  document.getElementById('btn-add').addEventListener('click', openAddModal); 
+  const _logBtn = document.getElementById('btn-log');
+    if (_logBtn) _logBtn.addEventListener('click', openLogModal);
 
   document.getElementById('edit-cancel').addEventListener('click', cancelEdit);
   document.getElementById('edit-save').addEventListener('click', saveEdit);
